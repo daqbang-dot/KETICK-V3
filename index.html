@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizPro v6 | Cloud-Ready Suite</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BizPro v6">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1055/1055646.png">
-
-<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkJpelBybyB2NiBBZG1pbiIsCiAgInNob3J0X25hbWUiIjogIkJpelBybyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGYxNzJhIiwKICAidGhlbWVfY29sb3IiOiAiIzBmMTcyYSIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzEwNTUvMTA1NTY0Ni5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdCn0=">
-
+    <title>BizPro v6 | Enterprise Suite</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1055/1055646.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; }
         .sidebar-item:hover { background: #1e293b; border-left: 4px solid #6366f1; }
         .section-animate { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>
@@ -29,63 +28,69 @@
     <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-sm text-center">
             <h2 class="text-2xl font-black mb-4 tracking-tighter">BIZPRO v6</h2>
-            <input type="password" id="admin-password" class="w-full p-3 border rounded-xl mb-4 text-center outline-none focus:ring-2 focus:ring-indigo-500" placeholder="77ituape?">
+            <input type="password" id="admin-password" class="w-full p-3 border rounded-xl mb-4 text-center outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Password Admin">
             <button onclick="checkLogin()" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-indigo-700 transition">UNLOCK SYSTEM</button>
         </div>
     </div>
 
-    <aside class="w-64 bg-slate-900 text-white sticky top-0 h-screen p-5 shrink-0 no-print">
+    <aside class="w-64 bg-slate-900 text-white sticky top-0 h-screen p-5 shrink-0 no-print flex flex-col">
         <div class="mb-10 px-2">
-            <h1 class="text-2xl font-black text-indigo-400">KETICK V3 <span class="text-white text-[10px] border border-white px-1">V6</span></h1>
-            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1 italic">Ultimate Edition</p>
+            <h1 class="text-2xl font-black text-indigo-400 italic">BIZPRO <span class="text-white text-[10px] border border-white px-1 font-normal">V6</span></h1>
+            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Enterprise Edition</p>
         </div>
-        <nav class="space-y-1 text-sm font-semibold">
-            <button onclick="showSection('dashboard')" class="w-full text-left p-3 rounded sidebar-item transition"><i class="fas fa-chart-pie mr-3"></i> Dashboard</button>
+        <nav class="space-y-1 text-sm font-semibold flex-1">
+            <button onclick="showSection('dashboard')" class="w-full text-left p-3 rounded sidebar-item transition"><i class="fas fa-chart-line mr-3"></i> Dashboard</button>
             <button onclick="showSection('inventory')" class="w-full text-left p-3 rounded sidebar-item transition"><i class="fas fa-boxes mr-3"></i> Inventory</button>
-            <button onclick="showSection('client')" class="w-full text-left p-3 rounded sidebar-item transition"><i class="fas fa-address-book mr-3"></i> Clients</button>
+            <button onclick="showSection('crm')" class="w-full text-left p-3 rounded sidebar-item transition"><i class="fas fa-users-cog mr-3"></i> CRM Database</button>
             <button onclick="showSection('billing')" class="w-full text-left p-3 rounded sidebar-item transition"><i class="fas fa-file-invoice-dollar mr-3"></i> Billing</button>
+            <button onclick="showSection('blast')" class="w-full text-left p-3 rounded sidebar-item transition text-emerald-400"><i class="fab fa-whatsapp mr-3"></i> WhatsApp Blast</button>
             <button onclick="showSection('history')" class="w-full text-left p-3 rounded sidebar-item transition"><i class="fas fa-history mr-3"></i> History</button>
         </nav>
-        <div class="absolute bottom-5 left-5 right-5 space-y-2">
-            <button onclick="exportData()" class="w-full bg-white/10 p-2 rounded-lg text-[10px] font-bold hover:bg-white/20"><i class="fas fa-download mr-2"></i> EXPORT DATA</button>
-            <button onclick="document.getElementById('import-file').click()" class="w-full bg-indigo-600 p-2 rounded-lg text-[10px] font-bold hover:bg-indigo-700"><i class="fas fa-upload mr-2"></i> IMPORT DATA</button>
+        <div class="mt-auto space-y-2 pt-5 border-t border-slate-800">
+            <button onclick="exportData()" class="w-full bg-white/5 p-2 rounded-lg text-[10px] font-bold hover:bg-white/10"><i class="fas fa-cloud-download-alt mr-2"></i> EXPORT DATA</button>
+            <button onclick="document.getElementById('import-file').click()" class="w-full bg-indigo-600/20 text-indigo-400 p-2 rounded-lg text-[10px] font-bold hover:bg-indigo-600/40"><i class="fas fa-cloud-upload-alt mr-2"></i> IMPORT DATA</button>
             <input type="file" id="import-file" class="hidden" onchange="importData(event)">
         </div>
     </aside>
 
-    <main class="flex-1 p-8 overflow-y-auto">
+    <main class="flex-1 p-8 overflow-y-auto bg-slate-50">
         
         <section id="dashboard-section" class="section section-animate">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border">
-                    <h3 class="font-bold text-slate-400 uppercase text-[10px] tracking-widest mb-4">Weekly Revenue</h3>
+                <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-slate-800 uppercase text-xs tracking-widest">Performance Analytics</h3>
+                        <select class="text-[10px] font-bold border rounded-lg p-1 bg-slate-50">
+                            <option>Last 7 Transactions</option>
+                        </select>
+                    </div>
                     <div style="height: 300px;"><canvas id="mainAnalyticsChart"></canvas></div>
                 </div>
                 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border">
-                    <h3 class="font-bold text-indigo-600 uppercase text-[10px] mb-4">Biz Profile & Assets</h3>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-indigo-600 uppercase text-[10px] mb-4 tracking-widest">Business Profile Settings</h3>
                     <div class="space-y-3">
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="p-2 border rounded-xl text-center">
-                                <label class="text-[8px] font-bold block mb-1">LOGO</label>
-                                <input type="file" onchange="uploadProfileImg(this, 'logo')" class="text-[8px] w-full">
-                            </div>
-                            <div class="p-2 border rounded-xl text-center">
-                                <label class="text-[8px] font-bold block mb-1">COP</label>
-                                <input type="file" onchange="uploadProfileImg(this, 'cop')" class="text-[8px] w-full">
-                            </div>
+                        <div class="flex gap-2">
+                            <label class="flex-1 bg-slate-50 p-2 rounded-xl border border-dashed text-center cursor-pointer hover:bg-slate-100">
+                                <span class="text-[9px] font-bold block text-slate-400">UPLOAD LOGO</span>
+                                <input type="file" onchange="uploadProfileImg(this, 'logo')" class="hidden">
+                            </label>
+                            <label class="flex-1 bg-slate-50 p-2 rounded-xl border border-dashed text-center cursor-pointer hover:bg-slate-100">
+                                <span class="text-[9px] font-bold block text-slate-400">UPLOAD COP</span>
+                                <input type="file" onchange="uploadProfileImg(this, 'cop')" class="hidden">
+                            </label>
                         </div>
-                        <input type="text" id="set-biz-name" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 rounded-lg text-xs font-bold" placeholder="Nama Bisnes">
-                        <textarea id="set-biz-addr" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 rounded-lg text-[10px] h-16" placeholder="Alamat & Reg"></textarea>
-                        <input type="text" id="set-biz-bank" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 rounded-lg text-xs" placeholder="Maybank 123456789">
+                        <input type="text" id="set-biz-name" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 rounded-xl text-xs font-black border-none focus:ring-2 focus:ring-indigo-500" placeholder="Business Name">
+                        <textarea id="set-biz-addr" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 rounded-xl text-[10px] h-20 border-none" placeholder="Address, SSM & Contact No"></textarea>
+                        <input type="text" id="set-biz-bank" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 rounded-xl text-xs border-none" placeholder="Bank Name & Account No">
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-3xl shadow-sm border">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-black text-slate-800 text-sm italic underline">CALENDAR / JOB LIST</h3>
-                    <button onclick="addJob()" class="bg-slate-900 text-white px-4 py-1 rounded-full text-[10px]">+ Add Reminder</button>
+                    <h3 class="font-black text-slate-800 text-sm tracking-tight"><i class="far fa-calendar-alt mr-2 text-indigo-500"></i>JOB REMINDERS</h3>
+                    <button onclick="addJob()" class="bg-slate-900 text-white px-4 py-1 rounded-full text-[10px] hover:bg-indigo-600 transition">+ New Task</button>
                 </div>
                 <div id="calendar-widget" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
             </div>
@@ -93,83 +98,125 @@
 
         <section id="inventory-section" class="section hidden section-animate">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold">Inventory & Digital Assets</h2>
-                <button onclick="addInventoryItem()" class="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-indigo-200">+ New Product</button>
+                <h2 class="text-2xl font-black tracking-tight text-slate-800">Inventory Management</h2>
+                <button onclick="addInventoryItem()" class="bg-indigo-600 text-white px-6 py-2 rounded-2xl text-sm font-bold shadow-lg shadow-indigo-100 hover:scale-105 transition">+ Add Product</button>
             </div>
-            <div class="bg-white rounded-3xl shadow-sm overflow-hidden border">
+            <div class="bg-white rounded-3xl shadow-sm overflow-hidden border border-slate-200">
                 <table class="w-full text-left text-sm">
                     <thead class="bg-slate-50 font-black text-[10px] text-slate-500 border-b uppercase">
-                        <tr><th class="p-4 w-24 text-center">Image</th><th class="p-4">Item & Detailed Specs</th><th class="p-4 w-24">Cost</th><th class="p-4 w-24">Price</th><th class="p-4 w-20">Stock</th><th class="p-4 w-20">Del</th></tr>
+                        <tr><th class="p-4 w-24">Image</th><th class="p-4">Item Details</th><th class="p-4 w-24">Cost</th><th class="p-4 w-24">Price</th><th class="p-4 w-20">Stock</th><th class="p-4 w-10"></th></tr>
                     </thead>
                     <tbody id="inventory-table-body"></tbody>
                 </table>
             </div>
         </section>
 
-        <section id="client-section" class="section hidden section-animate">
-            <h2 class="text-2xl font-bold mb-6">Client Database</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="client-list-grid"></div>
-            <button onclick="addClient()" class="mt-6 bg-slate-900 text-white px-6 py-2 rounded-xl text-sm">+ Add New Client</button>
+        <section id="crm-section" class="section hidden section-animate">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black tracking-tight text-slate-800">CRM Database</h2>
+                <button onclick="addClient()" class="bg-slate-900 text-white px-6 py-2 rounded-2xl text-sm font-bold shadow-lg">+ New Lead</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4" id="crm-list-grid"></div>
+        </section>
+
+        <section id="blast-section" class="section hidden section-animate">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-2xl font-black mb-6 text-emerald-600"><i class="fab fa-whatsapp mr-2"></i>Smart WhatsApp Blast</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-2">1. Select Recipients (CRM)</label>
+                        <div id="blast-client-list" class="space-y-2 h-48 overflow-y-auto border p-3 rounded-xl mb-4 bg-slate-50 shadow-inner"></div>
+                        
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-2">2. Message Content</label>
+                        <p class="text-[9px] text-indigo-500 mb-2">Use {name} to personalize salutation.</p>
+                        <textarea id="blast-msg" class="w-full p-4 bg-slate-50 rounded-2xl text-sm h-32 border-none focus:ring-2 focus:ring-emerald-500" placeholder="Hello {name}, we have a special offer for you!"></textarea>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col">
+                        <label class="text-[10px] font-black text-slate-400 uppercase block mb-2">3. Configuration</label>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <span class="text-[9px] font-bold block text-slate-400 mb-1">DELAY (SECONDS)</span>
+                                <input type="number" id="blast-delay" value="3" class="w-full bg-transparent font-bold text-slate-800 outline-none">
+                            </div>
+                            <div class="p-3 bg-slate-50 rounded-xl">
+                                <span class="text-[9px] font-bold block text-slate-400 mb-1">PER CLICK LIMIT</span>
+                                <input type="number" value="30" readonly class="w-full bg-transparent font-bold text-slate-400 outline-none">
+                            </div>
+                        </div>
+
+                        <div class="mt-auto space-y-3">
+                            <div id="blast-status" class="text-center text-[10px] font-bold text-slate-400 italic">Ready to blast...</div>
+                            <button onclick="startBlast()" id="btn-blast" class="w-full bg-emerald-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-emerald-100 hover:bg-emerald-600 transition flex items-center justify-center gap-3">
+                                <i class="fas fa-paper-plane"></i> START BLASTING
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <section id="billing-section" class="section hidden section-animate">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="no-print space-y-4">
                     <div class="bg-white p-6 rounded-3xl border shadow-sm">
-                        <label class="text-[9px] font-black text-slate-400 mb-1 block uppercase">Select Client</label>
+                        <label class="text-[9px] font-black text-slate-400 mb-1 block uppercase tracking-widest">Select Client (CRM)</label>
                         <select id="bill-client-select" class="w-full p-3 bg-slate-50 rounded-xl mb-4 text-sm font-bold border-none outline-none focus:ring-2 focus:ring-indigo-500"></select>
-                        <label class="text-[9px] font-black text-slate-400 mb-1 block uppercase">Doc Type</label>
+                        
+                        <label class="text-[9px] font-black text-slate-400 mb-1 block uppercase tracking-widest">Doc Type</label>
                         <select id="billing-type" onchange="updateBillingTheme()" class="w-full p-3 bg-indigo-50 text-indigo-600 rounded-xl mb-6 font-black tracking-widest border-none outline-none"></select>
+                        
                         <div id="billing-items-input" class="space-y-2 mb-4"></div>
-                        <button onclick="addBillingItemRow()" class="w-full border-2 border-dashed border-indigo-200 p-2 rounded-xl text-[10px] font-bold text-indigo-400 hover:bg-indigo-50">+ Add Item to List</button>
+                        <button onclick="addBillingItemRow()" class="w-full border-2 border-dashed border-indigo-200 p-2 rounded-xl text-[10px] font-bold text-indigo-400 hover:bg-indigo-50 transition">+ Add Product from Inventory</button>
                     </div>
-                    <button onclick="generateFinalBilling()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black shadow-xl hover:bg-slate-800 transition">CONFIRM & SAVE RECORD</button>
+                    
+                    <button onclick="generateFinalBilling()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black shadow-xl hover:bg-indigo-600 transition">CONFIRM & SAVE RECORD</button>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="exportAndShare()" class="bg-indigo-600 text-white p-3 rounded-xl font-bold text-xs"><i class="fas fa-file-pdf mr-2"></i>SAVE PDF</button>
-                        <button onclick="shareWhatsapp()" class="bg-emerald-500 text-white p-3 rounded-xl font-bold text-xs"><i class="fab fa-whatsapp mr-2"></i>WHATSAPP</button>
+                        <button onclick="exportAndShare()" class="bg-indigo-600 text-white p-3 rounded-xl font-bold text-xs hover:bg-indigo-700"><i class="fas fa-file-pdf mr-2"></i>SAVE PDF</button>
+                        <button onclick="shareWhatsapp()" class="bg-emerald-500 text-white p-3 rounded-xl font-bold text-xs hover:bg-emerald-600"><i class="fab fa-whatsapp mr-2"></i>SEND WA</button>
                     </div>
                 </div>
 
-                <div id="print-area" class="lg:col-span-2 bg-white p-12 border shadow-sm relative min-h-[1100px] rounded-3xl overflow-hidden">
+                <div id="print-area" class="lg:col-span-2 bg-white p-12 border shadow-lg relative min-h-[1100px] rounded-[40px] overflow-hidden">
                     <div id="watermark" class="absolute inset-0 flex items-center justify-center opacity-[0.03] rotate-45 text-[150px] font-black pointer-events-none uppercase"></div>
                     <div class="flex justify-between items-start mb-16 relative z-10">
                         <div class="flex items-center gap-4">
-                            <img id="prev-logo" src="" class="w-24 h-24 object-contain hidden border p-2 rounded-2xl">
+                            <img id="prev-logo" src="" class="w-24 h-24 object-contain hidden border-2 border-slate-100 p-2 rounded-2xl">
                             <div>
                                 <h2 class="font-black text-3xl uppercase text-slate-900 tracking-tighter" id="prev-biz-name">---</h2>
-                                <p class="text-xs mt-4 max-w-[300px] text-slate-500 font-medium leading-relaxed whitespace-pre-line" id="prev-biz-addr">---</p>
+                                <p class="text-xs mt-4 max-w-[300px] text-slate-500 font-medium leading-relaxed whitespace-pre-line italic" id="prev-biz-addr">---</p>
                             </div>
                         </div>
                         <div class="text-right">
                             <h1 id="preview-title" class="text-6xl font-black italic tracking-tighter leading-none">QUO</h1>
-                            <p class="text-[10px] font-bold text-slate-400 mt-6 uppercase">Document No.</p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-6 uppercase tracking-[0.2em]">Ref No.</p>
                             <p id="ref-no" class="font-black text-2xl text-indigo-600">---</p>
-                            <p class="text-[10px] font-bold mt-2 text-slate-500">DATE: <span id="prev-date" class="text-slate-900"></span></p>
+                            <p class="text-[10px] font-bold mt-2 text-slate-500 uppercase">DATE: <span id="prev-date" class="text-slate-900"></span></p>
                         </div>
                     </div>
                     
                     <div class="grid grid-cols-2 mb-12 gap-10">
-                        <div class="bg-slate-50 p-6 rounded-2xl border-l-8 border-indigo-600">
+                        <div class="bg-slate-50 p-6 rounded-2xl border-l-8 border-indigo-600 shadow-sm">
                             <p class="text-[9px] font-black text-indigo-400 uppercase mb-3 tracking-widest">Client / Bill To:</p>
                             <p id="bill-to-client" class="font-bold text-slate-800 text-sm whitespace-pre-line leading-tight">---</p>
                         </div>
                         <div class="p-6 text-right">
-                            <p class="text-[9px] font-black text-slate-400 uppercase mb-3 tracking-widest">Bank Payment Details:</p>
+                            <p class="text-[9px] font-black text-slate-400 uppercase mb-3 tracking-widest">Payment Info:</p>
                             <p id="prev-biz-bank" class="text-xs font-bold text-slate-600 italic">---</p>
                         </div>
                     </div>
 
                     <table class="w-full mb-20 text-sm">
                         <thead id="billing-thead" class="text-white">
-                            <tr class="text-left text-[10px] uppercase tracking-widest"><th class="p-4 rounded-tl-2xl">Description</th><th class="p-4 text-center">Qty</th><th class="p-4 text-right">Price (RM)</th><th class="p-4 text-right rounded-tr-2xl">Total (RM)</th></tr>
+                            <tr class="text-left text-[10px] uppercase tracking-widest"><th class="p-5 rounded-tl-3xl">Description</th><th class="p-5 text-center">Qty</th><th class="p-5 text-right">Price (RM)</th><th class="p-5 text-right rounded-tr-3xl">Total (RM)</th></tr>
                         </thead>
                         <tbody id="preview-items-body"></tbody>
                     </table>
 
                     <div class="flex justify-between items-end">
-                        <img id="prev-cop" src="" class="w-40 h-40 object-contain hidden opacity-80 filter grayscale brightness-50">
-                        <div class="w-72 bg-slate-900 p-8 rounded-[40px] text-right text-white shadow-2xl shadow-indigo-100">
-                            <p class="text-[10px] font-bold text-white/40 uppercase mb-1 tracking-widest">Amount Payable</p>
+                        <img id="prev-cop" src="" class="w-40 h-40 object-contain hidden opacity-70 filter grayscale contrast-125">
+                        <div class="w-80 bg-slate-900 p-8 rounded-[45px] text-right text-white shadow-2xl">
+                            <p class="text-[10px] font-bold text-white/40 uppercase mb-1 tracking-widest">Total Amount Payable</p>
                             <h2 class="text-4xl font-black" id="grandtotal">RM 0.00</h2>
                         </div>
                     </div>
@@ -178,16 +225,17 @@
         </section>
 
         <section id="history-section" class="section hidden section-animate">
-            <h2 class="text-2xl font-black mb-6 tracking-tight">SALES HISTORY LOG</h2>
-            <div class="bg-white rounded-3xl shadow-sm border overflow-hidden">
+            <h2 class="text-2xl font-black mb-6 tracking-tight">Financial Records</h2>
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                 <table class="w-full text-left text-xs">
                     <thead class="bg-slate-900 text-white font-bold uppercase tracking-widest">
-                        <tr><th class="p-4">Date</th><th class="p-4">Reference</th><th class="p-4">Customer</th><th class="p-4 text-right">Total</th><th class="p-4 text-right">Profit</th><th class="p-4 text-center">Action</th></tr>
+                        <tr><th class="p-5">Date</th><th class="p-5">Reference</th><th class="p-5">Client Name</th><th class="p-5 text-right">Amount</th><th class="p-5 text-right text-emerald-300">Net Profit</th><th class="p-5 text-center">Action</th></tr>
                     </thead>
                     <tbody id="history-body"></tbody>
                 </table>
             </div>
         </section>
+
     </main>
 
     <script>
@@ -210,36 +258,23 @@
             localStorage.setItem('v6_jobs', JSON.stringify(db.jobs));
         }
 
-        function checkLogin() { if(document.getElementById('admin-password').value === "Admin123") { document.getElementById('login-overlay').classList.add('hidden'); initApp(); } }
+        function checkLogin() { 
+            if(document.getElementById('admin-password').value === "Admin123") { 
+                document.getElementById('login-overlay').classList.add('hidden'); 
+                initApp(); 
+            } else { alert("Wrong Access Code!"); }
+        }
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.getElementById(id + '-section').classList.remove('hidden');
             if(id === 'billing') populateBillingClients();
+            if(id === 'crm') renderCRM();
+            if(id === 'blast') renderBlastClientList();
             if(id === 'dashboard') renderJobs();
         }
 
-        // --- IMPORT/EXPORT (Cloud Sync Alternative) ---
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `BizPro_Backup_${new Date().toLocaleDateString()}.json`);
-            dlAnchorElem.click();
-        }
-
-        function importData(event) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imported = JSON.parse(e.target.result);
-                if(confirm("Amaran: Ini akan menggantikan semua data sedia ada! Teruskan?")) {
-                    db = imported; save(); location.reload();
-                }
-            };
-            reader.readAsText(event.target.files[0]);
-        }
-
-        // --- DASHBOARD ---
+        // --- DASHBOARD FUNCTIONS ---
         function uploadProfileImg(input, type) {
             const reader = new FileReader();
             reader.onload = (e) => { db.prof[type] = e.target.result; save(); updateBizProfile(); };
@@ -250,30 +285,30 @@
             db.prof.name = document.getElementById('set-biz-name').value;
             db.prof.addr = document.getElementById('set-biz-addr').value;
             db.prof.bank = document.getElementById('set-biz-bank').value;
-            document.getElementById('prev-biz-name').innerText = db.prof.name || "NAMA SYARIKAT";
-            document.getElementById('prev-biz-addr').innerText = db.prof.addr || "ALAMAT PERNIAGAAN";
-            document.getElementById('prev-biz-bank').innerText = db.prof.bank || "BANK ACCOUNT INFO";
+            document.getElementById('prev-biz-name').innerText = db.prof.name || "COMPANY NAME";
+            document.getElementById('prev-biz-addr').innerText = db.prof.addr || "BUSINESS ADDRESS";
+            document.getElementById('prev-biz-bank').innerText = db.prof.bank || "BANK DETAILS";
             if(db.prof.logo) { document.getElementById('prev-logo').src = db.prof.logo; document.getElementById('prev-logo').classList.remove('hidden'); }
             if(db.prof.cop) { document.getElementById('prev-cop').src = db.prof.cop; document.getElementById('prev-cop').classList.remove('hidden'); }
             save();
         }
 
         function addJob() {
-            const title = prompt("Reminder/Job Name:"); const date = prompt("Date:");
+            const title = prompt("Reminder/Task:"); const date = prompt("Date (e.g. 25/12):");
             if(title && date) { db.jobs.push({ title, date, id: Date.now() }); save(); renderJobs(); }
         }
         function renderJobs() {
             document.getElementById('calendar-widget').innerHTML = db.jobs.map(j => `
-                <div class="bg-indigo-50 p-4 rounded-2xl border border-indigo-100 relative group animate-pulse hover:animate-none">
-                    <p class="text-[9px] font-black text-indigo-600 uppercase mb-1 tracking-tighter">${j.date}</p>
+                <div class="bg-indigo-50/50 p-4 rounded-3xl border border-indigo-100 relative group transition hover:bg-white hover:shadow-md">
+                    <p class="text-[9px] font-black text-indigo-500 uppercase mb-1">${j.date}</p>
                     <h4 class="font-bold text-slate-800 text-xs">${j.title}</h4>
                     <button onclick="db.jobs = db.jobs.filter(x => x.id !== ${j.id}); save(); renderJobs();" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-check-circle"></i></button>
                 </div>
             `).join('');
         }
 
-        // --- INVENTORY (FIXED DETAIL SAVE) ---
-        function addInventoryItem() { db.inv.push({ id: Date.now(), name: 'New Product', kos: 0, jual: 0, qty: 0, details: [], img: '' }); renderInventory(); }
+        // --- INVENTORY FUNCTIONS ---
+        function addInventoryItem() { db.inv.push({ id: Date.now(), name: 'New Product', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true }); renderInventory(); }
         
         function updateInv(idx, field, val) {
             db.inv[idx][field] = (field === 'name') ? val : parseFloat(val);
@@ -282,13 +317,18 @@
 
         function updateInvDetail(itemIdx, detailIdx, val) {
             db.inv[itemIdx].details[detailIdx] = val;
-            save(); // Direct save on input change
+            save();
         }
 
         function updateInvImg(input, idx) {
             const reader = new FileReader();
             reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); };
             reader.readAsDataURL(input.files[0]);
+        }
+
+        function toggleDetails(idx) {
+            db.inv[idx].showDetails = !db.inv[idx].showDetails;
+            renderInventory();
         }
 
         function renderInventory() {
@@ -303,10 +343,13 @@
                     </td>
                     <td class="p-4">
                         <input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-black border-none w-full bg-transparent focus:ring-0 text-slate-800">
-                        <div class="mt-2 space-y-1">
-                            ${(item.details || []).map((d, dIdx) => `<input type="text" value="${d}" oninput="updateInvDetail(${idx}, ${dIdx}, this.value)" placeholder="Specification/Detail..." class="block text-[10px] border-none bg-indigo-50/50 p-2 w-full rounded-xl focus:bg-white transition outline-none">`).join('')}
+                        <div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">
+                            ${(item.details || []).map((d, dIdx) => `<input type="text" value="${d}" oninput="updateInvDetail(${idx}, ${dIdx}, this.value)" placeholder="Spec Detail..." class="block text-[10px] border-none bg-white p-2 w-full rounded-xl shadow-sm outline-none">`).join('')}
                         </div>
-                        <button onclick="db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] text-indigo-500 font-black mt-2 hover:underline tracking-widest">+ ADD SPECIFICATION</button>
+                        <div class="flex gap-4 mt-2">
+                            <button onclick="db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] text-indigo-500 font-black hover:underline tracking-widest">+ ADD SPEC</button>
+                            <button onclick="toggleDetails(${idx})" class="text-[9px] text-slate-400 font-bold hover:underline tracking-widest">${item.showDetails ? 'HIDE SPEC' : 'SHOW SPEC'}</button>
+                        </div>
                     </td>
                     <td class="p-4"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-full bg-slate-100 p-2 rounded-xl text-xs font-bold border-none"></td>
                     <td class="p-4"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-full bg-indigo-50 p-2 rounded-xl text-xs font-black text-indigo-600 border-none"></td>
@@ -317,7 +360,78 @@
             save();
         }
 
-        // --- BILLING & HISTORY (SMART REF & WHATSAPP) ---
+        // --- CRM & CLIENT FUNCTIONS ---
+        function addClient() { const n = prompt("Customer Name:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
+        
+        function renderCRM() {
+            document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `
+                <div class="bg-white p-6 rounded-[32px] border shadow-sm border-slate-100 group hover:border-indigo-500 transition">
+                    <div class="flex justify-between mb-4">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-black">${c.name.charAt(0)}</div>
+                        <button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-slate-200 hover:text-red-500 transition"><i class="fas fa-times"></i></button>
+                    </div>
+                    <input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-black w-full text-slate-800 outline-none border-none focus:ring-0">
+                    <div class="mt-4 space-y-2">
+                        <div class="flex items-center bg-slate-50 p-2 rounded-xl">
+                            <i class="fas fa-phone text-[10px] text-slate-400 mr-2"></i>
+                            <input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="60123456789" class="text-xs w-full bg-transparent border-none outline-none">
+                        </div>
+                        <div class="flex items-start bg-slate-50 p-2 rounded-xl">
+                            <i class="fas fa-map-marker-alt text-[10px] text-slate-400 mr-2 mt-1"></i>
+                            <textarea onchange="db.cli[${idx}].addr=this.value; save();" placeholder="Client Address" class="text-[10px] w-full bg-transparent border-none outline-none h-12 hide-scrollbar">${c.addr}</textarea>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // --- WHATSAPP BLAST FUNCTIONS ---
+        function renderBlastClientList() {
+            const list = document.getElementById('blast-client-list');
+            list.innerHTML = db.cli.map(c => `
+                <label class="flex items-center p-2 hover:bg-emerald-50 rounded-lg cursor-pointer transition">
+                    <input type="checkbox" class="blast-checkbox mr-3 accent-emerald-500" data-phone="${c.phone}" data-name="${c.name}">
+                    <div class="flex-1">
+                        <p class="text-xs font-black text-slate-700">${c.name}</p>
+                        <p class="text-[10px] text-slate-400">${c.phone}</p>
+                    </div>
+                </label>
+            `).join('');
+        }
+
+        async function startBlast() {
+            const checkboxes = document.querySelectorAll('.blast-checkbox:checked');
+            const msgTemplate = document.getElementById('blast-msg').value;
+            const delay = parseInt(document.getElementById('blast-delay').value) * 1000;
+            const statusBox = document.getElementById('blast-status');
+            const btn = document.getElementById('btn-blast');
+
+            if(checkboxes.length === 0) return alert("Select at least one client!");
+            if(!msgTemplate) return alert("Message cannot be empty!");
+            
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+
+            for(let i = 0; i < checkboxes.length; i++) {
+                if(i >= 30) break; // Limit 30 per click
+                
+                const name = checkboxes[i].dataset.name;
+                const phone = checkboxes[i].dataset.phone;
+                const finalMsg = encodeURIComponent(msgTemplate.replace('{name}', name));
+                
+                statusBox.innerText = `Sending to ${name} (${i+1}/${checkboxes.length})...`;
+                window.open(`https://wa.me/${phone}?text=${finalMsg}`, '_blank');
+                
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+
+            statusBox.innerText = "Blast Sequence Completed!";
+            btn.disabled = false;
+            btn.classList.remove('opacity-50');
+            alert("Blast completed! Ensure popup is allowed in your browser.");
+        }
+
+        // --- BILLING & HISTORY FUNCTIONS ---
         function updateBillingTheme() {
             const type = document.getElementById('billing-type').value;
             const themes = { QUO: '#6366f1', INV: '#f43f5e', REC: '#10b981' };
@@ -329,29 +443,83 @@
             document.getElementById('prev-date').innerText = new Date().toLocaleDateString('en-GB');
         }
 
+        function populateBillingClients() {
+            const sel = document.getElementById('bill-client-select');
+            sel.innerHTML = '<option value="">-- SEARCH CRM CLIENT --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            sel.onchange = () => {
+                const c = db.cli.find(cl => cl.id == sel.value);
+                document.getElementById('bill-to-client').innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---';
+            };
+        }
+
+        function addBillingItemRow() {
+            const area = document.getElementById('billing-items-input');
+            const div = document.createElement('div'); div.className = "flex gap-1 animate-section";
+            div.innerHTML = `
+                <select class="w-3/4 p-2 text-xs bg-slate-100 rounded-xl item-select border-none" onchange="calcBilling()">
+                    <option value="">Product...</option>
+                    ${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}
+                </select>
+                <input type="number" class="w-1/4 p-2 text-xs bg-slate-100 rounded-xl qty-input border-none text-center" value="1" onchange="calcBilling()">
+            `;
+            area.appendChild(div);
+        }
+
+        function calcBilling() {
+            const selects = document.querySelectorAll('.item-select'); const qtys = document.querySelectorAll('.qty-input');
+            const body = document.getElementById('preview-items-body'); body.innerHTML = ''; let grand = 0;
+            selects.forEach((s, idx) => {
+                const item = db.inv.find(i => i.id == s.value);
+                if(item) {
+                    const total = item.jual * qtys[idx].value; grand += total;
+                    let detailHtml = (item.details || []).map(d => d ? `<div class="text-[9px] text-slate-400 font-medium">- ${d}</div>` : '').join('');
+                    body.innerHTML += `<tr class="border-b"><td class="p-5 font-black text-slate-800">${item.name}${detailHtml}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right font-medium">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black text-indigo-600">RM ${total.toFixed(2)}</td></tr>`;
+                }
+            });
+            document.getElementById('grandtotal').innerText = `RM ${grand.toFixed(2)}`;
+        }
+
         function generateFinalBilling() {
             const type = document.getElementById('billing-type').value;
             const selects = document.querySelectorAll('.item-select');
             const qtys = document.querySelectorAll('.qty-input');
             let margin = 0, total = 0;
 
+            if(selects.length === 0) return alert("Add at least one item!");
+
             selects.forEach((s, idx) => {
                 const item = db.inv.find(i => i.id == s.value);
                 const q = parseInt(qtys[idx].value);
-                if(item && type !== 'QUO') {
-                    item.qty -= q; margin += (item.jual - item.kos) * q; total += item.jual * q;
-                } else if(item) { total += item.jual * q; }
+                if(item) {
+                    if(type !== 'QUO') item.qty -= q; 
+                    margin += (item.jual - item.kos) * q; 
+                    total += item.jual * q;
+                }
             });
 
-            db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: `${type}${db.ref[type]}`, rawRef: db.ref[type], type, clientName: document.getElementById('bill-to-client').innerText.split('\n')[0], total, margin });
+            const newRec = {
+                id: Date.now(),
+                date: new Date().toLocaleDateString('en-GB'),
+                ref: `${type}${db.ref[type]}`,
+                rawRef: db.ref[type],
+                type,
+                clientName: document.getElementById('bill-to-client').innerText.split('\n')[0],
+                total,
+                margin
+            };
+
+            db.hist.push(newRec);
             db.ref[type]++;
-            save(); renderHistory(); renderInventory(); updateBillingTheme(); alert("Record Saved Successfully!");
+            save(); renderHistory(); renderInventory(); updateBillingTheme();
+            alert("Record Saved Successfully!");
         }
 
         function deleteRecord(id) {
             const rec = db.hist.find(h => h.id === id);
-            if(confirm(`Delete ${rec.ref}?`)) {
-                if(confirm(`REDO NUMBER? (Set next reference back to ${rec.ref})`)) { db.ref[rec.type] = rec.rawRef; }
+            if(confirm(`Are you sure to delete ${rec.ref}?`)) {
+                if(confirm(`REDO NUMBERING? (Set ${rec.type} counter back to ${rec.rawRef})`)) { 
+                    db.ref[rec.type] = rec.rawRef; 
+                }
                 db.hist = db.hist.filter(h => h.id !== id);
                 save(); renderHistory(); updateBillingTheme();
             }
@@ -362,26 +530,32 @@
             const phone = clientInfo.split('\n')[1] || "";
             const ref = document.getElementById('ref-no').innerText;
             const total = document.getElementById('grandtotal').innerText;
-            const msg = encodeURIComponent(`Salam, saya dari ${db.prof.name}. Berikut adalah ${ref} berjumlah ${total}. Sila semak PDF yang dilampirkan.`);
-            window.open(`https://wa.me/6${phone}?text=${msg}`, '_blank');
+            const msg = encodeURIComponent(`Greetings from ${db.prof.name}.\nAttached is your ${ref} with total amount of ${total}.\nThank you for your support!`);
+            window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
         }
 
         async function exportAndShare() {
             const element = document.getElementById('print-area');
-            const opt = { margin: 0, filename: `${document.getElementById('ref-no').innerText}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+            const opt = { 
+                margin: 0, 
+                filename: `${document.getElementById('ref-no').innerText}.pdf`, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 3 }, 
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
+            };
             await html2pdf().set(opt).from(element).save();
         }
 
         function renderHistory() {
             document.getElementById('history-body').innerHTML = db.hist.map(h => `
                 <tr class="border-b hover:bg-slate-50 transition">
-                    <td class="p-4">${h.date}</td>
-                    <td class="p-4 font-black text-indigo-600">${h.ref}</td>
-                    <td class="p-4 font-bold text-slate-700">${h.clientName}</td>
-                    <td class="p-4 text-right font-black">RM ${h.total.toFixed(2)}</td>
-                    <td class="p-4 text-right text-emerald-600 font-bold">RM ${h.margin.toFixed(2)}</td>
-                    <td class="p-4 text-center">
-                        <button onclick="deleteRecord(${h.id})" class="text-red-400 hover:text-red-600 transition"><i class="fas fa-trash-alt"></i></button>
+                    <td class="p-5">${h.date}</td>
+                    <td class="p-5 font-black text-indigo-600">${h.ref}</td>
+                    <td class="p-5 font-bold text-slate-700">${h.clientName}</td>
+                    <td class="p-5 text-right font-black">RM ${h.total.toFixed(2)}</td>
+                    <td class="p-5 text-right text-emerald-600 font-bold">RM ${h.margin.toFixed(2)}</td>
+                    <td class="p-5 text-center">
+                        <button onclick="deleteRecord(${h.id})" class="text-red-300 hover:text-red-600 transition"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 </tr>
             `).reverse().join('');
@@ -393,75 +567,43 @@
             document.getElementById('set-biz-addr').value = db.prof.addr;
             document.getElementById('set-biz-bank').value = db.prof.bank;
             document.getElementById('billing-type').innerHTML = '<option value="QUO">QUOTATION</option><option value="INV">INVOICE</option><option value="REC">RECEIPT</option>';
-            updateBizProfile(); renderInventory(); renderHistory(); renderJobs(); updateBillingTheme();
-// Ambil 7 rekod terakhir dari history untuk graf
-const recentSales = db.hist.slice(-7);
-const labels = recentSales.map(h => h.ref); // Guna No. Rujukan sebagai label
-const dataValues = recentSales.map(h => h.total); // Guna jumlah RM
-
-new Chart(document.getElementById('mainAnalyticsChart'), {
-    type: 'line',
-    data: { 
-        labels: labels.length > 0 ? labels : ['Tiada Data'], 
-        datasets: [{ 
-            label: 'Jualan (RM)', 
-            data: dataValues.length > 0 ? dataValues : [0], 
-            borderColor: '#6366f1', 
-            borderWidth: 4, 
-            tension: 0.3, 
-            fill: true, 
-            backgroundColor: 'rgba(99, 102, 241, 0.1)',
-            pointBackgroundColor: '#6366f1'
-        }] 
-    },
-    options: { 
-        responsive: true, 
-        maintainAspectRatio: false, 
-        plugins: { legend: { display: false } },
-        scales: { y: { beginAtZero: true } }
-    }
-});
-
-        }
-
-        // Shared Logic from V5
-        function addClient() { const n = prompt("Customer Name:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); renderClients(); } }
-        function renderClients() {
-            document.getElementById('client-list-grid').innerHTML = db.cli.map((c, idx) => `
-                <div class="bg-white p-6 rounded-3xl border shadow-sm border-slate-100">
-                    <input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-black w-full text-indigo-600 outline-none">
-                    <input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="Phone: 0123456789" class="text-xs w-full mt-2 bg-slate-50 p-2 rounded-xl border-none outline-none">
-                    <textarea onchange="db.cli[${idx}].addr=this.value; save();" placeholder="Address" class="text-[10px] w-full mt-2 bg-slate-50 p-2 rounded-xl h-12 outline-none border-none">${c.addr}</textarea>
-                </div>
-            `).join('');
-            save();
-        }
-        function populateBillingClients() {
-            const sel = document.getElementById('bill-client-select');
-            sel.innerHTML = '<option value="">-- CHOOSE CLIENT --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            sel.onchange = () => {
-                const c = db.cli.find(cl => cl.id == sel.value);
-                document.getElementById('bill-to-client').innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---';
-            };
-        }
-        function addBillingItemRow() {
-            const area = document.getElementById('billing-items-input');
-            const div = document.createElement('div'); div.className = "flex gap-1";
-            div.innerHTML = `<select class="w-3/4 p-2 text-xs bg-slate-100 rounded-xl item-select" onchange="calcBilling()"><option value="">Product...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-2 text-xs bg-slate-100 rounded-xl qty-input" value="1" onchange="calcBilling()">`;
-            area.appendChild(div);
-        }
-        function calcBilling() {
-            const selects = document.querySelectorAll('.item-select'); const qtys = document.querySelectorAll('.qty-input');
-            const body = document.getElementById('preview-items-body'); body.innerHTML = ''; let grand = 0;
-            selects.forEach((s, idx) => {
-                const item = db.inv.find(i => i.id == s.value);
-                if(item) {
-                    const total = item.jual * qtys[idx].value; grand += total;
-                    let detailHtml = (item.details || []).map(d => `<div class="text-[9px] text-slate-400 font-medium">- ${d}</div>`).join('');
-                    body.innerHTML += `<tr class="border-b"><td class="p-4 font-black text-slate-800">${item.name}${detailHtml}</td><td class="p-4 text-center font-bold">${qtys[idx].value}</td><td class="p-4 text-right font-medium">RM ${item.jual.toFixed(2)}</td><td class="p-4 text-right font-black">RM ${total.toFixed(2)}</td></tr>`;
-                }
+            
+            updateBizProfile(); renderInventory(); renderHistory(); renderJobs(); renderCRM(); updateBillingTheme();
+            
+            // Analytic Chart
+            const ctx = document.getElementById('mainAnalyticsChart');
+            const recent = db.hist.slice(-7);
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: recent.length > 0 ? recent.map(h => h.ref) : ['No Data'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: recent.length > 0 ? recent.map(h => h.total) : [0],
+                        backgroundColor: '#6366f1',
+                        borderRadius: 12,
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
-            document.getElementById('grandtotal').innerText = `RM ${grand.toFixed(2)}`;
+        }
+
+        // Import/Export
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+            const dlAnchorElem = document.createElement('a');
+            dlAnchorElem.setAttribute("href", dataStr);
+            dlAnchorElem.setAttribute("download", `BizPro_V6_Backup.json`);
+            dlAnchorElem.click();
+        }
+
+        function importData(event) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                db = JSON.parse(e.target.result);
+                save(); location.reload();
+            };
+            reader.readAsText(event.target.files[0]);
         }
     </script>
 </body>
