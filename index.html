@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizPro v6 | Flux Edition (LHDN Ready)</title>
+    <title>BizPro v6 | Flux Edition (Tax Ready)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -57,6 +57,12 @@
             outline: none;
         }
 
+        .social-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .social-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
         .section-animate { animation: fluxFade 0.4s ease-out; }
         @keyframes fluxFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -72,7 +78,7 @@
                 <i class="fas fa-rocket text-white text-4xl"></i>
             </div>
             <h2 class="text-4xl font-black mb-2 tracking-tighter">Selamat Datang</h2>
-            <p class="text-gray-400 text-sm mb-10 font-medium tracking-wide">BIZPRO V6 • LHDN EDITION</p>
+            <p class="text-gray-400 text-sm mb-10 font-medium tracking-wide">BIZPRO V6 • FLUX EDITION</p>
             <button onclick="enterSystem()" class="group relative w-full bg-black text-white py-5 rounded-[24px] font-bold text-lg overflow-hidden transition-all active:scale-95">
                 <span class="relative z-10 uppercase tracking-widest">Masuk Sistem <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></span>
                 <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -87,33 +93,36 @@
             </div>
             <div>
                 <h1 class="font-extrabold text-xl tracking-tighter">BIZPRO</h1>
-                <span class="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold">LHDN READY</span>
+                <span class="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">V6 FLUX</span>
             </div>
         </div>
 
-        <nav class="space-y-2 flex-1">
-            <button onclick="showSection('dashboard')" class="nav-btn active w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold">
+        <nav class="space-y-1 flex-1 overflow-y-auto custom-scroll pr-1">
+            <button onclick="showSection('dashboard')" class="nav-btn active w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-sm">
                 <i class="fas fa-home"></i> Dashboard
             </button>
-            <button onclick="showSection('lhdn')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-orange-600">
-                <i class="fas fa-file-invoice-dollar"></i> LHDN Records
-            </button>
-            <button onclick="showSection('inventory')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500">
+            <button onclick="showSection('inventory')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500 text-sm">
                 <i class="fas fa-th-large"></i> Inventory
             </button>
-            <button onclick="showSection('crm')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500">
+            <button onclick="showSection('crm')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500 text-sm">
                 <i class="fas fa-user-friends"></i> CRM Database
             </button>
-            <button onclick="showSection('billing')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500">
+            <button onclick="showSection('billing')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500 text-sm">
                 <i class="fas fa-receipt"></i> Billing
             </button>
-            <button onclick="showSection('promo')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-purple-600">
+            <button onclick="showSection('promo')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-purple-600 text-sm">
                 <i class="fas fa-tags"></i> Coupon Manager
             </button>
-            <button onclick="showSection('social')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-pink-600">
+            <button onclick="showSection('social')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-pink-600 text-sm">
                 <i class="fas fa-share-nodes"></i> Social Marketing
             </button>
-            <button onclick="showSection('history')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500">
+            <button onclick="showSection('blast')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-emerald-600 text-sm">
+                <i class="fab fa-whatsapp"></i> Smart Blast
+            </button>
+            <button onclick="showSection('lhdn')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-orange-600 text-sm">
+                <i class="fas fa-file-invoice-dollar"></i> LHDN Tax Records
+            </button>
+            <button onclick="showSection('history')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500 text-sm">
                 <i class="fas fa-history"></i> History
             </button>
         </nav>
@@ -122,6 +131,10 @@
             <button onclick="exportData()" class="w-full flux-input p-3 text-xs font-bold flex items-center justify-center gap-2">
                 <i class="fas fa-download"></i> EXPORT BACKUP
             </button>
+            <button onclick="document.getElementById('import-file').click()" class="w-full bg-blue-50 text-blue-600 p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                <i class="fas fa-upload"></i> IMPORT DATA
+            </button>
+            <input type="file" id="import-file" class="hidden" onchange="importData(event)">
         </div>
     </aside>
 
@@ -142,22 +155,27 @@
                 <div class="lg:col-span-2 flux-card p-8 flex flex-col justify-between">
                     <div class="flex justify-between items-start">
                         <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">Revenue Terkini</h3>
-                        <button onclick="showSection('lhdn')" class="bg-orange-100 text-orange-600 px-4 py-2 rounded-xl text-xs font-black hover:bg-orange-600 hover:text-white transition">
-                            <i class="fas fa-file-invoice-dollar mr-2"></i> URUS TAX / LHDN
-                        </button>
+                        <div class="flex gap-2">
+                            <button onclick="showSection('lhdn')" class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-[10px] font-bold tracking-tighter">REKOD CUKAI <i class="fas fa-plus"></i></button>
+                            <span class="bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold">+12% vs semalam</span>
+                        </div>
                     </div>
                     <div class="my-6">
                         <h1 id="dash-total-rev" class="text-6xl font-black tracking-tighter text-blue-600">RM 0.00</h1>
                         <p class="text-gray-400 font-medium mt-2">Berdasarkan 7 transaksi terakhir</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-4 border-t border-gray-100 pt-6">
+                    <div class="grid grid-cols-3 gap-4 border-t border-gray-100 pt-6">
                         <div>
                             <p class="text-[10px] font-bold text-gray-400 uppercase">Margin Keuntungan</p>
                             <p id="dash-total-margin" class="text-xl font-bold text-emerald-500">RM 0.00</p>
                         </div>
                         <div>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Jumlah Belanja (Claimable)</p>
-                            <p id="dash-tax-claim" class="text-xl font-bold text-orange-500">RM 0.00</p>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Belanja (Cukai)</p>
+                            <p id="dash-tax-expense" class="text-xl font-bold text-orange-500">RM 0.00</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Jumlah Item Stok</p>
+                            <p id="dash-inv-count" class="text-xl font-bold text-gray-800">0 Unit</p>
                         </div>
                     </div>
                 </div>
@@ -165,93 +183,418 @@
                 <div class="flux-card p-6">
                     <h3 class="font-bold text-gray-800 text-sm mb-4"><i class="fas fa-cog mr-2"></i>Business Info</h3>
                     <div class="space-y-3">
+                        <div class="flex gap-2">
+                            <label class="flex-1 bg-gray-100 p-3 rounded-2xl text-center cursor-pointer hover:bg-gray-200 transition">
+                                <span class="text-[10px] font-bold text-gray-500">LOGO</span>
+                                <input type="file" onchange="uploadProfileImg(this, 'logo')" class="hidden">
+                            </label>
+                            <label class="flex-1 bg-gray-100 p-3 rounded-2xl text-center cursor-pointer hover:bg-gray-200 transition">
+                                <span class="text-[10px] font-bold text-gray-500">COP</span>
+                                <input type="file" onchange="uploadProfileImg(this, 'cop')" class="hidden">
+                            </label>
+                        </div>
                         <input type="text" id="set-biz-name" oninput="updateBizProfile()" class="w-full p-3 flux-input text-sm font-bold" placeholder="Nama Syarikat">
                         <textarea id="set-biz-addr" oninput="updateBizProfile()" class="w-full p-3 flux-input text-xs h-20" placeholder="Alamat & No. SSM"></textarea>
+                        <input type="text" id="set-biz-bank" oninput="updateBizProfile()" class="w-full p-3 flux-input text-xs" placeholder="Bank & No Akaun">
                     </div>
                 </div>
+            </div>
+
+            <div class="flux-card p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-black text-xl tracking-tight">Jadual Kerja & Temujanji</h3>
+                    <button onclick="addJob()" class="bg-blue-600 text-white px-6 py-2 rounded-full text-xs font-bold shadow-lg shadow-blue-200">+ Tambah Nota</button>
+                </div>
+                <div id="calendar-widget" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
             </div>
         </section>
 
         <section id="lhdn-section" class="section hidden section-animate">
             <div class="flex justify-between items-center mb-8">
                 <div>
-                    <h2 class="text-3xl font-black text-orange-600">LHDN & Tax Records</h2>
-                    <p class="text-gray-500 font-medium text-sm">Simpan rekod resit pembelian & perbelanjaan syarikat untuk tujuan audit.</p>
+                    <h2 class="text-4xl font-black tracking-tight text-orange-600">LHDN Tax Records</h2>
+                    <p class="text-gray-500 font-medium">Rekod perbelanjaan dan muat naik resit untuk audit cukai.</p>
                 </div>
-                <div class="flex gap-2">
-                    <button class="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold text-sm shadow-lg"><i class="fas fa-cloud-upload-alt mr-2"></i> Cloud Sync</button>
+                <div class="flex gap-3">
+                    <button onclick="syncCloud()" class="bg-blue-100 text-blue-600 px-6 py-3 rounded-2xl font-bold text-xs"><i class="fas fa-cloud-upload-alt mr-2"></i> CLOUD SYNC</button>
+                    <button onclick="document.getElementById('tax-modal').classList.remove('hidden')" class="bg-orange-600 text-white px-8 py-3 rounded-2xl font-bold shadow-xl">+ Rekod Belanja</button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="flux-card p-8 h-fit">
-                    <h3 class="font-black text-lg mb-6 tracking-tight">Simpan Resit Baru</h3>
-                    <div class="space-y-4">
-                        <div class="relative group">
-                            <label class="block p-8 border-2 border-dashed border-orange-200 rounded-[30px] text-center cursor-pointer hover:border-orange-500 transition-all bg-orange-50/30">
-                                <div id="receipt-preview" class="hidden mb-4 rounded-xl overflow-hidden max-h-48 border border-white shadow-lg">
-                                    <img id="img-display" src="" class="w-full object-cover">
-                                </div>
-                                <div id="upload-placeholder">
-                                    <i class="fas fa-camera text-3xl text-orange-400 mb-2"></i>
-                                    <p class="text-[10px] font-black text-orange-600 uppercase">Ambil Gambar / Upload Resit</p>
-                                </div>
-                                <input type="file" accept="image/*" capture="environment" id="tax-img-input" class="hidden" onchange="previewReceipt(this)">
-                            </label>
-                        </div>
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                <div class="flux-card p-6 text-center">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total Tuntutan</p>
+                    <h3 id="tax-total-amt" class="text-3xl font-black text-orange-600">RM 0.00</h3>
+                </div>
+                <div class="flux-card p-6 text-center">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Bilangan Resit</p>
+                    <h3 id="tax-receipt-count" class="text-3xl font-black text-gray-800">0</h3>
+                </div>
+                <div class="flux-card p-6 text-center">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Kategori Tertinggi</p>
+                    <h3 id="tax-top-cat" class="text-lg font-black text-gray-800 uppercase">-</h3>
+                </div>
+                <div class="flux-card p-6 text-center">
+                    <p class="text-[10px] font-black text-gray-400 uppercase mb-1">Status Audit</p>
+                    <h3 class="text-lg font-black text-emerald-500 uppercase"><i class="fas fa-check-circle"></i> Tersusun</h3>
+                </div>
+            </div>
 
+            <div class="flux-card overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50 border-b border-gray-100">
+                        <tr class="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
+                            <th class="p-6">Tarikh</th>
+                            <th class="p-6">Resit</th>
+                            <th class="p-6">Kategori</th>
+                            <th class="p-6">Butiran / Vendor</th>
+                            <th class="p-6 text-right">Jumlah (RM)</th>
+                            <th class="p-6 text-center">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tax-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <div id="tax-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-center justify-center hidden">
+            <div class="bg-white w-full max-w-md rounded-[40px] p-8 section-animate">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-black">Rekod Baru</h3>
+                    <button onclick="document.getElementById('tax-modal').classList.add('hidden')" class="text-gray-400 hover:text-black"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Muat Naik Resit / Gambar</label>
+                        <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer hover:bg-gray-50 transition">
+                            <i class="fas fa-camera text-2xl text-gray-300 mb-2"></i>
+                            <span id="tax-img-status" class="text-[10px] font-bold text-gray-400">Ambil Gambar Resit</span>
+                            <input type="file" id="tax-img-input" class="hidden" onchange="document.getElementById('tax-img-status').innerText = 'Imej Sedia: ' + this.files[0].name">
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Tujuan Perbelanjaan / Item</label>
-                            <input type="text" id="tax-title" class="w-full p-3 flux-input font-bold" placeholder="Contoh: Alat Tulis Pejabat">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Tarikh</label>
+                            <input type="date" id="tax-date" class="w-full p-3 flux-input text-xs font-bold">
                         </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Jumlah (RM)</label>
+                            <input type="number" id="tax-amount" class="w-full p-3 flux-input text-xs font-bold" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Kategori Cukai</label>
+                        <select id="tax-category" class="w-full p-3 flux-input font-bold text-xs">
+                            <option value="Utiliti">Utiliti (Elektrik/Air/Internet)</option>
+                            <option value="Sewa">Sewa Premis</option>
+                            <option value="Gaji">Gaji & KWSP Pekerja</option>
+                            <option value="Stok">Pembelian Stok/Bahan Mentah</option>
+                            <option value="Pemasaran">Pemasaran & Iklan</option>
+                            <option value="Logistik">Logistik & Kurier</option>
+                            <option value="Alatan">Alatan Pejabat & Gadget</option>
+                            <option value="Lain-lain">Lain-lain Belanja</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Keterangan / Nama Vendor</label>
+                        <input type="text" id="tax-vendor" class="w-full p-3 flux-input text-xs font-bold" placeholder="Contoh: TNB / FB Ads / Shopee">
+                    </div>
+                    <button onclick="saveTaxRecord()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold shadow-lg mt-4">SIMPAN REKOD CUKAI</button>
+                </div>
+            </div>
+        </div>
 
+        <section id="social-section" class="section hidden section-animate">
+            <h2 class="text-4xl font-black mb-2 tracking-tight">Social Marketing</h2>
+            <p class="text-gray-500 mb-8 font-medium">Uruskan platform dan jadual pemasaran kandungan anda.</p>
+            
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <a href="https://www.facebook.com" target="_blank" class="flux-card p-6 flex flex-col items-center social-card">
+                    <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-facebook-f"></i></div>
+                    <span class="font-bold">Facebook</span>
+                </a>
+                <a href="https://www.tiktok.com" target="_blank" class="flux-card p-6 flex flex-col items-center social-card">
+                    <div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-tiktok"></i></div>
+                    <span class="font-bold">TikTok</span>
+                </a>
+                <a href="https://www.instagram.com" target="_blank" class="flux-card p-6 flex flex-col items-center social-card">
+                    <div class="w-14 h-14 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-instagram"></i></div>
+                    <span class="font-bold">Instagram</span>
+                </a>
+                <a href="https://www.threads.net" target="_blank" class="flux-card p-6 flex flex-col items-center social-card">
+                    <div class="w-14 h-14 bg-gray-900 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fa-solid fa-at"></i></div>
+                    <span class="font-bold">Threads</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="flux-card p-8">
+                    <h3 class="font-black text-lg mb-6 tracking-tight italic">Rancang Content Baru</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Platform</label>
+                            <select id="sch-platform" class="w-full p-3 flux-input font-bold text-sm">
+                                <option value="FB">FACEBOOK</option>
+                                <option value="TT">TIKTOK</option>
+                                <option value="IG">INSTAGRAM</option>
+                                <option value="TH">THREADS</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Idea / Kapsyen Content</label>
+                            <textarea id="sch-title" class="w-full p-3 flux-input text-sm font-bold h-24" placeholder="Tulis kapsyen atau idea video di sini..."></textarea>
+                        </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Tarikh</label>
-                                <input type="date" id="tax-date" class="w-full p-3 flux-input text-xs font-bold">
+                                <input type="date" id="sch-date" class="w-full p-3 flux-input text-xs font-bold">
                             </div>
                             <div>
-                                <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Jumlah (RM)</label>
-                                <input type="number" id="tax-amount" class="w-full p-3 flux-input text-xs font-bold" placeholder="0.00">
+                                <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Masa Post</label>
+                                <input type="time" id="sch-time" class="w-full p-3 flux-input text-xs font-bold">
                             </div>
                         </div>
-
-                        <button onclick="saveTaxRecord()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-orange-700 transition active:scale-95">SIMPAN REKOD</button>
+                        <button onclick="addSchedule()" class="w-full bg-pink-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:opacity-90 transition active:scale-95 mt-4">SIMPAN JADUAL</button>
                     </div>
                 </div>
 
                 <div class="lg:col-span-2 flux-card p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-black text-lg tracking-tight">Senarai Rekod Resit</h3>
-                        <span class="text-xs font-bold text-gray-400 uppercase" id="tax-count">0 Rekod Tersimpan</span>
+                    <h3 class="font-black text-lg mb-6 tracking-tight">Senarai Jadual Kandungan</h3>
+                    <div id="schedule-list" class="space-y-3 max-h-[450px] overflow-y-auto pr-2 custom-scroll">
                     </div>
-                    
-                    <div id="tax-list" class="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scroll">
-                        </div>
                 </div>
             </div>
         </section>
 
-        <section id="inventory-section" class="section hidden section-animate">...</section>
-        </main>
+        <section id="inventory-section" class="section hidden section-animate">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black">Inventori Stok</h2>
+                <button onclick="addInventoryItem()" class="bg-black text-white px-8 py-3 rounded-2xl font-bold shadow-xl">+ Produk Baru</button>
+            </div>
+            <div class="flux-card overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50/50 border-b border-gray-100">
+                        <tr class="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
+                            <th class="p-6">Imej</th>
+                            <th class="p-6">Informasi Produk</th>
+                            <th class="p-6">Kos (RM)</th>
+                            <th class="p-6">Jual (RM)</th>
+                            <th class="p-6">Baki Stok</th>
+                            <th class="p-6 text-center">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="crm-section" class="section hidden section-animate">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black">Pangkalan Data Pelanggan</h2>
+                <button onclick="addClient()" class="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold shadow-xl">+ Tambah Lead</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6" id="crm-list-grid"></div>
+        </section>
+
+        <section id="promo-section" class="section hidden section-animate">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black">Coupon Manager</h2>
+                <p class="text-gray-500 font-medium">Uruskan kod diskaun anda di sini.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="flux-card p-8 h-fit">
+                    <h3 class="font-black text-lg mb-6 tracking-tight">Tambah Kupon Baru</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Kod Kupon</label>
+                            <input type="text" id="new-coupon-code" class="w-full p-3 flux-input font-bold uppercase" placeholder="Contoh: RAYA2026">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Nilai Potongan (RM)</label>
+                            <input type="number" id="new-coupon-val" class="w-full p-3 flux-input font-bold" placeholder="0.00">
+                        </div>
+                        <button onclick="addNewCoupon()" class="w-full bg-purple-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:opacity-90 transition active:scale-95">SIMPAN KOD</button>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 flux-card p-8">
+                    <h3 class="font-black text-lg mb-6 tracking-tight">Senarai Kupon Aktif</h3>
+                    <div id="coupon-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="blast-section" class="section hidden section-animate">
+            <div class="max-w-5xl mx-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-black text-emerald-600 italic"><i class="fab fa-whatsapp mr-3"></i>Smart WhatsApp Blast</h2>
+                    <button onclick="generateCatalogText()" class="bg-blue-50 text-blue-600 px-6 py-2 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-600 hover:text-white transition">
+                        <i class="fas fa-list-ul mr-2"></i> GENERATE KATALOG TEKS
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                    <div class="lg:col-span-2 flux-card p-6">
+                        <p class="text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest">1. Pilih Penerima (CRM)</p>
+                        <div id="blast-client-list" class="space-y-2 h-[450px] overflow-y-auto pr-2 custom-scroll"></div>
+                    </div>
+                    <div class="lg:col-span-3 space-y-6">
+                        <div class="flux-card p-6">
+                            <p class="text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest">2. Mesej & Imej</p>
+                            <label class="block mb-4 p-4 border-2 border-dashed border-gray-200 rounded-3xl text-center cursor-pointer hover:border-emerald-400 transition">
+                                <span id="blast-img-status" class="text-xs font-bold text-gray-400 italic">Lampirkan Gambar (Opsional)</span>
+                                <input type="file" id="blast-img-input" class="hidden" onchange="document.getElementById('blast-img-status').innerText = 'Imej Sedia: ' + this.files[0].name">
+                            </label>
+                            <textarea id="blast-msg" class="w-full p-5 flux-input h-40 text-sm" placeholder="Contoh: Hai {name}, kami ada tawaran hebat..."></textarea>
+                        </div>
+                        <div class="flux-card p-6">
+                            <div class="flex gap-4 mb-6">
+                                <div class="flex-1">
+                                    <p class="text-[10px] font-black text-gray-400 uppercase mb-2">Sela Masa (Saat)</p>
+                                    <input type="number" id="blast-delay" value="3" min="0" max="999" class="w-full p-3 flux-input font-bold">
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-[10px] font-black text-gray-400 uppercase mb-2">Had Per-Klik</p>
+                                    <input type="text" value="30 Mesej" disabled class="w-full p-3 flux-input font-bold bg-gray-50 opacity-60">
+                                </div>
+                            </div>
+                            <button onclick="startBlast()" id="btn-blast" class="w-full bg-emerald-500 text-white py-5 rounded-[24px] font-black text-lg shadow-xl shadow-emerald-100 transition"><i class="fas fa-paper-plane mr-2"></i> LANCARKAN BLAST</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="billing-section" class="section hidden section-animate">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="no-print space-y-4">
+                    <div class="flux-card p-6">
+                        <h3 class="font-black text-sm mb-4">Penjana Dokumen</h3>
+                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Pelanggan</label>
+                        <select id="bill-client-select" class="w-full p-3 flux-input mb-4 text-sm font-bold"></select>
+                        
+                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Kod Kupon (Diskaun)</label>
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="coupon-input" class="flex-1 p-3 flux-input text-xs font-bold uppercase" placeholder="Contoh: RAYA20">
+                            <button onclick="applyCoupon()" class="bg-gray-800 text-white px-4 rounded-xl text-[10px] font-bold">GUNA</button>
+                        </div>
+
+                        <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Jenis Dokumen</label>
+                        <select id="billing-type" onchange="updateBillingTheme()" class="w-full p-3 bg-blue-50 text-blue-600 rounded-2xl mb-6 font-bold text-sm outline-none">
+                            <option value="QUO">QUOTATION</option>
+                            <option value="INV">INVOICE</option>
+                            <option value="REC">RECEIPT</option>
+                        </select>
+                        <div id="billing-items-input" class="space-y-2 mb-4"></div>
+                        <button onclick="addBillingItemRow()" class="w-full border-2 border-dashed border-blue-200 p-3 rounded-2xl text-[10px] font-bold text-blue-500 hover:bg-blue-50 transition">+ Tambah Produk</button>
+                    </div>
+                    <button onclick="generateFinalBilling()" class="w-full bg-black text-white py-5 rounded-3xl font-bold shadow-xl">SAHKAN & SIMPAN REKOD</button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="exportAndShare()" class="bg-gray-100 p-4 rounded-2xl font-bold text-xs"><i class="fas fa-file-pdf mr-2"></i>Simpan PDF</button>
+                        <button onclick="shareWhatsapp()" class="bg-emerald-50 text-emerald-600 p-4 rounded-2xl font-bold text-xs"><i class="fab fa-whatsapp mr-2"></i>WhatsApp</button>
+                    </div>
+                </div>
+                <div id="print-area" class="lg:col-span-2 bg-white p-12 shadow-2xl relative min-h-[1050px] rounded-[40px] border border-gray-100">
+                    <div id="watermark" class="absolute inset-0 flex items-center justify-center opacity-[0.03] rotate-[-35deg] text-[150px] font-black pointer-events-none uppercase">QUO</div>
+                    <div class="flex justify-between items-start mb-16 relative z-10">
+                        <div class="flex items-center gap-5">
+                            <img id="prev-logo" src="" class="w-20 h-20 object-contain hidden">
+                            <div>
+                                <h2 class="font-black text-3xl uppercase tracking-tighter" id="prev-biz-name">SYARIKAT ANDA</h2>
+                                <p class="text-xs mt-2 max-w-[280px] text-gray-500 font-medium whitespace-pre-line leading-relaxed" id="prev-biz-addr">Alamat Perniagaan...</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h1 id="preview-title" class="text-5xl font-black italic tracking-tighter text-blue-600 leading-none">QUO</h1>
+                            <p id="ref-no" class="font-black text-xl mt-4">---</p>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase mt-1">Tarikh: <span id="prev-date" class="text-black"></span></p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 mb-12 gap-10">
+                        <div class="bg-gray-50 p-6 rounded-3xl border-l-4 border-blue-600">
+                            <p class="text-[9px] font-bold text-blue-500 uppercase mb-2">Kepada / Bill To:</p>
+                            <p id="bill-to-client" class="font-bold text-gray-800 text-sm whitespace-pre-line leading-snug">---</p>
+                        </div>
+                        <div class="p-6 text-right">
+                            <p class="text-[9px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Maklumat Pembayaran:</p>
+                            <p id="prev-biz-bank" class="text-xs font-bold text-gray-700">---</p>
+                        </div>
+                    </div>
+                    <table class="w-full mb-20 text-sm">
+                        <thead id="billing-thead" class="bg-blue-600 text-white">
+                            <tr class="text-left text-[10px] font-bold uppercase tracking-widest">
+                                <th class="p-5 rounded-tl-2xl">Perihalan Item</th>
+                                <th class="p-5 text-center">Unit</th>
+                                <th class="p-5 text-right">Harga (RM)</th>
+                                <th class="p-5 text-right rounded-tr-2xl">Jumlah (RM)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="preview-items-body" class="divide-y divide-gray-100"></tbody>
+                        <tfoot id="preview-discount-row" class="hidden">
+                            <tr>
+                                <td colspan="3" class="p-5 text-right font-bold text-red-500 uppercase text-[10px]">Diskaun Kupon</td>
+                                <td class="p-5 text-right font-black text-red-500" id="prev-discount-val">- RM 0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div class="flex justify-between items-end">
+                        <div class="relative">
+                            <img id="prev-cop" src="" class="w-32 h-32 object-contain hidden opacity-60">
+                            <p class="text-[10px] text-gray-300 font-bold mt-2 italic">Dokumen ini dijana secara digital.</p>
+                        </div>
+                        <div class="w-72 bg-gray-900 p-8 rounded-[35px] text-right text-white shadow-xl">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Jumlah Keseluruhan</p>
+                            <h2 class="text-3xl font-black" id="grandtotal">RM 0.00</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="history-section" class="section hidden section-animate">
+            <h2 class="text-3xl font-black mb-8">Rekod Transaksi</h2>
+            <div class="flux-card overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-black text-white font-bold text-[10px] uppercase tracking-widest">
+                        <tr>
+                            <th class="p-6">Tarikh</th>
+                            <th class="p-6">No. Rujukan</th>
+                            <th class="p-6">Pelanggan</th>
+                            <th class="p-6 text-right">Jumlah (RM)</th>
+                            <th class="p-6 text-right text-blue-300">Untung Bersih</th>
+                            <th class="p-6 text-center">Tindakan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
 
     <script>
         let db = {
             inv: JSON.parse(localStorage.getItem('f6_inv')) || [],
             cli: JSON.parse(localStorage.getItem('f6_cli')) || [],
             hist: JSON.parse(localStorage.getItem('f6_hist')) || [],
-            tax: JSON.parse(localStorage.getItem('f6_tax')) || [], // New Tax Store
+            jobs: JSON.parse(localStorage.getItem('f6_jobs')) || [],
+            sch: JSON.parse(localStorage.getItem('f6_sch')) || [],
+            coupons: JSON.parse(localStorage.getItem('f6_coupons')) || { 'RAYA20': 20, 'PROMO10': 10 },
             ref: JSON.parse(localStorage.getItem('f6_ref')) || { QUO: 1001, INV: 1001, REC: 1001 },
-            prof: JSON.parse(localStorage.getItem('f6_prof')) || { name: '', addr: '', bank: '', logo: '', cop: '' }
+            prof: JSON.parse(localStorage.getItem('f6_prof')) || { name: '', addr: '', bank: '', logo: '', cop: '' },
+            tax: JSON.parse(localStorage.getItem('f6_tax')) || []
         };
+
+        let activeDiscount = 0;
 
         function save() {
             localStorage.setItem('f6_inv', JSON.stringify(db.inv));
             localStorage.setItem('f6_cli', JSON.stringify(db.cli));
             localStorage.setItem('f6_hist', JSON.stringify(db.hist));
-            localStorage.setItem('f6_tax', JSON.stringify(db.tax));
             localStorage.setItem('f6_ref', JSON.stringify(db.ref));
             localStorage.setItem('f6_prof', JSON.stringify(db.prof));
+            localStorage.setItem('f6_jobs', JSON.stringify(db.jobs));
+            localStorage.setItem('f6_sch', JSON.stringify(db.sch));
+            localStorage.setItem('f6_coupons', JSON.stringify(db.coupons));
+            localStorage.setItem('f6_tax', JSON.stringify(db.tax));
         }
 
         function enterSystem() { 
@@ -259,78 +602,174 @@
             initApp(); 
         }
 
-        // --- LHDN FUNCTIONS ---
-        function previewReceipt(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('img-display').src = e.target.result;
-                    document.getElementById('receipt-preview').classList.remove('hidden');
-                    document.getElementById('upload-placeholder').classList.add('hidden');
-                }
-                reader.readAsDataURL(input.files[0]);
+        // --- NEW TAX FUNCTIONS (LHDN) ---
+
+        function saveTaxRecord() {
+            const date = document.getElementById('tax-date').value;
+            const amt = parseFloat(document.getElementById('tax-amount').value);
+            const cat = document.getElementById('tax-category').value;
+            const vendor = document.getElementById('tax-vendor').value;
+            const imgInput = document.getElementById('tax-img-input');
+
+            if(!date || isNaN(amt) || !vendor) return alert("Sila isi semua maklumat!");
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                db.tax.push({
+                    id: Date.now(),
+                    date,
+                    amt,
+                    cat,
+                    vendor,
+                    img: e.target.result || ''
+                });
+                save();
+                renderTax();
+                document.getElementById('tax-modal').classList.add('hidden');
+                alert("Rekod perbelanjaan disimpan!");
+                // Clear inputs
+                document.getElementById('tax-amount').value = '';
+                document.getElementById('tax-vendor').value = '';
+                document.getElementById('tax-img-status').innerText = 'Ambil Gambar Resit';
+            };
+
+            if(imgInput.files[0]) {
+                reader.readAsDataURL(imgInput.files[0]);
+            } else {
+                reader.onload({ target: { result: '' } });
             }
         }
 
-        function saveTaxRecord() {
-            const title = document.getElementById('tax-title').value;
-            const date = document.getElementById('tax-date').value;
-            const amount = parseFloat(document.getElementById('tax-amount').value);
-            const img = document.getElementById('img-display').src;
+        function renderTax() {
+            const tbody = document.getElementById('tax-table-body');
+            let total = 0;
+            const catCounts = {};
 
-            if(!title || !date || !amount) return alert("Sila lengkapkan maklumat resit!");
+            tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => {
+                total += t.amt;
+                catCounts[t.cat] = (catCounts[t.cat] || 0) + 1;
+                return `
+                <tr class="border-b border-gray-50 hover:bg-gray-50/50 transition">
+                    <td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}</td>
+                    <td class="p-6">
+                        ${t.img ? `<button onclick="window.open('${t.img}')" class="w-10 h-10 rounded-lg overflow-hidden border border-gray-200"><img src="${t.img}" class="w-full h-full object-cover"></button>` : `<i class="fas fa-file-invoice text-gray-200"></i>`}
+                    </td>
+                    <td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span></td>
+                    <td class="p-6 font-bold text-sm text-gray-800">${t.vendor}</td>
+                    <td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}</td>
+                    <td class="p-6 text-center">
+                        <button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `}).join('') || '<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">Tiada rekod cukai ditemui.</td></tr>';
 
-            db.tax.push({
-                id: Date.now(),
-                title,
-                date,
-                amount,
-                img
-            });
-
-            save();
-            renderTaxList();
+            document.getElementById('tax-total-amt').innerText = `RM ${total.toLocaleString('en-MY', {minimumFractionDigits: 2})}`;
+            document.getElementById('tax-receipt-count').innerText = db.tax.length;
             
-            // Reset form
-            document.getElementById('tax-title').value = '';
-            document.getElementById('tax-amount').value = '';
-            document.getElementById('receipt-preview').classList.add('hidden');
-            document.getElementById('upload-placeholder').classList.remove('hidden');
-            alert("Rekod berjaya disimpan!");
-        }
-
-        function renderTaxList() {
-            const container = document.getElementById('tax-list');
-            const totalTax = db.tax.reduce((sum, t) => sum + t.amount, 0);
-            document.getElementById('tax-count').innerText = `${db.tax.length} Rekod Tersimpan`;
-            document.getElementById('dash-tax-claim').innerText = `RM ${totalTax.toLocaleString('en-MY', {minimumFractionDigits: 2})}`;
-
-            container.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => `
-                <div class="bg-white p-4 rounded-2xl border border-gray-100 flex items-center gap-4 group">
-                    <div class="w-16 h-16 rounded-xl overflow-hidden border border-gray-50 flex-shrink-0 cursor-pointer" onclick="window.open('${t.img}')">
-                        <img src="${t.img}" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex-1">
-                        <h4 class="font-bold text-gray-800 text-sm uppercase">${t.title}</h4>
-                        <p class="text-[10px] font-bold text-gray-400">${t.date}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-lg font-black text-orange-600">RM ${t.amount.toFixed(2)}</p>
-                        <button onclick="deleteTax(${t.id})" class="text-gray-300 hover:text-red-500 transition text-xs"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('') || '<p class="text-center text-gray-400 py-10 font-bold">Tiada rekod belanja.</p>';
+            // Find Top Category
+            let top = "-";
+            let max = 0;
+            for(let c in catCounts) { if(catCounts[c] > max) { max = catCounts[c]; top = c; } }
+            document.getElementById('tax-top-cat').innerText = top;
+            
+            // Update Dashboard
+            if(document.getElementById('dash-tax-expense')) {
+                document.getElementById('dash-tax-expense').innerText = `RM ${total.toLocaleString('en-MY', {minimumFractionDigits: 2})}`;
+            }
         }
 
         function deleteTax(id) {
             if(confirm("Padam rekod resit ini?")) {
                 db.tax = db.tax.filter(t => t.id !== id);
                 save();
-                renderTaxList();
+                renderTax();
             }
         }
 
-        // --- NAVIGATION & CORE ---
+        function syncCloud() {
+            const btn = event.currentTarget;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> SYNCING...`;
+            setTimeout(() => {
+                btn.innerHTML = `<i class="fas fa-check-circle mr-2"></i> CLOUD SECURED`;
+                setTimeout(() => { btn.innerHTML = `<i class="fas fa-cloud-upload-alt mr-2"></i> CLOUD SYNC`; }, 2000);
+            }, 1500);
+        }
+
+        // --- END TAX FUNCTIONS ---
+
+        // 1. Promo Link Generator (Inventory)
+        function copyPromoLink(idx) {
+            const item = db.inv[idx];
+            const promoText = `*PROMOSI Khas dari ${db.prof.name}!* 🚀\n\n` +
+                             `Produk: *${item.name}*\n` +
+                             `Harga: *RM ${item.jual.toFixed(2)}*\n\n` +
+                             `Berminat? Klik link untuk tempahan:\n` +
+                             `https://wa.me/60123456789?text=${encodeURIComponent("Saya nak order " + item.name)}`;
+            
+            navigator.clipboard.writeText(promoText).then(() => {
+                alert("Link Promosi & Teks telah disalin! Sila 'Paste' di WhatsApp/Media Sosial.");
+            });
+        }
+
+        // 2. Coupon UI Manager
+        function addNewCoupon() {
+            const code = document.getElementById('new-coupon-code').value.toUpperCase().trim();
+            const val = parseFloat(document.getElementById('new-coupon-val').value);
+            if(!code || isNaN(val)) return alert("Isi kod dan nilai dengan betul!");
+            db.coupons[code] = val;
+            save();
+            renderCoupons();
+            document.getElementById('new-coupon-code').value = '';
+            document.getElementById('new-coupon-val').value = '';
+            alert("Kupon berjaya ditambah!");
+        }
+
+        function renderCoupons() {
+            const container = document.getElementById('coupon-list');
+            container.innerHTML = Object.entries(db.coupons).map(([code, val]) => `
+                <div class="bg-white p-4 rounded-2xl border border-dashed border-purple-200 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-black text-purple-600 tracking-widest">${code}</p>
+                        <p class="text-lg font-bold">RM ${val.toFixed(2)} OFF</p>
+                    </div>
+                    <button onclick="deleteCoupon('${code}')" class="text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('') || '<p class="text-gray-400 font-bold text-xs">Tiada kupon aktif.</p>';
+        }
+
+        function deleteCoupon(code) {
+            if(confirm(`Padam kupon ${code}?`)) {
+                delete db.coupons[code];
+                save();
+                renderCoupons();
+            }
+        }
+
+        function applyCoupon() {
+            const code = document.getElementById('coupon-input').value.toUpperCase().trim();
+            if(db.coupons[code]) {
+                activeDiscount = db.coupons[code];
+                alert(`Kupon ${code} diterima! Diskaun RM ${activeDiscount.toFixed(2)}.`);
+                calcBilling();
+            } else {
+                alert("Kod kupon tidak wujud!");
+                activeDiscount = 0;
+                calcBilling();
+            }
+        }
+
+        // 3. WhatsApp Katalog Text (Smart Blast)
+        function generateCatalogText() {
+            if(db.inv.length === 0) return alert("Inventori kosong!");
+            let catalog = `*KATALOG PRODUK ${db.prof.name.toUpperCase()}* 📑\n\n`;
+            db.inv.slice(0, 10).forEach((item, i) => {
+                catalog += `${i+1}. *${item.name}* - RM ${item.jual.toFixed(2)}\n`;
+            });
+            catalog += `\nHubungi kami untuk tempahan segera!`;
+            document.getElementById('blast-msg').value = catalog;
+            alert("Katalog teks telah dijana ke dalam kotak mesej Blast!");
+        }
+
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(b => {
@@ -339,30 +778,214 @@
             });
 
             document.getElementById(id + '-section').classList.remove('hidden');
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(id));
+            if(activeBtn) {
+                activeBtn.classList.add('active', 'bg-blue-600', 'text-white');
+                activeBtn.classList.remove('text-gray-500');
+            }
+
             if(id === 'dashboard') renderDashboard();
-            if(id === 'lhdn') renderTaxList();
-            // ... (Fungsi render yang lain)
+            if(id === 'billing') populateBillingClients();
+            if(id === 'inventory') renderInventory();
+            if(id === 'crm') renderCRM();
+            if(id === 'blast') renderBlastClientList();
+            if(id === 'history') renderHistory();
+            if(id === 'social') renderSchedule();
+            if(id === 'promo') renderCoupons();
+            if(id === 'lhdn') renderTax();
         }
 
-        function initApp() {
-            document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-            renderDashboard();
-            renderTaxList();
-            // ... (Inisialisasi profile dan lain-lain)
+        function addSchedule() {
+            const platform = document.getElementById('sch-platform').value;
+            const title = document.getElementById('sch-title').value;
+            const date = document.getElementById('sch-date').value;
+            const time = document.getElementById('sch-time').value;
+            if(!title || !date || !time) return alert("Sila isi semua maklumat jadual!");
+            db.sch.push({ id: Date.now(), platform, title, date, time, status: 'PENDING' });
+            save(); renderSchedule();
+            document.getElementById('sch-title').value = '';
+            document.getElementById('sch-date').value = '';
+            document.getElementById('sch-time').value = '';
+        }
+
+        function renderSchedule() {
+            const colors = { FB: 'bg-blue-600', TT: 'bg-black', IG: 'bg-pink-500', TH: 'bg-gray-800' };
+            document.getElementById('schedule-list').innerHTML = db.sch.sort((a,b) => new Date(a.date) - new Date(b.date)).map(s => `
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 flex justify-between items-center group shadow-sm ${s.status === 'DONE' ? 'opacity-50' : ''}">
+                    <div class="flex items-center gap-4">
+                        <div class="${colors[s.platform]} text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs">${s.platform}</div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-sm ${s.status === 'DONE' ? 'line-through' : ''}">${s.title}</h4>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${s.date} @ ${s.time} ${s.status === 'DONE' ? '✅' : ''}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        ${s.status !== 'DONE' ? `
+                            <button onclick="launchPost('${s.platform}', '${encodeURIComponent(s.title)}', ${s.id})" 
+                                    class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-blue-600 hover:text-white transition">
+                                POST SEKARANG
+                            </button>
+                        ` : ''}
+                        <button onclick="deleteSch(${s.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-center text-gray-400 py-10 font-bold text-sm">Tiada jadual content buat masa ini.</p>';
+        }
+
+        function launchPost(platform, title, id) {
+            const decodedTitle = decodeURIComponent(title);
+            const links = { FB: 'https://m.facebook.com/', TT: 'https://www.tiktok.com/upload', IG: 'https://www.instagram.com/', TH: 'https://www.threads.net/' };
+            navigator.clipboard.writeText(decodedTitle).then(() => {
+                alert("Kapsyen telah di-COPY! Sila 'Paste' apabila platform dibuka.");
+                const item = db.sch.find(x => x.id === id);
+                if(item) item.status = 'DONE';
+                save(); renderSchedule();
+                window.open(links[platform], '_blank');
+            }).catch(err => { window.open(links[platform], '_blank'); });
+        }
+
+        function deleteSch(id) { db.sch = db.sch.filter(s => s.id !== id); save(); renderSchedule(); }
+
+        function uploadProfileImg(input, type) {
+            const reader = new FileReader();
+            reader.onload = (e) => { db.prof[type] = e.target.result; save(); updateBizProfile(); };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function updateBizProfile() {
+            db.prof.name = document.getElementById('set-biz-name').value;
+            db.prof.addr = document.getElementById('set-biz-addr').value;
+            db.prof.bank = document.getElementById('set-biz-bank').value;
+            document.getElementById('prev-biz-name').innerText = db.prof.name || "NAMA SYARIKAT";
+            document.getElementById('prev-biz-addr').innerText = db.prof.addr || "ALAMAT PERNIAGAAN";
+            document.getElementById('prev-biz-bank').innerText = db.prof.bank || "MAKLUMAT BANK";
+            if(db.prof.logo) { document.getElementById('prev-logo').src = db.prof.logo; document.getElementById('prev-logo').classList.remove('hidden'); }
+            if(db.prof.cop) { document.getElementById('prev-cop').src = db.prof.cop; document.getElementById('prev-cop').classList.remove('hidden'); }
+            save();
         }
 
         function renderDashboard() {
-            const totalRev = db.hist.slice(-7).reduce((sum, h) => sum + h.total, 0);
-            const totalMargin = db.hist.slice(-7).reduce((sum, h) => sum + h.margin, 0);
-            const totalTax = db.tax.reduce((sum, t) => sum + t.amount, 0);
+            const recent = db.hist.slice(-7);
+            const totalRev = recent.reduce((sum, h) => sum + h.total, 0);
+            const totalMargin = recent.reduce((sum, h) => sum + h.margin, 0);
+            const totalTax = db.tax.reduce((sum, t) => sum + t.amt, 0);
 
             document.getElementById('dash-total-rev').innerText = `RM ${totalRev.toLocaleString('en-MY', {minimumFractionDigits: 2})}`;
             document.getElementById('dash-total-margin').innerText = `RM ${totalMargin.toLocaleString('en-MY', {minimumFractionDigits: 2})}`;
-            document.getElementById('dash-tax-claim').innerText = `RM ${totalTax.toLocaleString('en-MY', {minimumFractionDigits: 2})}`;
+            document.getElementById('dash-tax-expense').innerText = `RM ${totalTax.toLocaleString('en-MY', {minimumFractionDigits: 2})}`;
+            document.getElementById('dash-inv-count').innerText = `${db.inv.length} Jenis`;
+            renderJobs();
         }
 
-        // Nota: Fungsi-fungsi asal seperti Billing, Inventory, dan CRM 
-        // tetap dikekalkan mengikut fail asal anda. 
+        function addJob() {
+            const title = prompt("Perkara/Job:"); const date = prompt("Tarikh/Masa:");
+            if(title && date) { db.jobs.push({ title, date, id: Date.now() }); save(); renderJobs(); }
+        }
+
+        function renderJobs() {
+            document.getElementById('calendar-widget').innerHTML = db.jobs.map(j => `
+                <div class="bg-white p-5 rounded-[22px] border border-gray-100 relative group transition-all hover:shadow-xl hover:-translate-y-1">
+                    <p class="text-[10px] font-black text-blue-500 uppercase mb-1">${j.date}</p>
+                    <h4 class="font-bold text-gray-800 text-sm">${j.title}</h4>
+                    <button onclick="db.jobs = db.jobs.filter(x => x.id !== ${j.id}); save(); renderJobs();" class="absolute top-4 right-4 text-gray-200 hover:text-emerald-500 transition opacity-0 group-hover:opacity-100"><i class="fas fa-check-circle text-lg"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function renderInventory() {
+            document.getElementById('inventory-table-body').innerHTML = db.inv.map((item, idx) => `
+                <tr class="border-b border-gray-50 align-top hover:bg-gray-50/50 transition">
+                    <td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div></td>
+                    <td class="p-6"><input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800"><div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">${(item.details || []).map((d, dIdx) => `<input type="text" value="${d}" oninput="db.inv[${idx}].details[${dIdx}]=this.value; save();" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm">`).join('')}</div><div class="flex gap-4 mt-3"><button onclick="db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600">+ SPEC</button><button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400">LIHAT/SOROK</button></div></td>
+                    <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"></td>
+                    <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"></td>
+                    <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"></td>
+                    <td class="p-6 text-center space-y-2">
+                        <button onclick="copyPromoLink(${idx})" class="w-full bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-[9px] font-black border border-emerald-100 hover:bg-emerald-600 hover:text-white transition"><i class="fas fa-link mr-1"></i> COPY LINK</button>
+                        <button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs block mx-auto"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            save();
+        }
+
+        function addInventoryItem() { db.inv.push({ id: Date.now(), name: 'Produk Baru', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true }); renderInventory(); }
+        function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); }
+        function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
+        function addClient() { const n = prompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
+        function renderCRM() { document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="60123456789" class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" placeholder="Alamat Penuh" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
+        function renderBlastClientList() { document.getElementById('blast-client-list').innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl cursor-pointer transition"><input type="checkbox" class="blast-checkbox w-5 h-5 mr-4 accent-emerald-500" data-phone="${c.phone}" data-name="${c.name}"><div><p class="text-sm font-bold text-gray-800">${c.name}</p><p class="text-[10px] text-gray-400 font-bold">${c.phone || 'Tiada No. Phone'}</p></div></label>`).join(''); }
+        async function startBlast() { const checks = document.querySelectorAll('.blast-checkbox:checked'); const msgTpl = document.getElementById('blast-msg').value; const delay = parseInt(document.getElementById('blast-delay').value) * 1000; if(checks.length === 0 || !msgTpl) return alert("Lengkapkan maklumat!"); document.getElementById('btn-blast').disabled = true; for(let i = 0; i < checks.length; i++) { const name = checks[i].dataset.name; const finalMsg = encodeURIComponent(msgTpl.replace('{name}', name)); window.open(`https://wa.me/${checks[i].dataset.phone}?text=${finalMsg}`, '_blank'); await new Promise(r => setTimeout(r, delay)); } document.getElementById('btn-blast').disabled = false; }
+        function updateBillingTheme() { const type = document.getElementById('billing-type').value; const themes = { QUO: '#007AFF', INV: '#FF3B30', REC: '#34C759' }; document.getElementById('preview-title').innerText = type; document.getElementById('preview-title').style.color = themes[type]; document.getElementById('billing-thead').style.backgroundColor = themes[type]; document.getElementById('watermark').innerText = type; document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; document.getElementById('prev-date').innerText = new Date().toLocaleDateString('en-GB'); }
+        function populateBillingClients() { const sel = document.getElementById('bill-client-select'); sel.innerHTML = '<option value="">-- Pilih Pelanggan CRM --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); sel.onchange = () => { const c = db.cli.find(cl => cl.id == sel.value); document.getElementById('bill-to-client').innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---'; }; }
+        function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input').appendChild(div); }
+        
+        function calcBilling() { 
+            const selects = document.querySelectorAll('.item-select'); 
+            const qtys = document.querySelectorAll('.qty-input'); 
+            const body = document.getElementById('preview-items-body'); 
+            body.innerHTML = ''; 
+            let subtotal = 0; 
+            selects.forEach((s, idx) => { 
+                const item = db.inv.find(i => i.id == s.value); 
+                if(item) { 
+                    const lineTotal = item.jual * qtys[idx].value; 
+                    subtotal += lineTotal; 
+                    let detailHtml = (item.details || []).map(d => d ? `<div class="text-[9px] text-gray-400 font-medium italic">• ${d}</div>` : '').join(''); 
+                    body.innerHTML += `<tr><td class="p-5 font-bold text-gray-800">${item.name}${detailHtml}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right font-medium">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black text-blue-600">RM ${lineTotal.toFixed(2)}</td></tr>`; 
+                } 
+            }); 
+            const grand = subtotal - activeDiscount;
+            if(activeDiscount > 0) {
+                document.getElementById('preview-discount-row').classList.remove('hidden');
+                document.getElementById('prev-discount-val').innerText = `- RM ${activeDiscount.toFixed(2)}`;
+            } else {
+                document.getElementById('preview-discount-row').classList.add('hidden');
+            }
+            document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; 
+        }
+
+        function generateFinalBilling() { 
+            const type = document.getElementById('billing-type').value; 
+            const selects = document.querySelectorAll('.item-select'); 
+            const qtys = document.querySelectorAll('.qty-input'); 
+            let margin = 0, total = 0; 
+            if(selects.length === 0) return alert("Sila tambah item!"); 
+            selects.forEach((s, idx) => { 
+                const item = db.inv.find(i => i.id == s.value); 
+                const q = parseInt(qtys[idx].value); 
+                if(item) { 
+                    if(type !== 'QUO') item.qty -= q; 
+                    margin += (item.jual - item.kos) * q; 
+                    total += item.jual * q; 
+                } 
+            }); 
+            total -= activeDiscount;
+            margin -= activeDiscount;
+            db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: `${type}${db.ref[type]}`, rawRef: db.ref[type], type, clientName: document.getElementById('bill-to-client').innerText.split('\n')[0], total: Math.max(0, total), margin }); 
+            db.ref[type]++; 
+            activeDiscount = 0;
+            save(); alert("Simpan!"); location.reload(); 
+        }
+
+        function renderHistory() { document.getElementById('history-body').innerHTML = db.hist.map(h => `<tr class="hover:bg-gray-50 transition"><td class="p-6 text-gray-400 font-bold">${h.date}</td><td class="p-6 font-black text-blue-600">${h.ref}</td><td class="p-6 font-bold text-gray-700">${h.clientName}</td><td class="p-6 text-right font-black">RM ${h.total.toFixed(2)}</td><td class="p-6 text-right text-emerald-500 font-bold">RM ${h.margin.toFixed(2)}</td><td class="p-6 text-center"><button onclick="if(confirm('Padam?')){db.hist=db.hist.filter(x=>x.id!==${h.id});save();renderHistory();}" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td></tr>`).reverse().join(''); }
+        function initApp() { 
+            document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); 
+            document.getElementById('set-biz-name').value = db.prof.name; 
+            document.getElementById('set-biz-addr').value = db.prof.addr; 
+            document.getElementById('set-biz-bank').value = db.prof.bank; 
+            updateBizProfile(); 
+            renderDashboard(); 
+            renderInventory(); 
+            renderCRM(); 
+            updateBillingTheme(); 
+            renderSchedule(); 
+            renderTax();
+        }
+        function exportData() { const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const a = document.createElement('a'); a.href = data; a.download = `BizPro_Flux_Backup.json`; a.click(); }
+        function importData(event) { const reader = new FileReader(); reader.onload = (e) => { db = JSON.parse(e.target.result); save(); location.reload(); }; reader.readAsText(event.target.files[0]); }
+        async function exportAndShare() { const element = document.getElementById('print-area'); const opt = { margin: 0, filename: `${document.getElementById('ref-no').innerText}.pdf`, html2canvas: { scale: 3 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
+        function shareWhatsapp() { const clientInfo = document.getElementById('bill-to-client').innerText; const phone = clientInfo.split('\n')[1] || ""; const ref = document.getElementById('ref-no').innerText; const total = document.getElementById('grandtotal').innerText; const msg = encodeURIComponent(`Salam dari ${db.prof.name}.\nDilampirkan ${ref} berjumlah ${total}.\nTerima kasih!`); window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'); }
     </script>
 </body>
 </html>
