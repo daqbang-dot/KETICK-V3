@@ -119,6 +119,9 @@
             <button onclick="showSection('blast')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-emerald-600 text-sm">
                 <i class="fab fa-whatsapp"></i> Smart Blast
             </button>
+            <button onclick="showSection('autoreply')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-blue-500 text-sm">
+                <i class="fas fa-reply-all"></i> WhatsApp Template
+            </button>
             <button onclick="showSection('lhdn')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-orange-600 text-sm">
                 <i class="fas fa-file-invoice-dollar"></i> LHDN Tax Records
             </button>
@@ -206,6 +209,26 @@
                     <button onclick="addJob()" class="bg-blue-600 text-white px-6 py-2 rounded-full text-xs font-bold shadow-lg shadow-blue-200">+ Tambah Nota</button>
                 </div>
                 <div id="calendar-widget" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
+            </div>
+        </section>
+
+        <section id="autoreply-section" class="section hidden section-animate">
+            <h2 class="text-3xl font-black mb-8">WhatsApp Quick Reply</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flux-card p-8">
+                    <h3 class="font-bold mb-4">Simpan Template Mesej</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="ar-title" class="w-full p-3 flux-input text-sm font-bold" placeholder="Tajuk (e.g: Info Harga)">
+                        <textarea id="ar-msg" class="w-full p-3 flux-input text-sm h-32" placeholder="Tulis ayat auto reply anda di sini..."></textarea>
+                        <button onclick="saveAR()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold">Simpan Template</button>
+                    </div>
+                </div>
+
+                <div class="flux-card p-8">
+                    <h3 class="font-bold mb-4">Senarai Quick Reply</h3>
+                    <div id="ar-list" class="space-y-3">
+                        </div>
+                </div>
             </div>
         </section>
 
@@ -580,7 +603,8 @@
             coupons: JSON.parse(localStorage.getItem('f6_coupons')) || { 'RAYA20': 20, 'PROMO10': 10 },
             ref: JSON.parse(localStorage.getItem('f6_ref')) || { QUO: 1001, INV: 1001, REC: 1001 },
             prof: JSON.parse(localStorage.getItem('f6_prof')) || { name: '', addr: '', bank: '', logo: '', cop: '' },
-            tax: JSON.parse(localStorage.getItem('f6_tax')) || []
+            tax: JSON.parse(localStorage.getItem('f6_tax')) || [],
+            ar: JSON.parse(localStorage.getItem('f6_ar')) || [] // ADDED AR TO DB
         };
 
         let activeDiscount = 0;
@@ -595,6 +619,7 @@
             localStorage.setItem('f6_sch', JSON.stringify(db.sch));
             localStorage.setItem('f6_coupons', JSON.stringify(db.coupons));
             localStorage.setItem('f6_tax', JSON.stringify(db.tax));
+            localStorage.setItem('f6_ar', JSON.stringify(db.ar)); // ADDED AR TO SAVE
         }
 
         function enterSystem() { 
@@ -602,7 +627,58 @@
             initApp(); 
         }
 
-        // --- NEW TAX FUNCTIONS (LHDN) ---
+        // --- NEW WHATSAPP TEMPLATE FUNCTIONS ---
+
+        function saveAR() {
+            const title = document.getElementById('ar-title').value;
+            const msg = document.getElementById('ar-msg').value;
+            if(!title || !msg) return alert("Sila isi tajuk dan mesej!");
+            
+            if(!db.ar) db.ar = [];
+            db.ar.push({ id: Date.now(), title, msg });
+            
+            save();
+            renderAR();
+            document.getElementById('ar-title').value = '';
+            document.getElementById('ar-msg').value = '';
+            alert("Template disimpan!");
+        }
+
+        function renderAR() {
+            const list = document.getElementById('ar-list');
+            if(!db.ar) db.ar = [];
+            list.innerHTML = db.ar.map(item => `
+                <div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100">
+                    <div>
+                        <p class="font-bold text-sm text-gray-800">${item.title}</p>
+                        <p class="text-[10px] text-gray-400 truncate w-40">${item.msg}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-white p-2 rounded-lg text-blue-600 border border-blue-100 text-[10px] font-bold">COPY</button>
+                        <button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-gray-400 text-xs italic py-4">Tiada template disimpan.</p>';
+        }
+
+        function copyToClipboard(msg) {
+            const text = decodeURIComponent(msg);
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Mesej di-copy! Anda boleh 'paste' terus ke WhatsApp pelanggan.");
+            });
+        }
+
+        function deleteAR(id) {
+            if(confirm("Padam template ini?")) {
+                db.ar = db.ar.filter(x => x.id !== id);
+                save();
+                renderAR();
+            }
+        }
+
+        // --- END WHATSAPP TEMPLATE FUNCTIONS ---
+
+        // --- TAX FUNCTIONS (LHDN) ---
 
         function saveTaxRecord() {
             const date = document.getElementById('tax-date').value;
@@ -627,7 +703,6 @@
                 renderTax();
                 document.getElementById('tax-modal').classList.add('hidden');
                 alert("Rekod perbelanjaan disimpan!");
-                // Clear inputs
                 document.getElementById('tax-amount').value = '';
                 document.getElementById('tax-vendor').value = '';
                 document.getElementById('tax-img-status').innerText = 'Ambil Gambar Resit';
@@ -666,13 +741,11 @@
             document.getElementById('tax-total-amt').innerText = `RM ${total.toLocaleString('en-MY', {minimumFractionDigits: 2})}`;
             document.getElementById('tax-receipt-count').innerText = db.tax.length;
             
-            // Find Top Category
             let top = "-";
             let max = 0;
             for(let c in catCounts) { if(catCounts[c] > max) { max = catCounts[c]; top = c; } }
             document.getElementById('tax-top-cat').innerText = top;
             
-            // Update Dashboard
             if(document.getElementById('dash-tax-expense')) {
                 document.getElementById('dash-tax-expense').innerText = `RM ${total.toLocaleString('en-MY', {minimumFractionDigits: 2})}`;
             }
@@ -695,9 +768,8 @@
             }, 1500);
         }
 
-        // --- END TAX FUNCTIONS ---
+        // --- CORE FUNCTIONS ---
 
-        // 1. Promo Link Generator (Inventory)
         function copyPromoLink(idx) {
             const item = db.inv[idx];
             const promoText = `*PROMOSI Khas dari ${db.prof.name}!* 🚀\n\n` +
@@ -707,11 +779,10 @@
                              `https://wa.me/60123456789?text=${encodeURIComponent("Saya nak order " + item.name)}`;
             
             navigator.clipboard.writeText(promoText).then(() => {
-                alert("Link Promosi & Teks telah disalin! Sila 'Paste' di WhatsApp/Media Sosial.");
+                alert("Link Promosi & Teks telah disalin!");
             });
         }
 
-        // 2. Coupon UI Manager
         function addNewCoupon() {
             const code = document.getElementById('new-coupon-code').value.toUpperCase().trim();
             const val = parseFloat(document.getElementById('new-coupon-val').value);
@@ -758,7 +829,6 @@
             }
         }
 
-        // 3. WhatsApp Katalog Text (Smart Blast)
         function generateCatalogText() {
             if(db.inv.length === 0) return alert("Inventori kosong!");
             let catalog = `*KATALOG PRODUK ${db.prof.name.toUpperCase()}* 📑\n\n`;
@@ -767,7 +837,7 @@
             });
             catalog += `\nHubungi kami untuk tempahan segera!`;
             document.getElementById('blast-msg').value = catalog;
-            alert("Katalog teks telah dijana ke dalam kotak mesej Blast!");
+            alert("Katalog teks telah dijana!");
         }
 
         function showSection(id) {
@@ -793,6 +863,7 @@
             if(id === 'social') renderSchedule();
             if(id === 'promo') renderCoupons();
             if(id === 'lhdn') renderTax();
+            if(id === 'autoreply') renderAR(); // UPDATED showSection
         }
 
         function addSchedule() {
@@ -816,7 +887,7 @@
                         <div class="${colors[s.platform]} text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs">${s.platform}</div>
                         <div>
                             <h4 class="font-bold text-gray-800 text-sm ${s.status === 'DONE' ? 'line-through' : ''}">${s.title}</h4>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${s.date} @ ${s.time} ${s.status === 'DONE' ? '✅' : ''}</p>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${s.date} @ ${s.time}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
@@ -826,22 +897,22 @@
                                 POST SEKARANG
                             </button>
                         ` : ''}
-                        <button onclick="deleteSch(${s.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
+                        <button onclick="deleteSch(${s.id})" class="text-gray-200 hover:text-red-500 transition px-2"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
-            `).join('') || '<p class="text-center text-gray-400 py-10 font-bold text-sm">Tiada jadual content buat masa ini.</p>';
+            `).join('') || '<p class="text-center text-gray-400 py-10 font-bold text-sm">Tiada jadual content.</p>';
         }
 
         function launchPost(platform, title, id) {
             const decodedTitle = decodeURIComponent(title);
             const links = { FB: 'https://m.facebook.com/', TT: 'https://www.tiktok.com/upload', IG: 'https://www.instagram.com/', TH: 'https://www.threads.net/' };
             navigator.clipboard.writeText(decodedTitle).then(() => {
-                alert("Kapsyen telah di-COPY! Sila 'Paste' apabila platform dibuka.");
+                alert("Kapsyen telah di-COPY!");
                 const item = db.sch.find(x => x.id === id);
                 if(item) item.status = 'DONE';
                 save(); renderSchedule();
                 window.open(links[platform], '_blank');
-            }).catch(err => { window.open(links[platform], '_blank'); });
+            });
         }
 
         function deleteSch(id) { db.sch = db.sch.filter(s => s.id !== id); save(); renderSchedule(); }
@@ -969,6 +1040,7 @@
         }
 
         function renderHistory() { document.getElementById('history-body').innerHTML = db.hist.map(h => `<tr class="hover:bg-gray-50 transition"><td class="p-6 text-gray-400 font-bold">${h.date}</td><td class="p-6 font-black text-blue-600">${h.ref}</td><td class="p-6 font-bold text-gray-700">${h.clientName}</td><td class="p-6 text-right font-black">RM ${h.total.toFixed(2)}</td><td class="p-6 text-right text-emerald-500 font-bold">RM ${h.margin.toFixed(2)}</td><td class="p-6 text-center"><button onclick="if(confirm('Padam?')){db.hist=db.hist.filter(x=>x.id!==${h.id});save();renderHistory();}" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td></tr>`).reverse().join(''); }
+        
         function initApp() { 
             document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); 
             document.getElementById('set-biz-name').value = db.prof.name; 
@@ -981,7 +1053,9 @@
             updateBillingTheme(); 
             renderSchedule(); 
             renderTax();
+            renderAR(); // INITIALIZE AR
         }
+
         function exportData() { const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const a = document.createElement('a'); a.href = data; a.download = `BizPro_Flux_Backup.json`; a.click(); }
         function importData(event) { const reader = new FileReader(); reader.onload = (e) => { db = JSON.parse(e.target.result); save(); location.reload(); }; reader.readAsText(event.target.files[0]); }
         async function exportAndShare() { const element = document.getElementById('print-area'); const opt = { margin: 0, filename: `${document.getElementById('ref-no').innerText}.pdf`, html2canvas: { scale: 3 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
