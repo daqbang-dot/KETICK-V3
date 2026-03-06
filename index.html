@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BizPro v6 | Cloud-Ready Suite</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BizPro v6">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1055/1055646.png">
+
+<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkJpelBybyB2NiBBZG1pbiIsCiAgInNob3J0X25hbWUiIjogIkJpelBybyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGYxNzJhIiwKICAidGhlbWVfY29sb3IiOiAiIzBmMTcyYSIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImh0dHBzOi8vY2RuLWljb25zLXBuZy5mbGF0aWNvbi5jb20vNTEyLzEwNTUvMTA1NTY0Ni5wbmciLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3BuZyIsCiAgICAgICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSIKICAgIH0KICBdCn0=">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -387,11 +394,34 @@
             document.getElementById('set-biz-bank').value = db.prof.bank;
             document.getElementById('billing-type').innerHTML = '<option value="QUO">QUOTATION</option><option value="INV">INVOICE</option><option value="REC">RECEIPT</option>';
             updateBizProfile(); renderInventory(); renderHistory(); renderJobs(); updateBillingTheme();
-            new Chart(document.getElementById('mainAnalyticsChart'), {
-                type: 'line',
-                data: { labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], datasets: [{ label: 'Revenue', data: [1500, 2800, 2100, 3900, 3200, 5000, 4800], borderColor: '#6366f1', borderWidth: 5, tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
+// Ambil 7 rekod terakhir dari history untuk graf
+const recentSales = db.hist.slice(-7);
+const labels = recentSales.map(h => h.ref); // Guna No. Rujukan sebagai label
+const dataValues = recentSales.map(h => h.total); // Guna jumlah RM
+
+new Chart(document.getElementById('mainAnalyticsChart'), {
+    type: 'line',
+    data: { 
+        labels: labels.length > 0 ? labels : ['Tiada Data'], 
+        datasets: [{ 
+            label: 'Jualan (RM)', 
+            data: dataValues.length > 0 ? dataValues : [0], 
+            borderColor: '#6366f1', 
+            borderWidth: 4, 
+            tension: 0.3, 
+            fill: true, 
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            pointBackgroundColor: '#6366f1'
+        }] 
+    },
+    options: { 
+        responsive: true, 
+        maintainAspectRatio: false, 
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
         }
 
         // Shared Logic from V5
