@@ -110,6 +110,9 @@
             <button onclick="showSection('billing')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500">
                 <i class="fas fa-receipt"></i> Billing
             </button>
+            <button onclick="showSection('promo')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-purple-600">
+                <i class="fas fa-tags"></i> Coupon Manager
+            </button>
             <button onclick="showSection('social')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-pink-600">
                 <i class="fas fa-share-nodes"></i> Social Marketing
             </button>
@@ -263,7 +266,7 @@
                 <h2 class="text-3xl font-black">Inventori Stok</h2>
                 <button onclick="addInventoryItem()" class="bg-black text-white px-8 py-3 rounded-2xl font-bold shadow-xl">+ Produk Baru</button>
             </div>
-            <div class="flux-card overflow-hidden">
+            <div class="flux-card overflow-x-auto">
                 <table class="w-full text-left">
                     <thead class="bg-gray-50/50 border-b border-gray-100">
                         <tr class="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
@@ -272,8 +275,7 @@
                             <th class="p-6">Kos (RM)</th>
                             <th class="p-6">Jual (RM)</th>
                             <th class="p-6">Baki Stok</th>
-                            <th class="p-6 text-center">Promosi</th>
-                            <th class="p-6"></th>
+                            <th class="p-6 text-center">Tindakan</th>
                         </tr>
                     </thead>
                     <tbody id="inventory-table-body"></tbody>
@@ -287,6 +289,33 @@
                 <button onclick="addClient()" class="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold shadow-xl">+ Tambah Lead</button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6" id="crm-list-grid"></div>
+        </section>
+
+        <section id="promo-section" class="section hidden section-animate">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black">Coupon Manager</h2>
+                <p class="text-gray-500 font-medium">Uruskan kod diskaun anda di sini.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="flux-card p-8 h-fit">
+                    <h3 class="font-black text-lg mb-6 tracking-tight">Tambah Kupon Baru</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Kod Kupon</label>
+                            <input type="text" id="new-coupon-code" class="w-full p-3 flux-input font-bold uppercase" placeholder="Contoh: RAYA2026">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Nilai Potongan (RM)</label>
+                            <input type="number" id="new-coupon-val" class="w-full p-3 flux-input font-bold" placeholder="0.00">
+                        </div>
+                        <button onclick="addNewCoupon()" class="w-full bg-purple-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:opacity-90 transition active:scale-95">SIMPAN KOD</button>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 flux-card p-8">
+                    <h3 class="font-black text-lg mb-6 tracking-tight">Senarai Kupon Aktif</h3>
+                    <div id="coupon-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
         </section>
 
         <section id="blast-section" class="section hidden section-animate">
@@ -468,7 +497,7 @@
 
         // --- NEW PROMO FUNCTIONS ---
 
-        // 1. Promo Link Generator
+        // 1. Promo Link Generator (Inventory)
         function copyPromoLink(idx) {
             const item = db.inv[idx];
             const promoText = `*PROMOSI Khas dari ${db.prof.name}!* 🚀\n\n` +
@@ -482,32 +511,63 @@
             });
         }
 
-        // 2. WhatsApp Katalog Text
-        function generateCatalogText() {
-            if(db.inv.length === 0) return alert("Inventori kosong!");
-            let catalog = `*KATALOG PRODUK ${db.prof.name.toUpperCase()}* 📑\n\n`;
-            
-            db.inv.slice(0, 10).forEach((item, i) => {
-                catalog += `${i+1}. *${item.name}* - RM ${item.jual.toFixed(2)}\n`;
-            });
-
-            catalog += `\nHubungi kami untuk tempahan segera!`;
-            document.getElementById('blast-msg').value = catalog;
-            alert("Katalog teks telah dijana ke dalam kotak mesej Blast!");
+        // 2. Coupon UI Manager
+        function addNewCoupon() {
+            const code = document.getElementById('new-coupon-code').value.toUpperCase().trim();
+            const val = parseFloat(document.getElementById('new-coupon-val').value);
+            if(!code || isNaN(val)) return alert("Isi kod dan nilai dengan betul!");
+            db.coupons[code] = val;
+            save();
+            renderCoupons();
+            document.getElementById('new-coupon-code').value = '';
+            document.getElementById('new-coupon-val').value = '';
+            alert("Kupon berjaya ditambah!");
         }
 
-        // 3. Coupon System
+        function renderCoupons() {
+            const container = document.getElementById('coupon-list');
+            container.innerHTML = Object.entries(db.coupons).map(([code, val]) => `
+                <div class="bg-white p-4 rounded-2xl border border-dashed border-purple-200 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-black text-purple-600 tracking-widest">${code}</p>
+                        <p class="text-lg font-bold">RM ${val.toFixed(2)} OFF</p>
+                    </div>
+                    <button onclick="deleteCoupon('${code}')" class="text-gray-300 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('') || '<p class="text-gray-400 font-bold text-xs">Tiada kupon aktif.</p>';
+        }
+
+        function deleteCoupon(code) {
+            if(confirm(`Padam kupon ${code}?`)) {
+                delete db.coupons[code];
+                save();
+                renderCoupons();
+            }
+        }
+
         function applyCoupon() {
-            const code = document.getElementById('coupon-input').value.toUpperCase();
+            const code = document.getElementById('coupon-input').value.toUpperCase().trim();
             if(db.coupons[code]) {
                 activeDiscount = db.coupons[code];
-                alert(`Kupon ${code} diterima! Diskaun RM ${activeDiscount.toFixed(2)} telah ditolak.`);
+                alert(`Kupon ${code} diterima! Diskaun RM ${activeDiscount.toFixed(2)}.`);
                 calcBilling();
             } else {
-                alert("Kod kupon tidak sah!");
+                alert("Kod kupon tidak wujud!");
                 activeDiscount = 0;
                 calcBilling();
             }
+        }
+
+        // 3. WhatsApp Katalog Text (Smart Blast)
+        function generateCatalogText() {
+            if(db.inv.length === 0) return alert("Inventori kosong!");
+            let catalog = `*KATALOG PRODUK ${db.prof.name.toUpperCase()}* 📑\n\n`;
+            db.inv.slice(0, 10).forEach((item, i) => {
+                catalog += `${i+1}. *${item.name}* - RM ${item.jual.toFixed(2)}\n`;
+            });
+            catalog += `\nHubungi kami untuk tempahan segera!`;
+            document.getElementById('blast-msg').value = catalog;
+            alert("Katalog teks telah dijana ke dalam kotak mesej Blast!");
         }
 
         // --- END PROMO FUNCTIONS ---
@@ -533,20 +593,19 @@
             if(id === 'blast') renderBlastClientList();
             if(id === 'history') renderHistory();
             if(id === 'social') renderSchedule();
+            if(id === 'promo') renderCoupons();
         }
+
+        // ... [Fungsi-fungsi lain yang dikekalkan tanpa perubahan] ...
 
         function addSchedule() {
             const platform = document.getElementById('sch-platform').value;
             const title = document.getElementById('sch-title').value;
             const date = document.getElementById('sch-date').value;
             const time = document.getElementById('sch-time').value;
-            
             if(!title || !date || !time) return alert("Sila isi semua maklumat jadual!");
-            
             db.sch.push({ id: Date.now(), platform, title, date, time, status: 'PENDING' });
-            save();
-            renderSchedule();
-            
+            save(); renderSchedule();
             document.getElementById('sch-title').value = '';
             document.getElementById('sch-date').value = '';
             document.getElementById('sch-time').value = '';
@@ -554,7 +613,6 @@
 
         function renderSchedule() {
             const colors = { FB: 'bg-blue-600', TT: 'bg-black', IG: 'bg-pink-500', TH: 'bg-gray-800' };
-            
             document.getElementById('schedule-list').innerHTML = db.sch.sort((a,b) => new Date(a.date) - new Date(b.date)).map(s => `
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 flex justify-between items-center group shadow-sm ${s.status === 'DONE' ? 'opacity-50' : ''}">
                     <div class="flex items-center gap-4">
@@ -579,30 +637,17 @@
 
         function launchPost(platform, title, id) {
             const decodedTitle = decodeURIComponent(title);
-            const links = { 
-                FB: 'https://m.facebook.com/', 
-                TT: 'https://www.tiktok.com/upload', 
-                IG: 'https://www.instagram.com/', 
-                TH: 'https://www.threads.net/' 
-            };
-
+            const links = { FB: 'https://m.facebook.com/', TT: 'https://www.tiktok.com/upload', IG: 'https://www.instagram.com/', TH: 'https://www.threads.net/' };
             navigator.clipboard.writeText(decodedTitle).then(() => {
                 alert("Kapsyen telah di-COPY! Sila 'Paste' apabila platform dibuka.");
                 const item = db.sch.find(x => x.id === id);
                 if(item) item.status = 'DONE';
-                save();
-                renderSchedule();
+                save(); renderSchedule();
                 window.open(links[platform], '_blank');
-            }).catch(err => {
-                window.open(links[platform], '_blank');
-            });
+            }).catch(err => { window.open(links[platform], '_blank'); });
         }
 
-        function deleteSch(id) {
-            db.sch = db.sch.filter(s => s.id !== id);
-            save();
-            renderSchedule();
-        }
+        function deleteSch(id) { db.sch = db.sch.filter(s => s.id !== id); save(); renderSchedule(); }
 
         function uploadProfileImg(input, type) {
             const reader = new FileReader();
@@ -655,8 +700,10 @@
                     <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"></td>
                     <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"></td>
                     <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"></td>
-                    <td class="p-6 text-center"><button onclick="copyPromoLink(${idx})" class="bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-[9px] font-black border border-emerald-100"><i class="fas fa-link mr-1"></i> COPY LINK</button></td>
-                    <td class="p-6 text-center"><button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td>
+                    <td class="p-6 text-center space-y-2">
+                        <button onclick="copyPromoLink(${idx})" class="w-full bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-[9px] font-black border border-emerald-100 hover:bg-emerald-600 hover:text-white transition"><i class="fas fa-link mr-1"></i> COPY LINK</button>
+                        <button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs block mx-auto"><i class="fas fa-trash-alt"></i></button>
+                    </td>
                 </tr>
             `).join('');
             save();
@@ -679,7 +726,6 @@
             const body = document.getElementById('preview-items-body'); 
             body.innerHTML = ''; 
             let subtotal = 0; 
-
             selects.forEach((s, idx) => { 
                 const item = db.inv.find(i => i.id == s.value); 
                 if(item) { 
@@ -689,7 +735,6 @@
                     body.innerHTML += `<tr><td class="p-5 font-bold text-gray-800">${item.name}${detailHtml}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right font-medium">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black text-blue-600">RM ${lineTotal.toFixed(2)}</td></tr>`; 
                 } 
             }); 
-
             const grand = subtotal - activeDiscount;
             if(activeDiscount > 0) {
                 document.getElementById('preview-discount-row').classList.remove('hidden');
@@ -697,7 +742,6 @@
             } else {
                 document.getElementById('preview-discount-row').classList.add('hidden');
             }
-
             document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; 
         }
 
@@ -707,7 +751,6 @@
             const qtys = document.querySelectorAll('.qty-input'); 
             let margin = 0, total = 0; 
             if(selects.length === 0) return alert("Sila tambah item!"); 
-            
             selects.forEach((s, idx) => { 
                 const item = db.inv.find(i => i.id == s.value); 
                 const q = parseInt(qtys[idx].value); 
@@ -717,17 +760,12 @@
                     total += item.jual * q; 
                 } 
             }); 
-            
-            // Deduct discount from margin & total
             total -= activeDiscount;
             margin -= activeDiscount;
-
             db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: `${type}${db.ref[type]}`, rawRef: db.ref[type], type, clientName: document.getElementById('bill-to-client').innerText.split('\n')[0], total: Math.max(0, total), margin }); 
             db.ref[type]++; 
             activeDiscount = 0;
-            save(); 
-            alert("Simpan!"); 
-            location.reload(); 
+            save(); alert("Simpan!"); location.reload(); 
         }
 
         function renderHistory() { document.getElementById('history-body').innerHTML = db.hist.map(h => `<tr class="hover:bg-gray-50 transition"><td class="p-6 text-gray-400 font-bold">${h.date}</td><td class="p-6 font-black text-blue-600">${h.ref}</td><td class="p-6 font-bold text-gray-700">${h.clientName}</td><td class="p-6 text-right font-black">RM ${h.total.toFixed(2)}</td><td class="p-6 text-right text-emerald-500 font-bold">RM ${h.margin.toFixed(2)}</td><td class="p-6 text-center"><button onclick="if(confirm('Padam?')){db.hist=db.hist.filter(x=>x.id!==${h.id});save();renderHistory();}" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td></tr>`).reverse().join(''); }
