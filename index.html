@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BizPro v3 | Admin Dashboard</title>
+    <title>BizPro v4 | Smart Admin Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s; }
         .sidebar-item:hover { background: #1e293b; border-left: 4px solid #6366f1; }
-        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .section-animate { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @media print { body * { visibility: hidden; } #print-area, #print-area * { visibility: visible; } #print-area { position: absolute; left: 0; top: 0; width: 100%; border: none !important; } }
     </style>
 </head>
@@ -26,15 +27,15 @@
         </div>
     </div>
 
-    <aside class="w-64 bg-slate-900 text-white sticky top-0 h-screen p-5 shrink-0">
+    <aside class="w-64 bg-slate-900 text-white sticky top-0 h-screen p-5 shrink-0 no-print">
         <div class="mb-10 px-2">
-            <h1 class="text-2xl font-black text-indigo-400">BIZPRO <span class="text-white text-xs">v3.0</span></h1>
-            <p class="text-[10px] text-slate-400 uppercase tracking-widest">Admin Panel</p>
+            <h1 class="text-2xl font-black text-indigo-400">BIZPRO <span class="text-white text-xs">v4.0</span></h1>
+            <p class="text-[10px] text-slate-400 uppercase tracking-widest italic">Management & Billing</p>
         </div>
         <nav class="space-y-1">
-            <button onclick="showSection('dashboard')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-grid-2 mr-3"></i> Dashboard</button>
+            <button onclick="showSection('dashboard')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-th-large mr-3 text-indigo-400"></i> Dashboard</button>
             <button onclick="showSection('inventory')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-boxes mr-3"></i> Inventory</button>
-            <button onclick="showSection('client')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-address-book mr-3"></i> Clients</button>
+            <button onclick="showSection('client')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-user-circle mr-3"></i> Clients</button>
             <button onclick="showSection('billing')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-file-invoice-dollar mr-3"></i> Billing</button>
             <button onclick="showSection('history')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-history mr-3"></i> History</button>
         </nav>
@@ -42,53 +43,53 @@
 
     <main class="flex-1 p-8 overflow-y-auto">
         
-        <section id="dashboard-section" class="section">
+        <section id="dashboard-section" class="section section-animate">
             <div class="flex justify-between items-end mb-8">
                 <div>
-                    <h2 class="text-3xl font-extrabold text-slate-800">Business Overview</h2>
-                    <p class="text-slate-500">Analisis prestasi dan tetapan profil.</p>
+                    <h2 class="text-3xl font-extrabold text-slate-800 tracking-tight">Admin Dashboard</h2>
+                    <p class="text-slate-500 text-sm font-medium">Prestasi Jualan & Pengurusan Bisnes</p>
                 </div>
-                <div id="live-clock" class="text-right font-bold text-indigo-600"></div>
+                <div class="text-right">
+                    <p id="live-clock" class="font-black text-indigo-600 text-xl"></p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sistem Aktif</p>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-slate-700 mb-6 uppercase text-xs">Prestasi Jualan & Margin</h3>
-                    <div style="height: 300px;"><canvas id="mainAnalyticsChart"></canvas></div>
+                <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-700 mb-6 uppercase text-[10px] tracking-widest">Analisis Mingguan</h3>
+                    <div style="height: 320px;"><canvas id="mainAnalyticsChart"></canvas></div>
                 </div>
                 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-indigo-600 mb-4 uppercase text-xs italic"><i class="fas fa-cog mr-2"></i>Business Settings</h3>
+                <div class="bg-indigo-600 p-6 rounded-3xl shadow-xl text-white">
+                    <h3 class="font-bold mb-6 uppercase text-[10px] tracking-widest opacity-80">Business Profile</h3>
                     <div class="space-y-3">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400">NAMA SYARIKAT</label>
-                            <input type="text" id="set-biz-name" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 border rounded text-sm font-bold">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400">NO. PENDAFTARAN</label>
-                            <input type="text" id="set-biz-reg" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 border rounded text-sm">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400">ALAMAT</label>
-                            <textarea id="set-biz-addr" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 border rounded text-xs h-20"></textarea>
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400">INFO BANK (BANK & NO AKAUN)</label>
-                            <input type="text" id="set-biz-bank" oninput="updateBizProfile()" class="w-full p-2 bg-slate-50 border rounded text-sm" placeholder="Maybank 1234...">
-                        </div>
+                        <input type="text" id="set-biz-name" oninput="updateBizProfile()" class="w-full p-2 bg-white/10 border border-white/20 rounded-xl text-sm font-bold placeholder-white/50 outline-none" placeholder="Nama Syarikat">
+                        <input type="text" id="set-biz-reg" oninput="updateBizProfile()" class="w-full p-2 bg-white/10 border border-white/20 rounded-xl text-sm placeholder-white/50 outline-none" placeholder="No. Reg">
+                        <textarea id="set-biz-addr" oninput="updateBizProfile()" class="w-full p-2 bg-white/10 border border-white/20 rounded-xl text-xs h-20 placeholder-white/50 outline-none" placeholder="Alamat Penuh"></textarea>
+                        <input type="text" id="set-biz-bank" oninput="updateBizProfile()" class="w-full p-2 bg-white/10 border border-white/20 rounded-xl text-sm placeholder-white/50 outline-none" placeholder="Bank & No Akaun">
                     </div>
                 </div>
             </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-bold text-slate-700 uppercase text-[10px] tracking-widest">Calendar & Job Tracker</h3>
+                    <button onclick="addJob()" class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-indigo-100">+ Add Job</button>
+                </div>
+                <div id="calendar-widget" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    </div>
+            </div>
         </section>
 
-        <section id="inventory-section" class="section hidden">
+        <section id="inventory-section" class="section hidden section-animate">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">Inventory</h2>
-                <button onclick="addInventoryItem()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg">+ Add Item</button>
+                <button onclick="addInventoryItem()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm">+ New Item</button>
             </div>
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-slate-200">
+            <div class="bg-white rounded-3xl shadow-sm overflow-hidden border">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 uppercase font-bold text-[10px] text-slate-500 border-b">
+                    <thead class="bg-slate-50 font-bold text-[10px] text-slate-500 border-b">
                         <tr><th class="p-4">Item & Details</th><th class="p-4 w-32">Kos (RM)</th><th class="p-4 w-32">Harga (RM)</th><th class="p-4 w-24">Stok</th><th class="p-4 w-24">Aksi</th></tr>
                     </thead>
                     <tbody id="inventory-table-body"></tbody>
@@ -96,77 +97,82 @@
             </div>
         </section>
 
-        <section id="client-section" class="section hidden">
-            <h2 class="text-2xl font-bold mb-6">Client Database</h2>
+        <section id="client-section" class="section hidden section-animate">
+            <h2 class="text-2xl font-bold mb-6">Clients</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="client-list-grid"></div>
-            <button onclick="addClient()" class="mt-6 bg-slate-800 text-white px-6 py-2 rounded-lg text-sm">+ Add New Client</button>
+            <button onclick="addClient()" class="mt-6 bg-slate-900 text-white px-6 py-2 rounded-xl text-sm">+ Add Client</button>
         </section>
 
-        <section id="billing-section" class="section hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 glass">
-                    <h3 class="font-bold mb-4 text-indigo-600 uppercase text-xs">Generator</h3>
-                    <select id="bill-client-select" class="w-full p-2 border rounded mb-4 text-sm"></select>
-                    <select id="billing-type" onchange="updateBillingTheme()" class="w-full p-2 border rounded mb-4 font-bold bg-slate-50">
-                        <option value="QUO">QUOTATION</option>
-                        <option value="INV">INVOICE</option>
-                        <option value="REC">RECEIPT</option>
-                    </select>
-                    <div id="billing-items-input" class="space-y-2 mb-4"></div>
-                    <button onclick="addBillingItemRow()" class="text-indigo-600 text-xs font-bold mb-6 italic hover:underline">+ Tambah Item dari Inventory</button>
-                    <button onclick="generateFinalBilling()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold mb-2 shadow-lg">CONFIRM & SAVE RECORD</button>
-                    <button onclick="exportAndShare()" class="w-full border-2 border-indigo-600 text-indigo-600 py-3 rounded-xl font-bold">PRINT PDF / WHATSAPP</button>
+        <section id="billing-section" class="section hidden section-animate">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="space-y-6 no-print">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                        <h3 class="font-bold mb-4 text-indigo-600 uppercase text-[10px] tracking-widest">Billing Tools</h3>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Select Client</label>
+                        <select id="bill-client-select" class="w-full p-3 bg-slate-50 border-none rounded-2xl mb-4 text-sm font-semibold focus:ring-2 focus:ring-indigo-500"></select>
+                        
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Document Type</label>
+                        <select id="billing-type" onchange="updateBillingTheme()" class="w-full p-3 bg-slate-50 border-none rounded-2xl mb-6 font-black text-indigo-600"></select>
+
+                        <div id="billing-items-input" class="space-y-2 mb-4"></div>
+                        <button onclick="addBillingItemRow()" class="w-full border-2 border-dashed border-slate-200 text-slate-400 p-2 rounded-xl text-[10px] font-bold hover:border-indigo-400 hover:text-indigo-400 transition">+ Add Item</button>
+                    </div>
+
+                    <div class="bg-slate-900 p-6 rounded-3xl shadow-xl">
+                        <button onclick="generateFinalBilling()" class="w-full bg-indigo-500 text-white py-4 rounded-2xl font-black mb-3 hover:bg-indigo-400 transition shadow-lg shadow-indigo-500/30">CONFIRM & SAVE RECORD</button>
+                        <button onclick="exportAndShare()" class="w-full bg-white/10 text-white py-3 rounded-2xl font-bold text-sm hover:bg-white/20 transition">DOWNLOAD PDF <i class="fas fa-file-pdf ml-2"></i></button>
+                    </div>
                 </div>
 
-                <div id="print-area" class="lg:col-span-2 bg-white p-12 border shadow-2xl relative min-h-[842px] w-full">
-                    <div id="watermark" class="absolute inset-0 flex items-center justify-center opacity-[0.03] rotate-45 text-[120px] font-black pointer-events-none uppercase"></div>
-                    <div class="flex justify-between mb-12 border-b-4 border-slate-900 pb-8">
+                <div id="print-area" class="lg:col-span-2 bg-white p-12 border shadow-sm relative min-h-[1000px] rounded-3xl">
+                    <div id="watermark" class="absolute inset-0 flex items-center justify-center opacity-[0.03] rotate-45 text-[150px] font-black pointer-events-none uppercase"></div>
+                    <div class="flex justify-between items-start mb-16">
                         <div>
-                            <h2 class="font-black text-2xl uppercase tracking-tighter" id="prev-biz-name">SYARIKAT ANDA</h2>
-                            <p class="text-[10px] text-slate-500 font-bold" id="prev-biz-reg">NO REG: 123456-X</p>
-                            <p class="text-xs mt-2 max-w-[250px] leading-relaxed" id="prev-biz-addr">Alamat...</p>
+                            <h2 class="font-black text-3xl uppercase tracking-tighter text-slate-900" id="prev-biz-name">---</h2>
+                            <p class="text-[10px] text-indigo-600 font-black tracking-widest" id="prev-biz-reg">---</p>
+                            <p class="text-xs mt-4 max-w-[300px] text-slate-500 font-medium leading-relaxed" id="prev-biz-addr">---</p>
                         </div>
                         <div class="text-right">
-                            <h1 id="preview-title" class="text-5xl font-black italic tracking-tighter">QUOTATION</h1>
-                            <div class="mt-4 text-sm font-bold">
-                                <p>REF: <span id="ref-no" class="text-indigo-600">QUO1001</span></p>
-                                <p>TARIKH: <span id="prev-date">01/01/2026</span></p>
+                            <h1 id="preview-title" class="text-6xl font-black italic tracking-tighter leading-none">QUO</h1>
+                            <div class="mt-6 space-y-1">
+                                <p class="text-xs font-bold text-slate-400">REFERENCE NO</p>
+                                <p id="ref-no" class="font-black text-xl text-slate-900">---</p>
+                                <p class="text-[10px] font-bold text-slate-400 mt-2">DATED: <span id="prev-date" class="text-slate-900"></span></p>
                             </div>
                         </div>
                     </div>
-                    <div class="mb-8 grid grid-cols-2">
-                        <div>
-                            <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Kepada:</p>
-                            <p id="bill-to-client" class="font-bold text-slate-800 whitespace-pre-line leading-tight">---</p>
+                    <div class="grid grid-cols-2 mb-12 gap-10">
+                        <div class="bg-slate-50 p-6 rounded-2xl border-l-4 border-indigo-500">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Bill To:</p>
+                            <p id="bill-to-client" class="font-bold text-slate-800 text-sm whitespace-pre-line leading-tight">---</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-[10px] font-black text-slate-400 uppercase mb-1">Bayaran Ke:</p>
-                            <p id="prev-biz-bank" class="text-xs font-bold italic">---</p>
+                        <div class="p-6">
+                            <p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Payment Info:</p>
+                            <p id="prev-biz-bank" class="text-xs font-bold text-slate-600 italic leading-relaxed">---</p>
                         </div>
                     </div>
-                    <table class="w-full text-sm">
+                    <table class="w-full">
                         <thead id="billing-thead" class="text-white">
-                            <tr class="text-left"><th class="p-3">ITEM DESCRIPTION</th><th class="p-3 text-center w-20">QTY</th><th class="p-3 text-right w-32">HARGA</th><th class="p-3 text-right w-32">JUMLAH</th></tr>
+                            <tr class="text-left text-[10px] tracking-widest uppercase"><th class="p-4 rounded-tl-xl">Description</th><th class="p-4 text-center">Qty</th><th class="p-4 text-right">Price</th><th class="p-4 text-right rounded-tr-xl">Total</th></tr>
                         </thead>
-                        <tbody id="preview-items-body"></tbody>
+                        <tbody id="preview-items-body" class="text-sm"></tbody>
                     </table>
-                    <div class="mt-12 flex justify-end">
-                        <div class="w-64 border-t-2 border-slate-900 pt-4 text-right">
-                            <p class="text-xs font-bold text-slate-400 uppercase">Grand Total</p>
-                            <h2 class="text-3xl font-black text-slate-900" id="grandtotal">RM 0.00</h2>
+                    <div class="mt-16 flex justify-end">
+                        <div class="w-72 bg-slate-900 p-8 rounded-3xl text-right text-white shadow-2xl">
+                            <p class="text-[10px] font-bold text-white/40 uppercase mb-1 tracking-widest">Amount Due</p>
+                            <h2 class="text-4xl font-black" id="grandtotal">RM 0.00</h2>
                         </div>
                     </div>
-                    <div class="mt-20 border-t pt-4 text-[10px] text-slate-400 italic">Ini adalah dokumen komputer, tandatangan tidak diperlukan.</div>
                 </div>
             </div>
         </section>
 
-        <section id="history-section" class="section hidden">
-            <h2 class="text-2xl font-bold mb-6">Sales History</h2>
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden border">
+        <section id="history-section" class="section hidden section-animate">
+            <h2 class="text-2xl font-bold mb-6">Transaction History</h2>
+            <div class="bg-white rounded-3xl shadow-sm overflow-hidden border">
                 <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-900 text-white font-bold text-xs uppercase">
-                        <tr><th class="p-4">Tarikh</th><th class="p-4">Ref</th><th class="p-4">Client</th><th class="p-4 text-right">Total (RM)</th><th class="p-4 text-right">Margin (RM)</th></tr>
+                    <thead class="bg-slate-900 text-white font-bold text-[10px] uppercase tracking-widest">
+                        <tr><th class="p-4">Date</th><th class="p-4">Ref</th><th class="p-4">Client</th><th class="p-4 text-right">Total</th><th class="p-4 text-right">Margin</th><th class="p-4 text-center">Action</th></tr>
                     </thead>
                     <tbody id="history-body"></tbody>
                 </table>
@@ -176,129 +182,55 @@
 
     <script>
         // --- DATA & DB ---
-        let inventory = JSON.parse(localStorage.getItem('biz_v3_inv')) || [];
-        let clients = JSON.parse(localStorage.getItem('biz_v3_cli')) || [];
-        let history = JSON.parse(localStorage.getItem('biz_v3_hist')) || [];
-        let nextRef = JSON.parse(localStorage.getItem('biz_v3_ref')) || { QUO: 1001, INV: 1001, REC: 1001 };
-        let bizProfile = JSON.parse(localStorage.getItem('biz_v3_prof')) || { name: 'Syarikat Nama', reg: '12345-X', addr: 'Alamat Bisnes', bank: 'Maybank: 123456789' };
+        let inventory = JSON.parse(localStorage.getItem('v4_inv')) || [];
+        let clients = JSON.parse(localStorage.getItem('v4_cli')) || [];
+        let history = JSON.parse(localStorage.getItem('v4_hist')) || [];
+        let jobs = JSON.parse(localStorage.getItem('v4_jobs')) || [];
+        let nextRef = JSON.parse(localStorage.getItem('v4_ref')) || { QUO: 1001, INV: 1001, REC: 1001 };
+        let bizProfile = JSON.parse(localStorage.getItem('v4_prof')) || { name: '', reg: '', addr: '', bank: '' };
 
-        const PASS = "Admin123";
-        function checkLogin() { if(document.getElementById('admin-password').value === PASS) { document.getElementById('login-overlay').classList.add('hidden'); initApp(); } }
+        function checkLogin() { if(document.getElementById('admin-password').value === "Admin123") { document.getElementById('login-overlay').classList.add('hidden'); initApp(); } }
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.getElementById(id + '-section').classList.remove('hidden');
             if(id === 'billing') populateBillingClients();
+            if(id === 'dashboard') renderJobs();
         }
 
-        // --- DASHBOARD: BUSINESS INFO & CHART ---
-        function updateBizProfile() {
-            bizProfile = {
-                name: document.getElementById('set-biz-name').value,
-                reg: document.getElementById('set-biz-reg').value,
-                addr: document.getElementById('set-biz-addr').value,
-                bank: document.getElementById('set-biz-bank').value
-            };
-            // Real-time link to Billing Preview
-            document.getElementById('prev-biz-name').innerText = bizProfile.name;
-            document.getElementById('prev-biz-reg').innerText = `NO REG: ${bizProfile.reg}`;
-            document.getElementById('prev-biz-addr').innerText = bizProfile.addr;
-            document.getElementById('prev-biz-bank').innerText = bizProfile.bank;
-            saveDB();
+        // --- DASHBOARD: CALENDAR & JOBS ---
+        function addJob() {
+            const title = prompt("Nama Tugasan / Projek:");
+            const date = prompt("Tarikh (e.g. 15 March):");
+            if(title && date) { jobs.push({ title, date, id: Date.now() }); saveDB(); renderJobs(); }
         }
 
-        function initMainChart() {
-            const ctx = document.getElementById('mainAnalyticsChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'],
-                    datasets: [
-                        { label: 'Jualan (RM)', data: [400, 800, 600, 1200, 900, 1500, 2000], backgroundColor: '#6366f1', borderRadius: 8 },
-                        { label: 'Margin (RM)', data: [100, 300, 200, 500, 400, 700, 900], backgroundColor: '#10b981', borderRadius: 8 }
-                    ]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-            });
-        }
-
-        // --- INVENTORY (As requested: No Update Logic) ---
-        function addInventoryItem() { inventory.push({ id: Date.now(), name: 'Item Baru', kos: 0, jual: 0, qty: 0, details: [] }); renderInventory(); }
-        function addDetailRow(idx) { inventory[idx].details.push(""); renderInventory(); }
-        function updateDetail(itemIdx, detailIdx, val) { inventory[itemIdx].details[detailIdx] = val; saveDB(); }
-        function renderInventory() {
-            const body = document.getElementById('inventory-table-body');
-            body.innerHTML = inventory.map((item, idx) => `
-                <tr class="border-b align-top hover:bg-slate-50 transition">
-                    <td class="p-4">
-                        <input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold border-none w-full bg-transparent focus:ring-0">
-                        <div class="mt-2 space-y-1">
-                            ${item.details.map((d, dIdx) => `<input type="text" value="${d}" onchange="updateDetail(${idx}, ${dIdx}, this.value)" placeholder="Detail tambahan..." class="block text-[10px] border p-1 w-full rounded bg-white">`).join('')}
-                        </div>
-                        <button onclick="addDetailRow(${idx})" class="text-[9px] text-indigo-500 font-bold mt-2 hover:underline">+ TAMBAH DETAIL</button>
-                    </td>
-                    <td class="p-4"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-full border p-1 rounded"></td>
-                    <td class="p-4"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-full border p-1 rounded font-bold"></td>
-                    <td class="p-4"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-full border p-1 rounded text-center"></td>
-                    <td class="p-4"><button onclick="inventory.splice(${idx},1); renderInventory();" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-            saveDB();
-        }
-        function updateInv(idx, field, val) { inventory[idx][field] = (field === 'name') ? val : parseFloat(val); saveDB(); }
-
-        // --- CLIENTS & BILLING (As requested: No Update Logic except Link) ---
-        function addClient() { const name = prompt("Nama Client:"); if(name) { clients.push({ id: Date.now(), name, phone: '', addr: '' }); renderClients(); } }
-        function renderClients() {
-            const grid = document.getElementById('client-list-grid');
-            grid.innerHTML = clients.map((c, idx) => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <input type="text" value="${c.name}" onchange="clients[${idx}].name=this.value; saveDB();" class="font-bold w-full mb-2 text-indigo-600">
-                    <input type="text" value="${c.phone}" onchange="clients[${idx}].phone=this.value; saveDB();" placeholder="No Phone" class="text-xs w-full mb-2 bg-slate-50 p-1 rounded">
-                    <textarea onchange="clients[${idx}].addr=this.value; saveDB();" placeholder="Alamat" class="text-[10px] w-full bg-slate-50 p-1 rounded h-12 border-none">${c.addr}</textarea>
+        function renderJobs() {
+            const container = document.getElementById('calendar-widget');
+            container.innerHTML = jobs.map(j => `
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 group relative">
+                    <p class="text-[10px] font-black text-indigo-500 uppercase">${j.date}</p>
+                    <h4 class="font-bold text-slate-800 text-sm mt-1">${j.title}</h4>
+                    <button onclick="delJob(${j.id})" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition"><i class="fas fa-times-circle"></i></button>
                 </div>
             `).join('');
+        }
+        function delJob(id) { jobs = jobs.filter(j => j.id !== id); saveDB(); renderJobs(); }
+
+        function updateBizProfile() {
+            bizProfile = { name: document.getElementById('set-biz-name').value, reg: document.getElementById('set-biz-reg').value, addr: document.getElementById('set-biz-addr').value, bank: document.getElementById('set-biz-bank').value };
+            document.getElementById('prev-biz-name').innerText = bizProfile.name || "---";
+            document.getElementById('prev-biz-reg').innerText = `NO REG: ${bizProfile.reg}` || "---";
+            document.getElementById('prev-biz-addr').innerText = bizProfile.addr || "---";
+            document.getElementById('prev-biz-bank').innerText = bizProfile.bank || "---";
             saveDB();
         }
 
-        function populateBillingClients() {
-            const sel = document.getElementById('bill-client-select');
-            sel.innerHTML = '<option value="">-- PILIH CLIENT --</option>' + clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            sel.onchange = () => {
-                const c = clients.find(cl => cl.id == sel.value);
-                document.getElementById('bill-to-client').innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---';
-            };
-        }
-
-        function addBillingItemRow() {
-            const area = document.getElementById('billing-items-input');
-            const div = document.createElement('div');
-            div.className = "flex gap-1";
-            div.innerHTML = `<select class="w-3/4 p-1 text-xs border rounded item-select" onchange="calcBilling()"><option value="">Item...</option>${inventory.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-1 text-xs border rounded qty-input" value="1" onchange="calcBilling()">`;
-            area.appendChild(div);
-        }
-
-        function calcBilling() {
-            const selects = document.querySelectorAll('.item-select');
-            const qtys = document.querySelectorAll('.qty-input');
-            const body = document.getElementById('preview-items-body');
-            body.innerHTML = ''; let grand = 0;
-            selects.forEach((s, idx) => {
-                const item = inventory.find(i => i.id == s.value);
-                if(item) {
-                    const total = item.jual * qtys[idx].value;
-                    grand += total;
-                    let detailHtml = item.details.map(d => `<div class="text-[9px] text-slate-400 font-normal italic">- ${d}</div>`).join('');
-                    body.innerHTML += `<tr class="border-b"><td class="p-3 font-bold text-slate-700">${item.name}${detailHtml}</td><td class="p-3 text-center">${qtys[idx].value}</td><td class="p-3 text-right">RM ${item.jual.toFixed(2)}</td><td class="p-3 text-right font-bold">RM ${total.toFixed(2)}</td></tr>`;
-                }
-            });
-            document.getElementById('grandtotal').innerText = `RM ${grand.toFixed(2)}`;
-        }
-
+        // --- SMART BILLING LOGIC ---
         function updateBillingTheme() {
             const type = document.getElementById('billing-type').value;
-            const themes = { QUO: '#4f46e5', INV: '#ef4444', REC: '#10b981' };
-            document.getElementById('preview-title').innerText = type === 'QUO' ? 'QUOTATION' : type === 'INV' ? 'INVOICE' : 'OFFICIAL RECEIPT';
+            const themes = { QUO: '#6366f1', INV: '#f43f5e', REC: '#10b981' };
+            document.getElementById('preview-title').innerText = type;
             document.getElementById('preview-title').style.color = themes[type];
             document.getElementById('billing-thead').style.backgroundColor = themes[type];
             document.getElementById('watermark').innerText = type;
@@ -322,43 +254,149 @@
                 }
             });
 
-            history.push({ date: new Date().toLocaleDateString('en-GB'), ref: `${type}${nextRef[type]}`, clientName: document.getElementById('bill-to-client').innerText.split('\n')[0], total, margin });
-            nextRef[type]++; saveDB(); renderHistory(); renderInventory(); alert("Rekod Berjaya Disimpan & Stok Ditambah!");
+            history.push({ 
+                id: Date.now(),
+                date: new Date().toLocaleDateString('en-GB'), 
+                ref: `${type}${nextRef[type]}`, 
+                rawRef: nextRef[type],
+                type: type,
+                clientName: document.getElementById('bill-to-client').innerText.split('\n')[0], 
+                total, 
+                margin 
+            });
+
+            nextRef[type]++;
+            saveDB(); renderHistory(); renderInventory(); alert("Saved!");
         }
 
-        async function exportAndShare() {
-            const element = document.getElementById('print-area');
-            const opt = { margin: 0, filename: `BizPro_${document.getElementById('ref-no').innerText}.pdf`, html2canvas: { scale: 3 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
-            await html2pdf().set(opt).from(element).save();
+        // --- HISTORY & DELETE (WITH SMART REDO) ---
+        function deleteRecord(id) {
+            const rec = history.find(h => h.id === id);
+            if(confirm(`Delete ${rec.ref}?`)) {
+                const wantRedo = confirm(`Adakah anda mahu SET SEMULA Nombor Rujukan Billing kepada ${rec.ref} selepas ini?`);
+                if(wantRedo) {
+                    nextRef[rec.type] = rec.rawRef;
+                }
+                history = history.filter(h => h.id !== id);
+                saveDB(); renderHistory(); updateBillingTheme();
+            }
         }
 
         function renderHistory() {
-            document.getElementById('history-body').innerHTML = history.map(h => `<tr><td class="p-4 border-b font-medium">${h.date}</td><td class="p-4 border-b font-black text-indigo-600">${h.ref}</td><td class="p-4 border-b">${h.clientName}</td><td class="p-4 border-b text-right font-bold">RM ${h.total.toFixed(2)}</td><td class="p-4 border-b text-right text-emerald-600 font-bold">RM ${h.margin.toFixed(2)}</td></tr>`).reverse().join('');
+            document.getElementById('history-body').innerHTML = history.map(h => `
+                <tr class="border-b hover:bg-slate-50 transition">
+                    <td class="p-4">${h.date}</td>
+                    <td class="p-4 font-black text-indigo-600">${h.ref}</td>
+                    <td class="p-4 font-bold text-slate-700">${h.clientName}</td>
+                    <td class="p-4 text-right font-black">RM ${h.total.toFixed(2)}</td>
+                    <td class="p-4 text-right text-emerald-600 font-bold">RM ${h.margin.toFixed(2)}</td>
+                    <td class="p-4 text-center">
+                        <button onclick="deleteRecord(${h.id})" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).reverse().join('');
         }
 
+        // --- SYSTEM CORE ---
         function saveDB() {
-            localStorage.setItem('biz_v3_inv', JSON.stringify(inventory));
-            localStorage.setItem('biz_v3_cli', JSON.stringify(clients));
-            localStorage.setItem('biz_v3_hist', JSON.stringify(history));
-            localStorage.setItem('biz_v3_ref', JSON.stringify(nextRef));
-            localStorage.setItem('biz_v3_prof', JSON.stringify(bizProfile));
+            localStorage.setItem('v4_inv', JSON.stringify(inventory));
+            localStorage.setItem('v4_cli', JSON.stringify(clients));
+            localStorage.setItem('v4_hist', JSON.stringify(history));
+            localStorage.setItem('v4_ref', JSON.stringify(nextRef));
+            localStorage.setItem('v4_prof', JSON.stringify(bizProfile));
+            localStorage.setItem('v4_jobs', JSON.stringify(jobs));
         }
 
         function initApp() {
-            // Fill Biz Settings Inputs
+            // Setup Profile
             document.getElementById('set-biz-name').value = bizProfile.name;
             document.getElementById('set-biz-reg').value = bizProfile.reg;
             document.getElementById('set-biz-addr').value = bizProfile.addr;
             document.getElementById('set-biz-bank').value = bizProfile.bank;
-            updateBizProfile(); 
+            updateBizProfile();
+
+            // Setup Billing Dropdown
+            document.getElementById('billing-type').innerHTML = '<option value="QUO">QUOTATION</option><option value="INV">INVOICE</option><option value="REC">RECEIPT</option>';
             
-            renderInventory();
-            renderClients();
-            renderHistory();
-            updateBillingTheme();
-            initMainChart();
+            renderInventory(); renderClients(); renderHistory(); renderJobs(); updateBillingTheme();
             setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+
+            // Init Chart
+            new Chart(document.getElementById('mainAnalyticsChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu','Ahad'],
+                    datasets: [{ label: 'Sales RM', data: [500, 1200, 800, 1500, 2200, 3000, 2800], borderColor: '#6366f1', borderWidth: 4, tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.05)' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            });
         }
+
+        // --- INTEGRASI REUSE DARI V3 (NON-UPDATE PARTS) ---
+        function addInventoryItem() { inventory.push({ id: Date.now(), name: 'Item Baru', kos: 0, jual: 0, qty: 0, details: [] }); renderInventory(); }
+        function renderInventory() {
+            const body = document.getElementById('inventory-table-body');
+            body.innerHTML = inventory.map((item, idx) => `
+                <tr class="border-b align-top hover:bg-slate-50">
+                    <td class="p-4">
+                        <input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold border-none w-full bg-transparent focus:ring-0">
+                        <div class="mt-2 space-y-1">
+                            ${item.details.map((d, dIdx) => `<input type="text" value="${d}" onchange="updateDetail(${idx}, ${dIdx}, this.value)" class="block text-[10px] border p-1 w-full rounded bg-white">`).join('')}
+                        </div>
+                        <button onclick="inventory[${idx}].details.push(''); renderInventory();" class="text-[9px] text-indigo-500 font-bold mt-2 hover:underline">+ ADD DETAIL</button>
+                    </td>
+                    <td class="p-4"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-full border p-1 rounded"></td>
+                    <td class="p-4"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-full border p-1 rounded font-bold"></td>
+                    <td class="p-4"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-full border p-1 rounded text-center"></td>
+                    <td class="p-4"><button onclick="inventory.splice(${idx},1); renderInventory();" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+            saveDB();
+        }
+        function updateInv(idx, field, val) { inventory[idx][field] = (field === 'name') ? val : parseFloat(val); saveDB(); }
+        function addClient() { const name = prompt("Nama Client:"); if(name) { clients.push({ id: Date.now(), name, phone: '', addr: '' }); renderClients(); } }
+        function renderClients() {
+            document.getElementById('client-list-grid').innerHTML = clients.map((c, idx) => `
+                <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
+                    <input type="text" value="${c.name}" onchange="clients[${idx}].name=this.value; saveDB();" class="font-bold w-full mb-2 text-indigo-600 outline-none">
+                    <input type="text" value="${c.phone}" onchange="clients[${idx}].phone=this.value; saveDB();" placeholder="No Phone" class="text-xs w-full mb-2 bg-slate-50 p-2 rounded-xl border-none">
+                    <textarea onchange="clients[${idx}].addr=this.value; saveDB();" placeholder="Alamat" class="text-[10px] w-full bg-slate-50 p-2 rounded-xl h-12 border-none outline-none">${c.addr}</textarea>
+                </div>
+            `).join('');
+            saveDB();
+        }
+        function populateBillingClients() {
+            const sel = document.getElementById('bill-client-select');
+            sel.innerHTML = '<option value="">-- SELECT CLIENT --</option>' + clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            sel.onchange = () => {
+                const c = clients.find(cl => cl.id == sel.value);
+                document.getElementById('bill-to-client').innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---';
+            };
+        }
+        function addBillingItemRow() {
+            const area = document.getElementById('billing-items-input');
+            const div = document.createElement('div');
+            div.className = "flex gap-1";
+            div.innerHTML = `<select class="w-3/4 p-2 text-xs border-none bg-slate-100 rounded-xl item-select" onchange="calcBilling()"><option value="">Item...</option>${inventory.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-2 text-xs border-none bg-slate-100 rounded-xl qty-input" value="1" onchange="calcBilling()">`;
+            area.appendChild(div);
+        }
+        function calcBilling() {
+            const selects = document.querySelectorAll('.item-select');
+            const qtys = document.querySelectorAll('.qty-input');
+            const body = document.getElementById('preview-items-body');
+            body.innerHTML = ''; let grand = 0;
+            selects.forEach((s, idx) => {
+                const item = inventory.find(i => i.id == s.value);
+                if(item) {
+                    const total = item.jual * qtys[idx].value;
+                    grand += total;
+                    let detailHtml = item.details.map(d => `<div class="text-[9px] text-slate-400 font-normal italic">- ${d}</div>`).join('');
+                    body.innerHTML += `<tr class="border-b"><td class="p-4 font-bold text-slate-700">${item.name}${detailHtml}</td><td class="p-4 text-center font-bold">${qtys[idx].value}</td><td class="p-4 text-right">RM ${item.jual.toFixed(2)}</td><td class="p-4 text-right font-black">RM ${total.toFixed(2)}</td></tr>`;
+                }
+            });
+            document.getElementById('grandtotal').innerText = `RM ${grand.toFixed(2)}`;
+        }
+        async function exportAndShare() { const element = document.getElementById('print-area'); const opt = { margin: 0, filename: `BizPro_${document.getElementById('ref-no').innerText}.pdf`, html2canvas: { scale: 3 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
     </script>
 </body>
 </html>
