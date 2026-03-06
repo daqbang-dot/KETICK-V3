@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizPro v1 | Admin Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item:hover { background: #1e293b; border-left: 4px solid #6366f1; }
+        .card-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; border: none !important; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex min-h-screen">
+
+    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center">
+            <div class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-lock text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">BizPro Access</h2>
+            <input type="password" id="admin-password" class="w-full p-3 border rounded-lg mb-4 text-center" placeholder="Masukkan Kata Laluan">
+            <button onclick="checkLogin()" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold hover:bg-indigo-600 transition">UNLOCK</button>
+            <p id="login-error" class="text-red-500 text-xs mt-3 hidden">Kata laluan salah!</p>
+        </div>
+    </div>
+
+    <aside class="w-64 bg-slate-900 text-white sticky top-0 h-screen p-5 no-print">
+        <h1 class="text-2xl font-black mb-10 text-indigo-400"><i class="fas fa-rocket mr-2"></i>BIZPRO <span class="text-xs font-light text-white">v1.0</span></h1>
+        <nav class="space-y-2">
+            <button onclick="showSection('dashboard')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-th-large mr-3"></i> Dashboard</button>
+            <button onclick="showSection('crm')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-users mr-3"></i> CRM & WA</button>
+            <button onclick="showSection('inventory')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-boxes mr-3"></i> Inventory</button>
+            <button onclick="showSection('billing')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-file-invoice-dollar mr-3"></i> Billing</button>
+            <button onclick="showSection('history')" class="w-full text-left p-3 rounded sidebar-item"><i class="fas fa-history mr-3"></i> History</button>
+        </nav>
+        <div class="absolute bottom-5 left-5 right-5">
+            <button onclick="exportBackup()" class="text-xs text-slate-400 hover:text-white"><i class="fas fa-cloud-download-alt mr-1"></i> Backup Data</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-8 overflow-y-auto">
+        
+        <section id="dashboard-section" class="section">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-indigo-500">
+                    <h3 class="font-bold text-slate-600 mb-4 uppercase text-xs tracking-wider">Margin Keuntungan</h3>
+                    <canvas id="marginChart"></canvas>
+                </div>
+                <div class="bg-white p-6 rounded-xl card-shadow border-t-4 border-emerald-500">
+                    <h3 class="font-bold text-slate-600 mb-4 uppercase text-xs tracking-wider">Reminder & Job Pending</h3>
+                    <div id="calendar-area" class="text-sm space-y-2 text-slate-500 italic">Tiada tugasan hari ini.</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="crm-section" class="section hidden">
+            <h2 class="text-2xl font-bold mb-6">CRM & WhatsApp Autopilot</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl card-shadow">
+                    <h3 class="font-bold mb-4">Prospek List</h3>
+                    <div id="prospect-list" class="space-y-2">
+                        </div>
+                </div>
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl card-shadow">
+                    <h3 class="font-bold mb-4 text-indigo-600 uppercase text-xs">WA Autopilot Settings</h3>
+                    <textarea id="wa-message" rows="5" class="w-full border p-3 rounded-lg bg-slate-50 mb-4" placeholder="Mesej anda..."></textarea>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <input type="number" id="wa-delay" value="5" class="border p-2 rounded" placeholder="Delay (sec)">
+                        <input type="file" id="wa-img" class="text-xs border p-2 rounded">
+                    </div>
+                    <button onclick="blastMessage()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700">MULAKAN BLAST <i class="fab fa-whatsapp ml-2"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section id="inventory-section" class="section hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">Inventory</h2>
+                <button onclick="addInventoryItem()" class="bg-slate-800 text-white px-4 py-2 rounded-lg text-sm">+ Add Item</button>
+            </div>
+            <div class="bg-white rounded-xl card-shadow overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b text-xs font-bold uppercase">
+                        <tr>
+                            <th class="p-4">Item</th>
+                            <th class="p-4">Detail</th>
+                            <th class="p-4">Kos (RM)</th>
+                            <th class="p-4">Jual (RM)</th>
+                            <th class="p-4 text-center">Stok</th>
+                            <th class="p-4">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body" class="text-sm"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="billing-section" class="section hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg border">
+                    <h3 class="font-bold mb-4 text-indigo-600">Tetapan Billing</h3>
+                    <select id="billing-type" onchange="updateBillingTheme()" class="w-full p-2 border rounded mb-4 font-bold">
+                        <option value="QUO">Quotation</option>
+                        <option value="INV">Invoice</option>
+                        <option value="REC">Receipt</option>
+                    </select>
+                    <div id="billing-items-input" class="space-y-3 mb-4">
+                        </div>
+                    <button onclick="addBillingItemRow()" class="text-indigo-600 text-xs font-bold">+ TAMBAH ITEM</button>
+                    <hr class="my-4">
+                    <button onclick="generateFinalBilling()" class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold mb-2">SAVE & SYNC STOK</button>
+                    <button onclick="exportAndShare()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold">PDF & WHATSAPP <i class="fab fa-whatsapp ml-2"></i></button>
+                </div>
+
+                <div id="print-area" class="lg:col-span-2 bg-white p-10 border rounded shadow-sm relative overflow-hidden min-h-[800px]">
+                    <div id="watermark" class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none rotate-45 text-8xl font-black text-slate-800 uppercase">QUOTATION</div>
+                    <div class="flex justify-between items-start relative mb-10">
+                        <div class="w-24 h-24 bg-gray-100 border flex items-center justify-center text-[10px] italic">Logo</div>
+                        <div class="text-right">
+                            <h1 id="preview-title" class="text-4xl font-black text-indigo-600">QUOTATION</h1>
+                            <p class="text-slate-500 font-bold">Ref: <span id="ref-no">QUO1001</span></p>
+                            <p class="text-slate-500">Tarikh: <span id="preview-date">--/--/--</span></p>
+                        </div>
+                    </div>
+                    <table class="w-full mb-10">
+                        <thead id="billing-thead" class="bg-indigo-600 text-white">
+                            <tr><th class="p-2 text-left">Item</th><th class="p-2 text-center">Qty</th><th class="p-2 text-right">Harga</th><th class="p-2 text-right">Jumlah</th></tr>
+                        </thead>
+                        <tbody id="preview-items-body" class="text-sm"></tbody>
+                    </table>
+                    <div class="text-right font-black text-2xl text-indigo-600 mt-10">TOTAL: <span id="grandtotal">RM 0.00</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="history-section" class="section hidden">
+            <h2 class="text-2xl font-bold mb-6">Sales History</h2>
+            <div id="history-table-area" class="bg-white rounded-xl card-shadow overflow-hidden">
+                 <table class="w-full text-left">
+                    <thead class="bg-slate-800 text-white text-xs">
+                        <tr><th class="p-4">Tarikh</th><th class="p-4">Ref</th><th class="p-4">Client</th><th class="p-4 text-right">Total</th><th class="p-4 text-right">Margin</th></tr>
+                    </thead>
+                    <tbody id="history-body" class="text-sm"></tbody>
+                 </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- LOGIK DATABASE & GLOBAL VARS ---
+        let inventory = JSON.parse(localStorage.getItem('biz_inv')) || [];
+        let history = JSON.parse(localStorage.getItem('biz_hist')) || [];
+        let nextRef = JSON.parse(localStorage.getItem('biz_ref')) || { QUO: 1001, INV: 1001, REC: 1001 };
+        const PASS = "Admin123";
+
+        // --- AUTH & NAVIGATION ---
+        function checkLogin() {
+            if(document.getElementById('admin-password').value === PASS) {
+                document.getElementById('login-overlay').classList.add('hidden');
+                sessionStorage.setItem('auth', 'true');
+                initApp();
+            }
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(id + '-section').classList.remove('hidden');
+        }
+
+        // --- INVENTORY LOGIC ---
+        function addInventoryItem() {
+            const name = prompt("Nama Item:");
+            if(!name) return;
+            inventory.push({ id: Date.now(), name, kos: 0, jual: 0, qty: 0, desc: [] });
+            saveAndRender();
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('biz_inv', JSON.stringify(inventory));
+            localStorage.setItem('biz_hist', JSON.stringify(history));
+            localStorage.setItem('biz_ref', JSON.stringify(nextRef));
+            renderInventory();
+            renderHistory();
+        }
+
+        function renderInventory() {
+            const body = document.getElementById('inventory-table-body');
+            body.innerHTML = inventory.map((item, idx) => `
+                <tr class="border-b">
+                    <td class="p-4 font-bold">${item.name}</td>
+                    <td class="p-4"><button onclick="addDesc(${idx})" class="text-xs text-indigo-500 font-bold">+ Desc Row</button></td>
+                    <td class="p-4 text-slate-400">RM <input type="number" onchange="updateInv(${idx}, 'kos', this.value)" value="${item.kos}" class="w-20 border rounded p-1"></td>
+                    <td class="p-4 font-bold">RM <input type="number" onchange="updateInv(${idx}, 'jual', this.value)" value="${item.jual}" class="w-20 border rounded p-1"></td>
+                    <td class="p-4 text-center"><input type="number" onchange="updateInv(${idx}, 'qty', this.value)" value="${item.qty}" class="w-16 border rounded p-1 text-center font-bold"></td>
+                    <td class="p-4"><button onclick="delInv(${idx})" class="text-red-500"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateInv(idx, field, val) { inventory[idx][field] = parseFloat(val); saveAndRender(); }
+        function delInv(idx) { inventory.splice(idx, 1); saveAndRender(); }
+
+        // --- BILLING LOGIC ---
+        const themes = {
+            QUO: { color: '#4f46e5', label: 'QUOTATION', watermark: 'QUOTATION' },
+            INV: { color: '#ef4444', label: 'INVOICE', watermark: 'INVOICE' },
+            REC: { color: '#10b981', label: 'OFFICIAL RECEIPT', watermark: 'PAID' }
+        };
+
+        function updateBillingTheme() {
+            const type = document.getElementById('billing-type').value;
+            const theme = themes[type];
+            document.getElementById('preview-title').innerText = theme.label;
+            document.getElementById('preview-title').style.color = theme.color;
+            document.getElementById('billing-thead').style.backgroundColor = theme.color;
+            document.getElementById('watermark').innerText = theme.watermark;
+            document.getElementById('ref-no').innerText = `${type}${nextRef[type]}`;
+            document.getElementById('preview-date').innerText = new Date().toLocaleDateString();
+        }
+
+        function addBillingItemRow() {
+            const area = document.getElementById('billing-items-input');
+            const div = document.createElement('div');
+            div.className = "flex gap-1";
+            div.innerHTML = `
+                <select class="w-3/4 p-1 text-xs border rounded item-select" onchange="calcBilling()">
+                    <option value="">Pilih Item...</option>
+                    ${inventory.map(i => `<option value="${i.id}" data-price="${i.jual}">${i.name}</option>`).join('')}
+                </select>
+                <input type="number" class="w-1/4 p-1 text-xs border rounded qty-input" value="1" onchange="calcBilling()">
+            `;
+            area.appendChild(div);
+        }
+
+        function calcBilling() {
+            const selects = document.querySelectorAll('.item-select');
+            const qtys = document.querySelectorAll('.qty-input');
+            const body = document.getElementById('preview-items-body');
+            body.innerHTML = '';
+            let grand = 0;
+
+            selects.forEach((s, idx) => {
+                const item = inventory.find(i => i.id == s.value);
+                if(item) {
+                    const total = item.jual * qtys[idx].value;
+                    grand += total;
+                    body.innerHTML += `<tr class="border-b"><td class="p-2">${item.name}</td><td class="p-2 text-center">${qtys[idx].value}</td><td class="p-2 text-right">RM ${item.jual}</td><td class="p-2 text-right">RM ${total.toFixed(2)}</td></tr>`;
+                }
+            });
+            document.getElementById('grandtotal').innerText = `RM ${grand.toFixed(2)}`;
+        }
+
+        function generateFinalBilling() {
+            const type = document.getElementById('billing-type').value;
+            const selects = document.querySelectorAll('.item-select');
+            const qtys = document.querySelectorAll('.qty-input');
+
+            let margin = 0;
+            let totalVal = 0;
+
+            selects.forEach((s, idx) => {
+                const item = inventory.find(i => i.id == s.value);
+                const q = parseInt(qtys[idx].value);
+                if(item && (type === 'INV' || type === 'REC')) {
+                    item.qty -= q; // TOLAK STOK
+                    margin += (item.jual - item.kos) * q;
+                    totalVal += item.jual * q;
+                }
+            });
+
+            history.push({
+                date: new Date().toLocaleDateString(),
+                ref: `${type}${nextRef[type]}`,
+                clientName: 'Walk-in Client',
+                total: totalVal,
+                margin: margin
+            });
+
+            nextRef[type]++;
+            saveAndRender();
+            alert("Record Berjaya Disimpan!");
+        }
+
+        async function exportAndShare() {
+            const element = document.getElementById('print-area');
+            const opt = { margin: 0.5, filename: `Document.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+            await html2pdf().set(opt).from(element).save();
+            window.open(`https://api.whatsapp.com/send?phone=60123456789&text=Sila rujuk lampiran.`);
+        }
+
+        function renderHistory() {
+            const body = document.getElementById('history-body');
+            body.innerHTML = history.map(h => `
+                <tr class="border-b">
+                    <td class="p-4">${h.date}</td>
+                    <td class="p-4 font-bold text-indigo-600">${h.ref}</td>
+                    <td class="p-4">${h.clientName}</td>
+                    <td class="p-4 text-right">RM ${h.total.toFixed(2)}</td>
+                    <td class="p-4 text-right text-emerald-600">RM ${h.margin.toFixed(2)}</td>
+                </tr>
+            `).reverse().join('');
+        }
+
+        function exportBackup() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(localStorage));
+            const dl = document.createElement('a');
+            dl.setAttribute("href", dataStr);
+            dl.setAttribute("download", "backup.json");
+            dl.click();
+        }
+
+        function initApp() {
+            updateBillingTheme();
+            saveAndRender();
+            // Chart Init
+            new Chart(document.getElementById('marginChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{ label: 'Margin RM', data: [1200, 1900, 1500, 2500, 2200], borderColor: '#6366f1', fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)', tension: 0.4 }]
+                }
+            });
+        }
+
+        if(sessionStorage.getItem('auth') === 'true') {
+            document.getElementById('login-overlay').classList.add('hidden');
+            initApp();
+        }
+    </script>
+</body>
+</html>
