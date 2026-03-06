@@ -233,8 +233,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Idea / Tajuk Content</label>
-                            <input type="text" id="sch-title" class="w-full p-3 flux-input text-sm font-bold" placeholder="Contoh: Video Unboxing Produk">
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Idea / Kapsyen Content</label>
+                            <textarea id="sch-title" class="w-full p-3 flux-input text-sm font-bold h-24" placeholder="Tulis kapsyen atau idea video di sini..."></textarea>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -253,7 +253,7 @@
                 <div class="lg:col-span-2 flux-card p-8">
                     <h3 class="font-black text-lg mb-6 tracking-tight">Senarai Jadual Kandungan</h3>
                     <div id="schedule-list" class="space-y-3 max-h-[450px] overflow-y-auto pr-2 custom-scroll">
-                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -465,7 +465,7 @@
             if(id === 'social') renderSchedule();
         }
 
-        // --- SOCIAL SCHEDULER ---
+        // --- SOCIAL SCHEDULER & AUTO-LAUNCH ---
         function addSchedule() {
             const platform = document.getElementById('sch-platform').value;
             const title = document.getElementById('sch-title').value;
@@ -485,20 +485,54 @@
 
         function renderSchedule() {
             const colors = { FB: 'bg-blue-600', TT: 'bg-black', IG: 'bg-pink-500', TH: 'bg-gray-800' };
+            
             document.getElementById('schedule-list').innerHTML = db.sch.sort((a,b) => new Date(a.date) - new Date(b.date)).map(s => `
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 flex justify-between items-center group shadow-sm">
+                <div class="bg-white p-5 rounded-2xl border border-gray-100 flex justify-between items-center group shadow-sm ${s.status === 'DONE' ? 'opacity-50' : ''}">
                     <div class="flex items-center gap-4">
                         <div class="${colors[s.platform]} text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs">${s.platform}</div>
                         <div>
-                            <h4 class="font-bold text-gray-800 text-sm">${s.title}</h4>
-                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${s.date} @ ${s.time}</p>
+                            <h4 class="font-bold text-gray-800 text-sm ${s.status === 'DONE' ? 'line-through' : ''}">${s.title}</h4>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${s.date} @ ${s.time} ${s.status === 'DONE' ? '✅' : ''}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
+                        ${s.status !== 'DONE' ? `
+                            <button onclick="launchPost('${s.platform}', '${encodeURIComponent(s.title)}', ${s.id})" 
+                                    class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black hover:bg-blue-600 hover:text-white transition">
+                                POST SEKARANG
+                            </button>
+                        ` : ''}
                         <button onclick="deleteSch(${s.id})" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
             `).join('') || '<p class="text-center text-gray-400 py-10 font-bold text-sm">Tiada jadual content buat masa ini.</p>';
+        }
+
+        function launchPost(platform, title, id) {
+            const decodedTitle = decodeURIComponent(title);
+            const links = { 
+                FB: 'https://m.facebook.com/', 
+                TT: 'https://www.tiktok.com/upload', 
+                IG: 'https://www.instagram.com/', 
+                TH: 'https://www.threads.net/' 
+            };
+
+            // 1. Auto Copy Title/Kapsyen ke Clipboard
+            navigator.clipboard.writeText(decodedTitle).then(() => {
+                alert("Kapsyen telah di-COPY! Sila 'Paste' apabila platform dibuka.");
+                
+                // 2. Tandakan sebagai DONE
+                const item = db.sch.find(x => x.id === id);
+                if(item) item.status = 'DONE';
+                save();
+                renderSchedule();
+
+                // 3. Buka Platform Media Sosial
+                window.open(links[platform], '_blank');
+            }).catch(err => {
+                console.error('Gagal menyalin teks: ', err);
+                window.open(links[platform], '_blank');
+            });
         }
 
         function deleteSch(id) {
