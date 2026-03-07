@@ -277,20 +277,40 @@
         </section>
 
         <section id="autoreply-section" class="section hidden section-animate">
-            <h2 class="text-4xl font-black mb-2 tracking-tight">WhatsApp Chatbox</h2>
-            <p class="text-gray-500 mb-8 font-medium">Urus template sapaan & jawapan pantas untuk pelanggan.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-4xl font-black mb-2 tracking-tight">WhatsApp Chatbox</h2>
+                    <p class="text-gray-500 font-medium">Urus template sapaan & jawapan pantas.</p>
+                </div>
+                <div id="office-status-badge" class="px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2 shadow-sm">
+                    <i class="fas fa-clock"></i> <span id="office-text">CHECKING...</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="flux-card p-8">
-                    <h3 class="font-bold mb-4">Simpan Template Baru</h3>
+                    <h3 class="font-bold mb-4 text-blue-600 uppercase text-xs tracking-widest">Simpan Template Baru</h3>
                     <div class="space-y-4">
                         <input type="text" id="ar-title" class="w-full p-3 flux-input text-sm font-bold" placeholder="Tajuk (e.g: Info Harga)">
-                        <textarea id="ar-msg" class="w-full p-3 flux-input text-sm h-32" placeholder="Tulis ayat template anda di sini..."></textarea>
-                        <button onclick="saveAR()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold">Simpan ke Chatbox</button>
+                        <textarea id="ar-msg" class="w-full p-3 flux-input text-sm h-32" placeholder="Gunakan {name} untuk nama pelanggan..."></textarea>
+                        <button onclick="saveAR()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">Simpan ke Chatbox</button>
+                    </div>
+                    
+                    <div class="mt-8 border-t border-gray-100 pt-6">
+                        <h3 class="font-bold mb-3 text-gray-400 uppercase text-[10px] tracking-widest">Sistem Pintar (Quick Action)</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="copyQuickIntent('PRICE')" class="bg-gray-100 p-3 rounded-xl text-[10px] font-bold hover:bg-gray-200 transition"><i class="fas fa-tags mr-2"></i>COPY KATALOG</button>
+                            <button onclick="copyQuickIntent('LOCATION')" class="bg-gray-100 p-3 rounded-xl text-[10px] font-bold hover:bg-gray-200 transition"><i class="fas fa-map-marker-alt mr-2"></i>SALIN LOKASI</button>
+                        </div>
                     </div>
                 </div>
-                <div class="flux-card p-8">
-                    <h3 class="font-bold mb-4">Senarai Template Chatbox</h3>
-                    <div id="ar-list" class="space-y-3"></div>
+
+                <div class="lg:col-span-2 flux-card p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-gray-800">Senarai Template Chatbox</h3>
+                        <span id="ar-count" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-[10px] font-bold">0 TEMPLATES</span>
+                    </div>
+                    <div id="ar-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scroll"></div>
                 </div>
             </div>
         </section>
@@ -337,8 +357,7 @@
             { id: 1, title: '⭐ Sapaan Professional', msg: 'Salam Sejahtera {name}, terima kasih kerana menghubungi kami. Ada apa yang boleh kami bantu hari ini?' },
             { id: 2, title: '📄 Info Sebut Harga', msg: 'Hai {name}, ini adalah sebut harga bagi produk yang diminta. Harga kami adalah yang terbaik mengikut kualiti yang ditawarkan. Sila semak fail dilampirkan.' },
             { id: 3, title: '⏳ Follow-up Lembut', msg: 'Salam {name}, saya ingin menyusul (follow-up) berkenaan tawaran semalam. Adakah anda mempunyai sebarang soalan tambahan?' },
-            { id: 4, title: '✅ Close Deal / Terima Kasih', msg: 'Terima kasih {name} atas tempahan anda! Kami akan proses pesanan anda secepat mungkin. Harap anda berpuas hati dengan servis kami.' },
-            { id: 5, title: '🌙 Di Luar Waktu Pejabat', msg: 'Terima kasih atas mesej anda. Kami kini di luar waktu operasi. Kami akan menghubungi anda semula pada hari bekerja berikutnya. Terima kasih atas kesabaran anda.' }
+            { id: 4, title: '✅ Close Deal / Terima Kasih', msg: 'Terima kasih {name} atas tempahan anda! Kami akan proses pesanan anda secepat mungkin. Harap anda berpuas hati dengan servis kami.' }
         ];
 
         let db = {
@@ -374,7 +393,7 @@
             initApp(); 
         }
 
-        // --- INVENTORY FIX (RE-RENDER ISSUE) ---
+        // --- INVENTORY FUNCTIONS (KEKAL) ---
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body');
             tbody.innerHTML = db.inv.map((item, idx) => `
@@ -410,7 +429,36 @@
         function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); }
         function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
 
-        // --- WHATSAPP CHATBOX FIX ---
+        // --- UPDATED WHATSAPP CHATBOX FUNCTIONS ---
+        function checkOfficeStatus() {
+            const now = new Date();
+            const hour = now.getHours();
+            const badge = document.getElementById('office-status-badge');
+            const text = document.getElementById('office-text');
+            
+            // Contoh: Waktu operasi 9am - 6pm
+            if (hour >= 9 && hour < 18) {
+                badge.className = "px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2 shadow-sm bg-emerald-100 text-emerald-600 border border-emerald-200";
+                text.innerText = "OPEN NOW";
+            } else {
+                badge.className = "px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2 shadow-sm bg-red-100 text-red-600 border border-red-200";
+                text.innerText = "OFFLINE / CLOSED";
+            }
+        }
+
+        function copyQuickIntent(type) {
+            let text = "";
+            if (type === 'PRICE') {
+                text = "✨ SENARAI HARGA KAMI ✨\n------------------------\n";
+                db.inv.forEach(i => text += `🔹 ${i.name}: RM${i.jual.toFixed(2)}\n`);
+                text += "\nHubungi kami jika berminat!";
+            } else if (type === 'LOCATION') {
+                text = `📍 LOKASI KAMI:\n${db.prof.addr}\n\nTerima kasih!`;
+            }
+            navigator.clipboard.writeText(text);
+            alert("Berjaya disalin!");
+        }
+
         function saveAR() {
             const title = document.getElementById('ar-title').value;
             const msg = document.getElementById('ar-msg').value;
@@ -424,24 +472,29 @@
 
         function renderAR() {
             const list = document.getElementById('ar-list');
+            document.getElementById('ar-count').innerText = `${db.ar.length} TEMPLATES`;
             list.innerHTML = db.ar.map(item => `
-                <div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100">
-                    <div class="flex-1 pr-4">
-                        <p class="font-bold text-sm text-gray-800">${item.title}</p>
-                        <p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p>
+                <div class="bg-white p-5 rounded-2xl flex flex-col justify-between border border-gray-100 shadow-sm hover:shadow-md transition">
+                    <div class="mb-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <p class="font-black text-xs text-blue-600 uppercase tracking-tighter">${item.title}</p>
+                            <button onclick="deleteAR(${item.id})" class="text-gray-300 hover:text-red-500 transition text-xs"><i class="fas fa-trash"></i></button>
+                        </div>
+                        <p class="text-[11px] text-gray-500 leading-relaxed line-clamp-3">${item.msg}</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold">COPY</button>
-                        <button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button>
-                    </div>
+                    <button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="w-full bg-blue-50 text-blue-600 py-3 rounded-xl text-[10px] font-black hover:bg-blue-600 hover:text-white transition">SALIN MESEJ</button>
                 </div>
-            `).join('') || '<p class="text-gray-400 text-xs italic py-4">Tiada template.</p>';
+            `).join('') || '<p class="text-gray-400 text-xs italic py-4 col-span-full text-center">Tiada template disimpan.</p>';
         }
 
         function copyToClipboard(msg) {
             const text = decodeURIComponent(msg);
             navigator.clipboard.writeText(text).then(() => {
-                alert("Mesej disalin! Paste terus ke WhatsApp pelanggan.");
+                const toast = document.createElement('div');
+                toast.className = "fixed bottom-10 right-10 bg-black text-white px-6 py-3 rounded-full font-bold text-xs shadow-2xl z-[200] animate-bounce";
+                toast.innerText = "Mesej disalin! ✅";
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2000);
             });
         }
 
@@ -453,7 +506,7 @@
             }
         }
 
-        // --- CORE KEKALKAN ---
+        // --- CORE UI FUNCTIONS (KEKAL) ---
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(b => {
@@ -471,12 +524,12 @@
             if(id === 'promo') renderCoupons();
             if(id === 'social') renderSchedule();
             if(id === 'blast') renderBlastClientList();
-            if(id === 'autoreply') renderAR();
+            if(id === 'autoreply') { renderAR(); checkOfficeStatus(); }
             if(id === 'lhdn') renderTax();
             if(id === 'history') renderHistory();
         }
 
-        // LHDN, CRM, Billing, Social, Blast (KEKALKAN KOD ASAL)
+        // --- OTHER FUNCTIONS (LHDN, DASHBOARD, ETC - SEMUA KEKAL) ---
         function saveTaxRecord() {
             const date = document.getElementById('tax-date').value, amt = parseFloat(document.getElementById('tax-amount').value), cat = document.getElementById('tax-category').value, vendor = document.getElementById('tax-vendor').value, imgInput = document.getElementById('tax-img-input');
             if(!date || isNaN(amt) || !vendor) return alert("Sila isi semua maklumat!");
@@ -488,9 +541,9 @@
             if(imgInput.files[0]) reader.readAsDataURL(imgInput.files[0]); else reader.onload({ target: { result: '' } });
         }
         function renderTax() {
-            const tbody = document.getElementById('tax-table-body'); let total = 0; const catCounts = {};
+            const tbody = document.getElementById('tax-table-body'); let total = 0;
             tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => {
-                total += t.amt; catCounts[t.cat] = (catCounts[t.cat] || 0) + 1;
+                total += t.amt;
                 return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition"><td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}</td><td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '-'}</td><td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span></td><td class="p-6 font-bold text-sm text-gray-800">${t.vendor}</td><td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}</td><td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button></td></tr>`;
             }).join('') || '<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">Tiada rekod.</td></tr>';
             document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`;
@@ -499,7 +552,6 @@
         function deleteTax(id) { if(confirm("Padam?")) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
         function syncCloud() { alert("Sync Successful!"); }
 
-        // Dashboard/History logic (Kekalkan)
         function renderDashboard() {
             const recent = db.hist.slice(-7);
             const totalRev = recent.reduce((sum, h) => sum + h.total, 0);
@@ -514,9 +566,8 @@
         function renderJobs() { document.getElementById('calendar-widget').innerHTML = db.jobs.map(j => `<div class="bg-white p-5 rounded-[22px] border border-gray-100 relative group transition-all hover:shadow-xl"><p class="text-[10px] font-black text-blue-500 uppercase mb-1">${j.date}</p><h4 class="font-bold text-gray-800 text-sm">${j.title}</h4><button onclick="db.jobs = db.jobs.filter(x => x.id !== ${j.id}); save(); renderJobs();" class="absolute top-4 right-4 text-gray-200 hover:text-emerald-500 opacity-0 group-hover:opacity-100"><i class="fas fa-check-circle text-lg"></i></button></div>`).join(''); }
         function addJob() { const title = prompt("Perkara:"), date = prompt("Tarikh:"); if(title && date) { db.jobs.push({ title, date, id: Date.now() }); save(); renderJobs(); } }
         function addClient() { const n = prompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
-        function renderCRM() { document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
+        function renderCRM() { document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[idx].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[idx].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[idx].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
         
-        // Billing, Coupon & Export (Kekalkan)
         function updateBizProfile() {
             db.prof.name = document.getElementById('set-biz-name').value;
             db.prof.addr = document.getElementById('set-biz-addr').value;
@@ -539,7 +590,6 @@
         function exportData() { const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const a = document.createElement('a'); a.href = data; a.download = `BizPro_Flux_Backup.json`; a.click(); }
         function importData(event) { const reader = new FileReader(); reader.onload = (e) => { db = JSON.parse(e.target.result); save(); location.reload(); }; reader.readAsText(event.target.files[0]); }
         
-        // Billing Logic (Kekalkan)
         function updateBillingTheme() { const type = document.getElementById('billing-type').value; document.getElementById('preview-title').innerText = type; document.getElementById('watermark').innerText = type; document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; document.getElementById('prev-date').innerText = new Date().toLocaleDateString('en-GB'); }
         function populateBillingClients() { document.getElementById('bill-client-select').innerHTML = '<option value="">-- CRM --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
         function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input').appendChild(div); }
@@ -556,13 +606,11 @@
         }
         function renderHistory() { document.getElementById('history-body').innerHTML = db.hist.map(h => `<tr><td class="p-6">${h.date}</td><td class="p-6 font-bold text-blue-600">${h.ref}</td><td class="p-6">${h.clientName}</td><td class="p-6 text-right">RM ${h.total.toFixed(2)}</td><td class="p-6 text-right text-emerald-500 font-bold">RM ${h.margin.toFixed(2)}</td><td class="p-6 text-center"><button onclick="db.hist=db.hist.filter(x=>x.id!==${h.id});save();renderHistory();" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td></tr>`).reverse().join(''); }
         
-        // Coupon Manager (Kekalkan)
         function renderCoupons() { document.getElementById('coupon-list').innerHTML = Object.entries(db.coupons).map(([code, val]) => `<div class="bg-white p-4 rounded-2xl border border-dashed border-purple-200 flex justify-between items-center"><div><p class="text-xs font-black text-purple-600">${code}</p><p class="text-lg font-bold">RM ${val}</p></div><button onclick="deleteCoupon('${code}')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`).join('') || '<p class="text-xs">Tiada Kupon.</p>'; }
         function addNewCoupon() { const c = document.getElementById('new-coupon-code').value.toUpperCase(), v = parseFloat(document.getElementById('new-coupon-val').value); if(c && v) { db.coupons[c] = v; save(); renderCoupons(); } }
         function deleteCoupon(c) { delete db.coupons[c]; save(); renderCoupons(); }
         function applyCoupon() { const c = document.getElementById('coupon-input').value.toUpperCase(); if(db.coupons[c]) { activeDiscount = db.coupons[c]; alert("Kupon Guna!"); calcBilling(); } else { alert("Kupon Salah!"); activeDiscount = 0; calcBilling(); } }
 
-        // Social & Blast (Kekalkan)
         function addSchedule() { const p = document.getElementById('sch-platform').value, t = document.getElementById('sch-title').value, d = document.getElementById('sch-date').value, tm = document.getElementById('sch-time').value; if(t && d && tm) { db.sch.push({ id: Date.now(), platform: p, title: t, date: d, time: tm, status: 'PENDING' }); save(); renderSchedule(); } }
         function renderSchedule() { document.getElementById('schedule-list').innerHTML = db.sch.map(s => `<div class="bg-white p-5 rounded-2xl border border-gray-100 flex justify-between items-center group shadow-sm"><div><h4 class="font-bold text-sm">${s.title}</h4><p class="text-[10px] text-gray-400 font-bold uppercase">${s.platform} | ${s.date} ${s.time}</p></div><button onclick="db.sch=db.sch.filter(x=>x.id!==${s.id});save();renderSchedule();" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`).join('') || '<p class="text-xs text-center py-4">Tiada Jadual.</p>'; }
         function renderBlastClientList() { document.getElementById('blast-client-list').innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl cursor-pointer"><input type="checkbox" class="blast-checkbox w-5 h-5 mr-4 accent-emerald-500" data-phone="${c.phone}" data-name="${c.name}"><div><p class="text-sm font-bold">${c.name}</p><p class="text-[10px] text-gray-400 font-bold">${c.phone}</p></div></label>`).join(''); }
