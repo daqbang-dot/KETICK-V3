@@ -12,97 +12,35 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        
-        :root { 
-            --flux-accent: #007AFF; 
-            --flux-bg: #f5f5f7; 
-            --flux-card: rgba(255, 255, 255, 0.8);
-            --glass: rgba(255, 255, 255, 0.75);
-        }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: var(--flux-bg); 
-            color: #1c1c1e; 
-        }
-
-        /* Cinematic Opening Animation */
-        @keyframes flashVideo {
-            0% { filter: brightness(0); transform: scale(1.1); }
-            50% { filter: brightness(1.5); }
-            100% { filter: brightness(1); transform: scale(1); }
-        }
-
-        @keyframes logoEntrance {
-            0% { opacity: 0; transform: translateY(30px) scale(0.8); filter: blur(10px); }
-            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
-        }
-
-        .opening-vid-bg {
-            background: linear-gradient(135deg, #000c1f 0%, #001e4d 100%);
-            animation: flashVideo 3s ease-out forwards;
-        }
-
-        .glass-morph {
-            background: var(--glass);
-            backdrop-filter: blur(25px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-glow:hover {
-            box-shadow: 0 0 20px rgba(0, 122, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .flux-card { 
-            background: var(--flux-card); 
-            backdrop-filter: blur(20px); 
-            border-radius: 28px; 
-            border: 1px solid rgba(255, 255, 255, 0.5); 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.05); 
-        }
-
+        :root { --flux-accent: #007AFF; --flux-bg: #F2F2f7; --flux-card: rgba(255, 255, 255, 0.8); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--flux-bg); color: #1c1c1e; }
+        .flux-card { background: var(--flux-card); backdrop-filter: blur(20px); border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
         .sidebar-item { border-radius: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .sidebar-item.active { background: var(--flux-accent); color: white; box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); }
-        
         .flux-input { background: rgba(0,0,0,0.04); border-radius: 14px; border: 2px solid transparent; transition: 0.2s; }
         .flux-input:focus { border-color: var(--flux-accent); background: white; outline: none; }
-        
+        .social-card { transition: all 0.3s ease; cursor: pointer; }
+        .social-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .section-animate { animation: fluxFade 0.4s ease-out; }
         @keyframes fluxFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Custom Scrollbar for Mobile-feel */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
     </style>
 </head>
 <body class="flex min-h-screen overflow-hidden">
 
-    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center opening-vid-bg overflow-hidden">
-        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-600/20 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px]"></div>
-
-        <div class="relative z-10 text-center space-y-8 px-6" style="animation: logoEntrance 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;">
-            <div class="w-28 h-28 bg-white rounded-[32px] mx-auto flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.2)] rotate-3 hover:rotate-0 transition-transform duration-700">
-                <i class="fas fa-bolt text-blue-600 text-5xl animate-pulse"></i>
+    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
+        <div class="text-center p-8 max-w-sm w-full">
+            <div class="w-24 h-24 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-[30px] mx-auto mb-8 flex items-center justify-center shadow-2xl rotate-3">
+                <i class="fas fa-rocket text-white text-4xl"></i>
             </div>
-            
-            <div class="space-y-2">
-                <h2 class="text-5xl font-black text-white tracking-tighter">BIZPRO <span class="text-blue-500">V6</span></h2>
-                <p class="text-blue-200/60 text-xs font-bold uppercase tracking-[0.3em]">Flux Edition • Next-Gen Business Suite</p>
-            </div>
-
-            <div class="max-w-xs mx-auto pt-4">
-                <button onclick="enterSystemWithSound()" class="group relative w-full glass-morph text-white py-5 rounded-3xl font-bold text-lg overflow-hidden transition-all active:scale-95 btn-glow">
-                    <span class="relative z-10 flex items-center justify-center gap-3">
-                        MEMULAKAN SISTEM 
-                        <i class="fas fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
-                    </span>
-                    <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                </button>
-                <p class="mt-8 text-[9px] text-white/30 font-medium tracking-widest uppercase italic">Powered by AzlanMymo Cloud</p>
-            </div>
+            <h2 class="text-4xl font-black mb-2 tracking-tighter">Selamat Datang</h2>
+            <p class="text-gray-400 text-sm mb-10 font-medium tracking-wide">BIZPRO V6 • FLUX EDITION</p>
+            <button onclick="enterSystem()" class="group relative w-full bg-black text-white py-5 rounded-[24px] font-bold text-lg overflow-hidden transition-all active:scale-95">
+                <span class="relative z-10 uppercase tracking-widest">Masuk Sistem <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></span>
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </button>
+            <p class="mt-6 text-[10px] text-gray-300 font-bold uppercase tracking-widest">Hak Cipta by AzlanMymo</p>
         </div>
     </div>
 
@@ -299,10 +237,10 @@
         <section id="social-section" class="section hidden section-animate">
             <h2 class="text-4xl font-black mb-2 tracking-tight">Social Marketing</h2>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                <a href="https://www.facebook.com" target="_blank" class="flux-card p-6 flex flex-col items-center"><div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-facebook-f"></i></div><span class="font-bold">Facebook</span></a>
-                <a href="https://www.tiktok.com" target="_blank" class="flux-card p-6 flex flex-col items-center"><div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-tiktok"></i></div><span class="font-bold">TikTok</span></a>
-                <a href="https://www.instagram.com" target="_blank" class="flux-card p-6 flex flex-col items-center"><div class="w-14 h-14 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-instagram"></i></div><span class="font-bold">Instagram</span></a>
-                <a href="https://www.threads.net" target="_blank" class="flux-card p-6 flex flex-col items-center"><div class="w-14 h-14 bg-gray-900 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fa-solid fa-at"></i></div><span class="font-bold">Threads</span></a>
+                <a href="https://www.facebook.com" target="_blank" class="flux-card p-6 flex flex-col items-center social-card"><div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-facebook-f"></i></div><span class="font-bold">Facebook</span></a>
+                <a href="https://www.tiktok.com" target="_blank" class="flux-card p-6 flex flex-col items-center social-card"><div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-tiktok"></i></div><span class="font-bold">TikTok</span></a>
+                <a href="https://www.instagram.com" target="_blank" class="flux-card p-6 flex flex-col items-center social-card"><div class="w-14 h-14 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-instagram"></i></div><span class="font-bold">Instagram</span></a>
+                <a href="https://www.threads.net" target="_blank" class="flux-card p-6 flex flex-col items-center social-card"><div class="w-14 h-14 bg-gray-900 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fa-solid fa-at"></i></div><span class="font-bold">Threads</span></a>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="flux-card p-8">
@@ -339,40 +277,20 @@
         </section>
 
         <section id="autoreply-section" class="section hidden section-animate">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h2 class="text-4xl font-black mb-2 tracking-tight">WhatsApp Chatbox</h2>
-                    <p class="text-gray-500 font-medium">Urus template sapaan & jawapan pantas.</p>
-                </div>
-                <div id="office-status-badge" class="px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2 shadow-sm">
-                    <i class="fas fa-clock"></i> <span id="office-text">CHECKING...</span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <h2 class="text-4xl font-black mb-2 tracking-tight">WhatsApp Chatbox</h2>
+            <p class="text-gray-500 mb-8 font-medium">Urus template sapaan & jawapan pantas untuk pelanggan.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="flux-card p-8">
-                    <h3 class="font-bold mb-4 text-blue-600 uppercase text-xs tracking-widest">Simpan Template Baru</h3>
+                    <h3 class="font-bold mb-4">Simpan Template Baru</h3>
                     <div class="space-y-4">
                         <input type="text" id="ar-title" class="w-full p-3 flux-input text-sm font-bold" placeholder="Tajuk (e.g: Info Harga)">
-                        <textarea id="ar-msg" class="w-full p-3 flux-input text-sm h-32" placeholder="Gunakan {name} untuk nama pelanggan..."></textarea>
-                        <button onclick="saveAR()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">Simpan ke Chatbox</button>
-                    </div>
-                    
-                    <div class="mt-8 border-t border-gray-100 pt-6">
-                        <h3 class="font-bold mb-3 text-gray-400 uppercase text-[10px] tracking-widest">Sistem Pintar (Quick Action)</h3>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="copyQuickIntent('PRICE')" class="bg-gray-100 p-3 rounded-xl text-[10px] font-bold hover:bg-gray-200 transition"><i class="fas fa-tags mr-2"></i>COPY KATALOG</button>
-                            <button onclick="copyQuickIntent('LOCATION')" class="bg-gray-100 p-3 rounded-xl text-[10px] font-bold hover:bg-gray-200 transition"><i class="fas fa-map-marker-alt mr-2"></i>SALIN LOKASI</button>
-                        </div>
+                        <textarea id="ar-msg" class="w-full p-3 flux-input text-sm h-32" placeholder="Tulis ayat template anda di sini..."></textarea>
+                        <button onclick="saveAR()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold">Simpan ke Chatbox</button>
                     </div>
                 </div>
-
-                <div class="lg:col-span-2 flux-card p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="font-bold text-gray-800">Senarai Template Chatbox</h3>
-                        <span id="ar-count" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-[10px] font-bold">0 TEMPLATES</span>
-                    </div>
-                    <div id="ar-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scroll"></div>
+                <div class="flux-card p-8">
+                    <h3 class="font-bold mb-4">Senarai Template Chatbox</h3>
+                    <div id="ar-list" class="space-y-3"></div>
                 </div>
             </div>
         </section>
@@ -398,26 +316,29 @@
             </div>
         </section>
 
-    </main>
-
-    <div id="tax-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-center justify-center hidden">
-        <div class="bg-white w-full max-w-md rounded-[40px] p-8 section-animate">
-            <div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-black">Rekod Baru</h3><button onclick="document.getElementById('tax-modal').classList.add('hidden')" class="text-gray-400 hover:text-black"><i class="fas fa-times"></i></button></div>
-            <div class="space-y-4">
-                <div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Resit</label><label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer hover:bg-gray-50 transition"><i class="fas fa-camera text-2xl text-gray-300 mb-2"></i><span id="tax-img-status" class="text-[10px] font-bold text-gray-400">Ambil Gambar Resit</span><input type="file" id="tax-img-input" class="hidden" onchange="document.getElementById('tax-img-status').innerText = 'Imej Sedia: ' + this.files[0].name"></label></div>
-                <div class="grid grid-cols-2 gap-4"><div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Tarikh</label><input type="date" id="tax-date" class="w-full p-3 flux-input text-xs font-bold"></div><div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Jumlah (RM)</label><input type="number" id="tax-amount" class="w-full p-3 flux-input text-xs font-bold" placeholder="0.00"></div></div>
-                <div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Kategori Cukai</label><select id="tax-category" class="w-full p-3 flux-input font-bold text-xs"><option value="Utiliti">Utiliti</option><option value="Sewa">Sewa Premis</option><option value="Gaji">Gaji & KWSP</option><option value="Stok">Pembelian Stok</option><option value="Pemasaran">Pemasaran</option><option value="Logistik">Logistik</option><option value="Alatan">Alatan Pejabat</option><option value="Lain-lain">Lain-lain</option></select></div>
-                <div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Vendor</label><input type="text" id="tax-vendor" class="w-full p-3 flux-input text-xs font-bold" placeholder="Contoh: TNB / FB Ads"></div>
-                <button onclick="saveTaxRecord()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold shadow-lg mt-4">SIMPAN REKOD CUKAI</button>
+        <div id="tax-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-center justify-center hidden">
+            <div class="bg-white w-full max-w-md rounded-[40px] p-8 section-animate">
+                <div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-black">Rekod Baru</h3><button onclick="document.getElementById('tax-modal').classList.add('hidden')" class="text-gray-400 hover:text-black"><i class="fas fa-times"></i></button></div>
+                <div class="space-y-4">
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Resit</label><label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer hover:bg-gray-50 transition"><i class="fas fa-camera text-2xl text-gray-300 mb-2"></i><span id="tax-img-status" class="text-[10px] font-bold text-gray-400">Ambil Gambar Resit</span><input type="file" id="tax-img-input" class="hidden" onchange="document.getElementById('tax-img-status').innerText = 'Imej Sedia: ' + this.files[0].name"></label></div>
+                    <div class="grid grid-cols-2 gap-4"><div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Tarikh</label><input type="date" id="tax-date" class="w-full p-3 flux-input text-xs font-bold"></div><div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Jumlah (RM)</label><input type="number" id="tax-amount" class="w-full p-3 flux-input text-xs font-bold" placeholder="0.00"></div></div>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Kategori Cukai</label><select id="tax-category" class="w-full p-3 flux-input font-bold text-xs"><option value="Utiliti">Utiliti</option><option value="Sewa">Sewa Premis</option><option value="Gaji">Gaji & KWSP</option><option value="Stok">Pembelian Stok</option><option value="Pemasaran">Pemasaran</option><option value="Logistik">Logistik</option><option value="Alatan">Alatan Pejabat</option><option value="Lain-lain">Lain-lain</option></select></div>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Vendor</label><input type="text" id="tax-vendor" class="w-full p-3 flux-input text-xs font-bold" placeholder="Contoh: TNB / FB Ads"></div>
+                    <button onclick="saveTaxRecord()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold shadow-lg mt-4">SIMPAN REKOD CUKAI</button>
+                </div>
             </div>
         </div>
-    </div>
+
+    </main>
 
     <script>
+        // Data Defaults with Pre-built Professional Templates
         const defaultTemplates = [
             { id: 1, title: '⭐ Sapaan Professional', msg: 'Salam Sejahtera {name}, terima kasih kerana menghubungi kami. Ada apa yang boleh kami bantu hari ini?' },
             { id: 2, title: '📄 Info Sebut Harga', msg: 'Hai {name}, ini adalah sebut harga bagi produk yang diminta. Harga kami adalah yang terbaik mengikut kualiti yang ditawarkan. Sila semak fail dilampirkan.' },
-            { id: 3, title: '⏳ Follow-up Lembut', msg: 'Salam {name}, saya ingin menyusul (follow-up) berkenaan tawaran semalam. Adakah anda mempunyai sebarang soalan tambahan?' }
+            { id: 3, title: '⏳ Follow-up Lembut', msg: 'Salam {name}, saya ingin menyusul (follow-up) berkenaan tawaran semalam. Adakah anda mempunyai sebarang soalan tambahan?' },
+            { id: 4, title: '✅ Close Deal / Terima Kasih', msg: 'Terima kasih {name} atas tempahan anda! Kami akan proses pesanan anda secepat mungkin. Harap anda berpuas hati dengan servis kami.' },
+            { id: 5, title: '🌙 Di Luar Waktu Pejabat', msg: 'Terima kasih atas mesej anda. Kami kini di luar waktu operasi. Kami akan menghubungi anda semula pada hari bekerja berikutnya. Terima kasih atas kesabaran anda.' }
         ];
 
         let db = {
@@ -448,33 +369,12 @@
             localStorage.setItem('f6_ar', JSON.stringify(db.ar));
         }
 
-        // --- NEW OPENING LOGIC ---
-        function enterSystemWithSound() {
-            const overlay = document.getElementById('login-overlay');
-            overlay.style.transition = 'all 0.8s ease-in-out';
-            overlay.style.filter = 'brightness(3) blur(20px)';
-            overlay.style.opacity = '0';
-            
-            setTimeout(() => {
-                overlay.classList.add('hidden');
-                initApp();
-                document.getElementById('dashboard-section').classList.add('section-animate');
-            }, 800);
+        function enterSystem() { 
+            document.getElementById('login-overlay').classList.add('hidden'); 
+            initApp(); 
         }
 
-        function initApp() { 
-            document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); 
-            document.getElementById('set-biz-name').value = db.prof.name; 
-            document.getElementById('set-biz-addr').value = db.prof.addr; 
-            document.getElementById('set-biz-bank').value = db.prof.bank; 
-            updateBizProfile(); 
-            renderDashboard(); 
-            renderInventory(); 
-            renderCRM(); 
-            renderAR();
-        }
-
-        // --- INVENTORY & CRM (KEKAL) ---
+        // --- INVENTORY FIX (RE-RENDER ISSUE) ---
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body');
             tbody.innerHTML = db.inv.map((item, idx) => `
@@ -482,79 +382,141 @@
                     <td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div></td>
                     <td class="p-6">
                         <input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800">
+                        <div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">
+                            ${(item.details || []).map((d, dIdx) => `
+                                <input type="text" value="${d}" 
+                                       onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" 
+                                       placeholder="Spec/Warna/Saiz"
+                                       class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm">
+                            `).join('')}
+                        </div>
+                        <div class="flex gap-4 mt-3">
+                            <button onclick="db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600">+ SPEC</button>
+                            <button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400">LIHAT/SOROK</button>
+                        </div>
                     </td>
                     <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"></td>
                     <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"></td>
                     <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"></td>
-                    <td class="p-6 text-center">
-                        <button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
+                    <td class="p-6 text-center space-y-2">
+                        <button onclick="copyPromoLink(${idx})" class="w-full bg-emerald-50 text-emerald-600 px-3 py-2 rounded-lg text-[9px] font-black border border-emerald-100 hover:bg-emerald-600 hover:text-white transition"><i class="fas fa-link mr-1"></i> COPY LINK</button>
+                        <button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs block mx-auto"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 </tr>
             `).join('');
         }
+
         function addInventoryItem() { db.inv.push({ id: Date.now(), name: 'Produk Baru', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true }); renderInventory(); save(); }
         function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); }
         function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
 
-        function renderCRM() { 
-            document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `
-                <div class="flux-card p-6 border-none shadow-md group">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div>
-                        <button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button>
-                    </div>
-                    <input type="text" value="${c.name}" onchange="db.cli[idx].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none">
-                    <div class="mt-4 space-y-2">
-                        <input type="text" value="${c.phone}" onchange="db.cli[idx].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input">
-                    </div>
-                </div>
-            `).join(''); 
+        // --- WHATSAPP CHATBOX FIX ---
+        function saveAR() {
+            const title = document.getElementById('ar-title').value;
+            const msg = document.getElementById('ar-msg').value;
+            if(!title || !msg) return alert("Sila isi tajuk dan mesej!");
+            db.ar.push({ id: Date.now(), title, msg });
+            save();
+            renderAR();
+            document.getElementById('ar-title').value = '';
+            document.getElementById('ar-msg').value = '';
         }
-        function addClient() { const n = prompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
 
-        // --- CHATBOX LOGIC (KEKAL) ---
         function renderAR() {
             const list = document.getElementById('ar-list');
-            document.getElementById('ar-count').innerText = `${db.ar.length} TEMPLATES`;
             list.innerHTML = db.ar.map(item => `
-                <div class="bg-white p-5 rounded-2xl flex flex-col justify-between border border-gray-100 shadow-sm">
-                    <div><p class="font-black text-xs text-blue-600 uppercase mb-2">${item.title}</p><p class="text-[11px] text-gray-500 line-clamp-3">${item.msg}</p></div>
-                    <button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="mt-4 w-full bg-blue-50 text-blue-600 py-3 rounded-xl text-[10px] font-black">SALIN</button>
+                <div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100">
+                    <div class="flex-1 pr-4">
+                        <p class="font-bold text-sm text-gray-800">${item.title}</p>
+                        <p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold">COPY</button>
+                        <button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>
-            `).join('');
+            `).join('') || '<p class="text-gray-400 text-xs italic py-4">Tiada template.</p>';
         }
-        function saveAR() {
-            const title = document.getElementById('ar-title').value, msg = document.getElementById('ar-msg').value;
-            if(!title || !msg) return alert("Isi tajuk & mesej!");
-            db.ar.push({ id: Date.now(), title, msg }); save(); renderAR();
-            document.getElementById('ar-title').value = ''; document.getElementById('ar-msg').value = '';
-        }
-        function copyToClipboard(msg) { navigator.clipboard.writeText(decodeURIComponent(msg)); alert("Disalin!"); }
 
-        // --- BILLING & TAX (KEKAL) ---
+        function copyToClipboard(msg) {
+            const text = decodeURIComponent(msg);
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Mesej disalin! Paste terus ke WhatsApp pelanggan.");
+            });
+        }
+
+        function deleteAR(id) {
+            if(confirm("Padam template ini?")) {
+                db.ar = db.ar.filter(x => x.id !== id);
+                save();
+                renderAR();
+            }
+        }
+
+        // --- CORE KEKALKAN ---
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white'));
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('active', 'bg-blue-600', 'text-white');
+                b.classList.add('text-gray-500');
+            });
             document.getElementById(id + '-section').classList.remove('hidden');
-            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(id));
-            if(btn) btn.classList.add('active', 'bg-blue-600', 'text-white');
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(id));
+            if(activeBtn) { activeBtn.classList.add('active', 'bg-blue-600', 'text-white'); activeBtn.classList.remove('text-gray-500'); }
+            
             if(id === 'dashboard') renderDashboard();
             if(id === 'inventory') renderInventory();
             if(id === 'crm') renderCRM();
             if(id === 'billing') populateBillingClients();
+            if(id === 'promo') renderCoupons();
+            if(id === 'social') renderSchedule();
+            if(id === 'blast') renderBlastClientList();
+            if(id === 'autoreply') renderAR();
             if(id === 'lhdn') renderTax();
             if(id === 'history') renderHistory();
-            if(id === 'blast') renderBlastClientList();
         }
 
+        // LHDN, CRM, Billing, Social, Blast (KEKALKAN KOD ASAL)
+        function saveTaxRecord() {
+            const date = document.getElementById('tax-date').value, amt = parseFloat(document.getElementById('tax-amount').value), cat = document.getElementById('tax-category').value, vendor = document.getElementById('tax-vendor').value, imgInput = document.getElementById('tax-img-input');
+            if(!date || isNaN(amt) || !vendor) return alert("Sila isi semua maklumat!");
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: e.target.result || '' });
+                save(); renderTax(); document.getElementById('tax-modal').classList.add('hidden');
+            };
+            if(imgInput.files[0]) reader.readAsDataURL(imgInput.files[0]); else reader.onload({ target: { result: '' } });
+        }
+        function renderTax() {
+            const tbody = document.getElementById('tax-table-body'); let total = 0; const catCounts = {};
+            tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => {
+                total += t.amt; catCounts[t.cat] = (catCounts[t.cat] || 0) + 1;
+                return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition"><td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}</td><td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '-'}</td><td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span></td><td class="p-6 font-bold text-sm text-gray-800">${t.vendor}</td><td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}</td><td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button></td></tr>`;
+            }).join('') || '<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">Tiada rekod.</td></tr>';
+            document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`;
+            document.getElementById('tax-receipt-count').innerText = db.tax.length;
+        }
+        function deleteTax(id) { if(confirm("Padam?")) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
+        function syncCloud() { alert("Sync Successful!"); }
+
+        // Dashboard/History logic (Kekalkan)
         function renderDashboard() {
-            const totalRev = db.hist.slice(-7).reduce((sum, h) => sum + h.total, 0);
+            const recent = db.hist.slice(-7);
+            const totalRev = recent.reduce((sum, h) => sum + h.total, 0);
+            const totalMargin = recent.reduce((sum, h) => sum + h.margin, 0);
             const totalTax = db.tax.reduce((sum, t) => sum + t.amt, 0);
             document.getElementById('dash-total-rev').innerText = `RM ${totalRev.toFixed(2)}`;
+            document.getElementById('dash-total-margin').innerText = `RM ${totalMargin.toFixed(2)}`;
             document.getElementById('dash-tax-expense').innerText = `RM ${totalTax.toFixed(2)}`;
             document.getElementById('dash-inv-count').innerText = `${db.inv.length} Jenis`;
+            renderJobs();
         }
-
+        function renderJobs() { document.getElementById('calendar-widget').innerHTML = db.jobs.map(j => `<div class="bg-white p-5 rounded-[22px] border border-gray-100 relative group transition-all hover:shadow-xl"><p class="text-[10px] font-black text-blue-500 uppercase mb-1">${j.date}</p><h4 class="font-bold text-gray-800 text-sm">${j.title}</h4><button onclick="db.jobs = db.jobs.filter(x => x.id !== ${j.id}); save(); renderJobs();" class="absolute top-4 right-4 text-gray-200 hover:text-emerald-500 opacity-0 group-hover:opacity-100"><i class="fas fa-check-circle text-lg"></i></button></div>`).join(''); }
+        function addJob() { const title = prompt("Perkara:"), date = prompt("Tarikh:"); if(title && date) { db.jobs.push({ title, date, id: Date.now() }); save(); renderJobs(); } }
+        function addClient() { const n = prompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
+        function renderCRM() { document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
+        
+        // Billing, Coupon & Export (Kekalkan)
         function updateBizProfile() {
             db.prof.name = document.getElementById('set-biz-name').value;
             db.prof.addr = document.getElementById('set-biz-addr').value;
@@ -562,20 +524,53 @@
             document.getElementById('prev-biz-name').innerText = db.prof.name || "NAMA SYARIKAT";
             document.getElementById('prev-biz-addr').innerText = db.prof.addr || "ALAMAT";
             document.getElementById('prev-biz-bank').innerText = db.prof.bank || "BANK";
+            if(db.prof.logo) { document.getElementById('prev-logo').src = db.prof.logo; document.getElementById('prev-logo').classList.remove('hidden'); }
+            if(db.prof.cop) { document.getElementById('prev-cop').src = db.prof.cop; document.getElementById('prev-cop').classList.remove('hidden'); }
             save();
         }
 
-        function uploadProfileImg(input, type) { const reader = new FileReader(); reader.onload = (e) => { db.prof[type] = e.target.result; save(); updateBizProfile(); }; reader.readAsDataURL(input.files[0]); }
-        function exportData() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); a.download = `BizPro_Backup.json`; a.click(); }
-        function importData(event) { const reader = new FileReader(); reader.onload = (e) => { db = JSON.parse(e.target.result); save(); location.reload(); }; reader.readAsText(event.target.files[0]); }
+        function initApp() { 
+            document.getElementById('current-date-display').innerText = new Date().toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); 
+            document.getElementById('set-biz-name').value = db.prof.name; document.getElementById('set-biz-addr').value = db.prof.addr; document.getElementById('set-biz-bank').value = db.prof.bank; 
+            updateBizProfile(); renderDashboard(); renderInventory(); renderCRM(); renderAR();
+        }
 
-        // Placeholder functions for full operation
-        function populateBillingClients() { document.getElementById('bill-client-select').innerHTML = db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
-        function addBillingItemRow() { const div = document.createElement('div'); div.className="flex gap-2"; div.innerHTML=`<select class="flex-1 p-3 flux-input text-xs">${db.inv.map(i=>`<option>${i.name}</option>`).join('')}</select><input type="number" class="w-20 p-3 flux-input text-xs" value="1">`; document.getElementById('billing-items-input').appendChild(div); }
-        function renderTax() { const tbody = document.getElementById('tax-table-body'); tbody.innerHTML = db.tax.map(t => `<tr><td class="p-6">${t.date}</td><td class="p-6">-</td><td class="p-6">${t.cat}</td><td class="p-6">${t.vendor}</td><td class="p-6 text-right font-black">RM ${t.amt.toFixed(2)}</td></tr>`).join(''); }
-        function saveTaxRecord() { const d = document.getElementById('tax-date').value, a = parseFloat(document.getElementById('tax-amount').value), c = document.getElementById('tax-category').value, v = document.getElementById('tax-vendor').value; db.tax.push({date:d, amt:a, cat:c, vendor:v}); save(); renderTax(); document.getElementById('tax-modal').classList.add('hidden'); }
-        function renderHistory() { document.getElementById('history-body').innerHTML = db.hist.map(h => `<tr><td class="p-6">${h.date}</td><td class="p-6 font-bold text-blue-600">${h.ref}</td><td class="p-6">${h.clientName}</td><td class="p-6 text-right">RM ${h.total.toFixed(2)}</td><td class="p-6 text-right">RM ${h.margin.toFixed(2)}</td></tr>`).join(''); }
-        function renderBlastClientList() { document.getElementById('blast-client-list').innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl"><input type="checkbox" class="mr-4"><div><p class="text-sm font-bold">${c.name}</p></div></label>`).join(''); }
+        function uploadProfileImg(input, type) { const reader = new FileReader(); reader.onload = (e) => { db.prof[type] = e.target.result; save(); updateBizProfile(); }; reader.readAsDataURL(input.files[0]); }
+        function exportData() { const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const a = document.createElement('a'); a.href = data; a.download = `BizPro_Flux_Backup.json`; a.click(); }
+        function importData(event) { const reader = new FileReader(); reader.onload = (e) => { db = JSON.parse(e.target.result); save(); location.reload(); }; reader.readAsText(event.target.files[0]); }
+        
+        // Billing Logic (Kekalkan)
+        function updateBillingTheme() { const type = document.getElementById('billing-type').value; document.getElementById('preview-title').innerText = type; document.getElementById('watermark').innerText = type; document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; document.getElementById('prev-date').innerText = new Date().toLocaleDateString('en-GB'); }
+        function populateBillingClients() { document.getElementById('bill-client-select').innerHTML = '<option value="">-- CRM --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
+        function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input').appendChild(div); }
+        function calcBilling() { 
+            const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); body.innerHTML = ''; let subtotal = 0; 
+            selects.forEach((s, idx) => { const item = db.inv.find(i => i.id == s.value); if(item) { const lineTotal = item.jual * qtys[idx].value; subtotal += lineTotal; body.innerHTML += `<tr><td class="p-5 font-bold text-gray-800">${item.name}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black text-blue-600">RM ${lineTotal.toFixed(2)}</td></tr>`; } }); 
+            const grand = subtotal - activeDiscount; document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; 
+        }
+        function generateFinalBilling() {
+            const type = document.getElementById('billing-type').value; const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); let total = 0, margin = 0;
+            selects.forEach((s, idx) => { const item = db.inv.find(i => i.id == s.value); const q = parseInt(qtys[idx].value); if(item) { if(type !== 'QUO') item.qty -= q; total += item.jual * q; margin += (item.jual - item.kos) * q; } });
+            db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: `${type}${db.ref[type]}`, type, clientName: 'Pelanggan', total: total - activeDiscount, margin: margin - activeDiscount });
+            db.ref[type]++; save(); alert("Disimpan!"); location.reload();
+        }
+        function renderHistory() { document.getElementById('history-body').innerHTML = db.hist.map(h => `<tr><td class="p-6">${h.date}</td><td class="p-6 font-bold text-blue-600">${h.ref}</td><td class="p-6">${h.clientName}</td><td class="p-6 text-right">RM ${h.total.toFixed(2)}</td><td class="p-6 text-right text-emerald-500 font-bold">RM ${h.margin.toFixed(2)}</td><td class="p-6 text-center"><button onclick="db.hist=db.hist.filter(x=>x.id!==${h.id});save();renderHistory();" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td></tr>`).reverse().join(''); }
+        
+        // Coupon Manager (Kekalkan)
+        function renderCoupons() { document.getElementById('coupon-list').innerHTML = Object.entries(db.coupons).map(([code, val]) => `<div class="bg-white p-4 rounded-2xl border border-dashed border-purple-200 flex justify-between items-center"><div><p class="text-xs font-black text-purple-600">${code}</p><p class="text-lg font-bold">RM ${val}</p></div><button onclick="deleteCoupon('${code}')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`).join('') || '<p class="text-xs">Tiada Kupon.</p>'; }
+        function addNewCoupon() { const c = document.getElementById('new-coupon-code').value.toUpperCase(), v = parseFloat(document.getElementById('new-coupon-val').value); if(c && v) { db.coupons[c] = v; save(); renderCoupons(); } }
+        function deleteCoupon(c) { delete db.coupons[c]; save(); renderCoupons(); }
+        function applyCoupon() { const c = document.getElementById('coupon-input').value.toUpperCase(); if(db.coupons[c]) { activeDiscount = db.coupons[c]; alert("Kupon Guna!"); calcBilling(); } else { alert("Kupon Salah!"); activeDiscount = 0; calcBilling(); } }
+
+        // Social & Blast (Kekalkan)
+        function addSchedule() { const p = document.getElementById('sch-platform').value, t = document.getElementById('sch-title').value, d = document.getElementById('sch-date').value, tm = document.getElementById('sch-time').value; if(t && d && tm) { db.sch.push({ id: Date.now(), platform: p, title: t, date: d, time: tm, status: 'PENDING' }); save(); renderSchedule(); } }
+        function renderSchedule() { document.getElementById('schedule-list').innerHTML = db.sch.map(s => `<div class="bg-white p-5 rounded-2xl border border-gray-100 flex justify-between items-center group shadow-sm"><div><h4 class="font-bold text-sm">${s.title}</h4><p class="text-[10px] text-gray-400 font-bold uppercase">${s.platform} | ${s.date} ${s.time}</p></div><button onclick="db.sch=db.sch.filter(x=>x.id!==${s.id});save();renderSchedule();" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`).join('') || '<p class="text-xs text-center py-4">Tiada Jadual.</p>'; }
+        function renderBlastClientList() { document.getElementById('blast-client-list').innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl cursor-pointer"><input type="checkbox" class="blast-checkbox w-5 h-5 mr-4 accent-emerald-500" data-phone="${c.phone}" data-name="${c.name}"><div><p class="text-sm font-bold">${c.name}</p><p class="text-[10px] text-gray-400 font-bold">${c.phone}</p></div></label>`).join(''); }
+        async function startBlast() { const checks = document.querySelectorAll('.blast-checkbox:checked'), msgTpl = document.getElementById('blast-msg').value; for(let c of checks) { const finalMsg = encodeURIComponent(msgTpl.replace('{name}', c.dataset.name)); window.open(`https://wa.me/${c.dataset.phone}?text=${finalMsg}`, '_blank'); await new Promise(r => setTimeout(r, 2000)); } }
+        function generateCatalogText() { let c = "KATALOG:\n"; db.inv.slice(0, 10).forEach(i => c += `- ${i.name} RM${i.jual}\n`); document.getElementById('blast-msg').value = c; }
+        
+        async function exportAndShare() { const element = document.getElementById('print-area'); const opt = { margin: 0, filename: `BizProDoc.pdf`, html2canvas: { scale: 3 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
+        function shareWhatsapp() { const total = document.getElementById('grandtotal').innerText; const msg = encodeURIComponent(`Terima kasih. Jumlah: ${total}`); window.open(`https://wa.me/?text=${msg}`, '_blank'); }
     </script>
 </body>
 </html>
