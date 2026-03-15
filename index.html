@@ -25,9 +25,17 @@
         @keyframes fluxFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         .custom-scroll::-webkit-scrollbar { width: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        
+        /* Dynamic Billing Colors */
+        .theme-QUO { --doc-color: #007AFF; }
+        .theme-INV { --doc-color: #1c1c1e; }
+        .theme-REC { --doc-color: #10b981; }
+        .doc-accent-bg { background-color: var(--doc-color) !important; }
+        .doc-accent-text { color: var(--doc-color) !important; }
+        .doc-accent-border { border-color: var(--doc-color) !important; }
     </style>
 </head>
-<body class="flex min-h-screen overflow-hidden">
+<body class="flex min-h-screen overflow-hidden theme-QUO">
 
     <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
         <div class="text-center p-8 max-w-sm w-full">
@@ -183,7 +191,7 @@
                     <div class="flux-card p-6">
                         <h3 class="font-black text-sm mb-4">Penjana Dokumen</h3>
                         <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Pelanggan</label>
-                        <select id="bill-client-select" class="w-full p-3 flux-input mb-4 text-sm font-bold"></select>
+                        <select id="bill-client-select" onchange="updateBillTo()" class="w-full p-3 flux-input mb-4 text-sm font-bold"></select>
                         <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Kod Kupon (Diskaun)</label>
                         <div class="flex gap-2 mb-4"><input type="text" id="coupon-input" class="flex-1 p-3 flux-input text-xs font-bold uppercase" placeholder="RAYA20"><button onclick="applyCoupon()" class="bg-gray-800 text-white px-4 rounded-xl text-[10px] font-bold">GUNA</button></div>
                         <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Jenis Dokumen</label>
@@ -200,14 +208,14 @@
                     <div id="watermark" class="absolute inset-0 flex items-center justify-center opacity-[0.03] rotate-[-35deg] text-[150px] font-black pointer-events-none uppercase">QUO</div>
                     <div class="flex justify-between items-start mb-16 relative z-10">
                         <div class="flex items-center gap-5"><img id="prev-logo" src="" class="w-20 h-20 object-contain hidden"><div><h2 class="font-black text-3xl uppercase tracking-tighter" id="prev-biz-name">SYARIKAT ANDA</h2><p class="text-xs mt-2 max-w-[280px] text-gray-500 font-medium whitespace-pre-line leading-relaxed" id="prev-biz-addr">Alamat Perniagaan...</p></div></div>
-                        <div class="text-right"><h1 id="preview-title" class="text-5xl font-black italic tracking-tighter text-blue-600 leading-none">QUO</h1><p id="ref-no" class="font-black text-xl mt-4">---</p><p class="text-[10px] font-bold text-gray-400 uppercase mt-1">Tarikh: <span id="prev-date" class="text-black"></span></p></div>
+                        <div class="text-right"><h1 id="preview-title" class="text-5xl font-black italic tracking-tighter doc-accent-text leading-none">QUO</h1><p id="ref-no" class="font-black text-xl mt-4">---</p><p class="text-[10px] font-bold text-gray-400 uppercase mt-1">Tarikh: <span id="prev-date" class="text-black"></span></p></div>
                     </div>
                     <div class="grid grid-cols-2 mb-12 gap-10">
-                        <div class="bg-gray-50 p-6 rounded-3xl border-l-4 border-blue-600"><p class="text-[9px] font-bold text-blue-500 uppercase mb-2">Kepada / Bill To:</p><p id="bill-to-client" class="font-bold text-gray-800 text-sm whitespace-pre-line leading-snug">---</p></div>
+                        <div class="bg-gray-50 p-6 rounded-3xl border-l-4 doc-accent-border"><p class="text-[9px] font-bold doc-accent-text uppercase mb-2">Kepada / Bill To:</p><p id="bill-to-client" class="font-bold text-gray-800 text-sm whitespace-pre-line leading-snug">---</p></div>
                         <div class="p-6 text-right"><p class="text-[9px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Maklumat Pembayaran:</p><p id="prev-biz-bank" class="text-xs font-bold text-gray-700">---</p></div>
                     </div>
                     <table class="w-full mb-20 text-sm">
-                        <thead id="billing-thead" class="bg-blue-600 text-white"><tr class="text-left text-[10px] font-bold uppercase tracking-widest"><th class="p-5 rounded-tl-2xl">Perihalan Item</th><th class="p-5 text-center">Unit</th><th class="p-5 text-right">Harga (RM)</th><th class="p-5 text-right rounded-tr-2xl">Jumlah (RM)</th></tr></thead>
+                        <thead id="billing-thead" class="doc-accent-bg text-white"><tr class="text-left text-[10px] font-bold uppercase tracking-widest"><th class="p-5 rounded-tl-2xl">Perihalan Item</th><th class="p-5 text-center">Unit</th><th class="p-5 text-right">Harga (RM)</th><th class="p-5 text-right rounded-tr-2xl">Jumlah (RM)</th></tr></thead>
                         <tbody id="preview-items-body" class="divide-y divide-gray-100"></tbody>
                         <tfoot id="preview-discount-row" class="hidden"><tr><td colspan="3" class="p-5 text-right font-bold text-red-500 uppercase text-[10px]">Diskaun Kupon</td><td class="p-5 text-right font-black text-red-500" id="prev-discount-val">- RM 0.00</td></tr></tfoot>
                     </table>
@@ -332,7 +340,6 @@
     </main>
 
     <script>
-        // Data Defaults with Pre-built Professional Templates
         const defaultTemplates = [
             { id: 1, title: '⭐ Sapaan Professional', msg: 'Salam Sejahtera {name}, terima kasih kerana menghubungi kami. Ada apa yang boleh kami bantu hari ini?' },
             { id: 2, title: '📄 Info Sebut Harga', msg: 'Hai {name}, ini adalah sebut harga bagi produk yang diminta. Harga kami adalah yang terbaik mengikut kualiti yang ditawarkan. Sila semak fail dilampirkan.' },
@@ -374,7 +381,6 @@
             initApp(); 
         }
 
-        // --- INVENTORY FIX (RE-RENDER ISSUE) ---
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body');
             tbody.innerHTML = db.inv.map((item, idx) => `
@@ -410,50 +416,6 @@
         function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); }
         function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
 
-        // --- WHATSAPP CHATBOX FIX ---
-        function saveAR() {
-            const title = document.getElementById('ar-title').value;
-            const msg = document.getElementById('ar-msg').value;
-            if(!title || !msg) return alert("Sila isi tajuk dan mesej!");
-            db.ar.push({ id: Date.now(), title, msg });
-            save();
-            renderAR();
-            document.getElementById('ar-title').value = '';
-            document.getElementById('ar-msg').value = '';
-        }
-
-        function renderAR() {
-            const list = document.getElementById('ar-list');
-            list.innerHTML = db.ar.map(item => `
-                <div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100">
-                    <div class="flex-1 pr-4">
-                        <p class="font-bold text-sm text-gray-800">${item.title}</p>
-                        <p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold">COPY</button>
-                        <button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-            `).join('') || '<p class="text-gray-400 text-xs italic py-4">Tiada template.</p>';
-        }
-
-        function copyToClipboard(msg) {
-            const text = decodeURIComponent(msg);
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Mesej disalin! Paste terus ke WhatsApp pelanggan.");
-            });
-        }
-
-        function deleteAR(id) {
-            if(confirm("Padam template ini?")) {
-                db.ar = db.ar.filter(x => x.id !== id);
-                save();
-                renderAR();
-            }
-        }
-
-        // --- CORE KEKALKAN ---
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.querySelectorAll('.nav-btn').forEach(b => {
@@ -467,7 +429,7 @@
             if(id === 'dashboard') renderDashboard();
             if(id === 'inventory') renderInventory();
             if(id === 'crm') renderCRM();
-            if(id === 'billing') populateBillingClients();
+            if(id === 'billing') { populateBillingClients(); updateBillingTheme(); }
             if(id === 'promo') renderCoupons();
             if(id === 'social') renderSchedule();
             if(id === 'blast') renderBlastClientList();
@@ -476,7 +438,29 @@
             if(id === 'history') renderHistory();
         }
 
-        // LHDN, CRM, Billing, Social, Blast (KEKALKAN KOD ASAL)
+        // --- NEW UPDATE: DYNAMIC THEME ---
+        function updateBillingTheme() { 
+            const type = document.getElementById('billing-type').value; 
+            document.body.classList.remove('theme-QUO', 'theme-INV', 'theme-REC');
+            document.body.classList.add(`theme-${type}`);
+            
+            document.getElementById('preview-title').innerText = type; 
+            document.getElementById('watermark').innerText = type; 
+            document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; 
+            document.getElementById('prev-date').innerText = new Date().toLocaleDateString('en-GB'); 
+        }
+
+        // --- NEW UPDATE: FIX CLIENT PREVIEW ---
+        function updateBillTo() {
+            const clientId = document.getElementById('bill-client-select').value;
+            const client = db.cli.find(c => c.id == clientId);
+            if(client) {
+                document.getElementById('bill-to-client').innerText = `${client.name}\n${client.phone}\n${client.addr}`;
+            } else {
+                document.getElementById('bill-to-client').innerText = '---';
+            }
+        }
+
         function saveTaxRecord() {
             const date = document.getElementById('tax-date').value, amt = parseFloat(document.getElementById('tax-amount').value), cat = document.getElementById('tax-category').value, vendor = document.getElementById('tax-vendor').value, imgInput = document.getElementById('tax-img-input');
             if(!date || isNaN(amt) || !vendor) return alert("Sila isi semua maklumat!");
@@ -488,9 +472,9 @@
             if(imgInput.files[0]) reader.readAsDataURL(imgInput.files[0]); else reader.onload({ target: { result: '' } });
         }
         function renderTax() {
-            const tbody = document.getElementById('tax-table-body'); let total = 0; const catCounts = {};
+            const tbody = document.getElementById('tax-table-body'); let total = 0;
             tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => {
-                total += t.amt; catCounts[t.cat] = (catCounts[t.cat] || 0) + 1;
+                total += t.amt;
                 return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition"><td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}</td><td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '-'}</td><td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span></td><td class="p-6 font-bold text-sm text-gray-800">${t.vendor}</td><td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}</td><td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button></td></tr>`;
             }).join('') || '<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">Tiada rekod.</td></tr>';
             document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`;
@@ -499,7 +483,6 @@
         function deleteTax(id) { if(confirm("Padam?")) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
         function syncCloud() { alert("Sync Successful!"); }
 
-        // Dashboard/History logic (Kekalkan)
         function renderDashboard() {
             const recent = db.hist.slice(-7);
             const totalRev = recent.reduce((sum, h) => sum + h.total, 0);
@@ -516,7 +499,6 @@
         function addClient() { const n = prompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
         function renderCRM() { document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
         
-        // Billing, Coupon & Export (Kekalkan)
         function updateBizProfile() {
             db.prof.name = document.getElementById('set-biz-name').value;
             db.prof.addr = document.getElementById('set-biz-addr').value;
@@ -539,38 +521,78 @@
         function exportData() { const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const a = document.createElement('a'); a.href = data; a.download = `BizPro_Flux_Backup.json`; a.click(); }
         function importData(event) { const reader = new FileReader(); reader.onload = (e) => { db = JSON.parse(e.target.result); save(); location.reload(); }; reader.readAsText(event.target.files[0]); }
         
-        // Billing Logic (Kekalkan)
-        function updateBillingTheme() { const type = document.getElementById('billing-type').value; document.getElementById('preview-title').innerText = type; document.getElementById('watermark').innerText = type; document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; document.getElementById('prev-date').innerText = new Date().toLocaleDateString('en-GB'); }
-        function populateBillingClients() { document.getElementById('bill-client-select').innerHTML = '<option value="">-- CRM --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
-        function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input').appendChild(div); }
+        function populateBillingClients() { 
+            const select = document.getElementById('bill-client-select');
+            select.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); 
+        }
+
+        function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input').appendChild(div); }
+        
         function calcBilling() { 
             const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); body.innerHTML = ''; let subtotal = 0; 
-            selects.forEach((s, idx) => { const item = db.inv.find(i => i.id == s.value); if(item) { const lineTotal = item.jual * qtys[idx].value; subtotal += lineTotal; body.innerHTML += `<tr><td class="p-5 font-bold text-gray-800">${item.name}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black text-blue-600">RM ${lineTotal.toFixed(2)}</td></tr>`; } }); 
+            selects.forEach((s, idx) => { const item = db.inv.find(i => i.id == s.value); if(item) { const lineTotal = item.jual * qtys[idx].value; subtotal += lineTotal; body.innerHTML += `<tr><td class="p-5 font-bold text-gray-800">${item.name}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black doc-accent-text">RM ${lineTotal.toFixed(2)}</td></tr>`; } }); 
             const grand = subtotal - activeDiscount; document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; 
         }
+
         function generateFinalBilling() {
-            const type = document.getElementById('billing-type').value; const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); let total = 0, margin = 0;
+            const type = document.getElementById('billing-type').value; 
+            const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); 
+            const clientId = document.getElementById('bill-client-select').value;
+            const client = db.cli.find(c => c.id == clientId);
+            let total = 0, margin = 0;
+
             selects.forEach((s, idx) => { const item = db.inv.find(i => i.id == s.value); const q = parseInt(qtys[idx].value); if(item) { if(type !== 'QUO') item.qty -= q; total += item.jual * q; margin += (item.jual - item.kos) * q; } });
-            db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: `${type}${db.ref[type]}`, type, clientName: 'Pelanggan', total: total - activeDiscount, margin: margin - activeDiscount });
-            db.ref[type]++; save(); alert("Disimpan!"); location.reload();
+            
+            db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: `${type}${db.ref[type]}`, type, clientName: client ? client.name : 'Umum', total: total - activeDiscount, margin: margin - activeDiscount });
+            db.ref[type]++; save(); alert("Rekod Berjaya Disimpan!"); location.reload();
         }
+
         function renderHistory() { document.getElementById('history-body').innerHTML = db.hist.map(h => `<tr><td class="p-6">${h.date}</td><td class="p-6 font-bold text-blue-600">${h.ref}</td><td class="p-6">${h.clientName}</td><td class="p-6 text-right">RM ${h.total.toFixed(2)}</td><td class="p-6 text-right text-emerald-500 font-bold">RM ${h.margin.toFixed(2)}</td><td class="p-6 text-center"><button onclick="db.hist=db.hist.filter(x=>x.id!==${h.id});save();renderHistory();" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td></tr>`).reverse().join(''); }
         
-        // Coupon Manager (Kekalkan)
         function renderCoupons() { document.getElementById('coupon-list').innerHTML = Object.entries(db.coupons).map(([code, val]) => `<div class="bg-white p-4 rounded-2xl border border-dashed border-purple-200 flex justify-between items-center"><div><p class="text-xs font-black text-purple-600">${code}</p><p class="text-lg font-bold">RM ${val}</p></div><button onclick="deleteCoupon('${code}')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`).join('') || '<p class="text-xs">Tiada Kupon.</p>'; }
         function addNewCoupon() { const c = document.getElementById('new-coupon-code').value.toUpperCase(), v = parseFloat(document.getElementById('new-coupon-val').value); if(c && v) { db.coupons[c] = v; save(); renderCoupons(); } }
         function deleteCoupon(c) { delete db.coupons[c]; save(); renderCoupons(); }
         function applyCoupon() { const c = document.getElementById('coupon-input').value.toUpperCase(); if(db.coupons[c]) { activeDiscount = db.coupons[c]; alert("Kupon Guna!"); calcBilling(); } else { alert("Kupon Salah!"); activeDiscount = 0; calcBilling(); } }
 
-        // Social & Blast (Kekalkan)
+        function renderAR() {
+            const list = document.getElementById('ar-list');
+            list.innerHTML = db.ar.map(item => `
+                <div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100">
+                    <div class="flex-1 pr-4">
+                        <p class="font-bold text-sm text-gray-800">${item.title}</p>
+                        <p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold">COPY</button>
+                        <button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-gray-400 text-xs italic py-4">Tiada template.</p>';
+        }
+
+        function saveAR() {
+            const title = document.getElementById('ar-title').value, msg = document.getElementById('ar-msg').value;
+            if(!title || !msg) return alert("Sila isi tajuk dan mesej!");
+            db.ar.push({ id: Date.now(), title, msg });
+            save(); renderAR();
+            document.getElementById('ar-title').value = ''; document.getElementById('ar-msg').value = '';
+        }
+
+        function copyToClipboard(msg) {
+            const text = decodeURIComponent(msg);
+            navigator.clipboard.writeText(text).then(() => { alert("Disalin ke papan klip!"); });
+        }
+
+        function deleteAR(id) { if(confirm("Padam template?")) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
+
         function addSchedule() { const p = document.getElementById('sch-platform').value, t = document.getElementById('sch-title').value, d = document.getElementById('sch-date').value, tm = document.getElementById('sch-time').value; if(t && d && tm) { db.sch.push({ id: Date.now(), platform: p, title: t, date: d, time: tm, status: 'PENDING' }); save(); renderSchedule(); } }
         function renderSchedule() { document.getElementById('schedule-list').innerHTML = db.sch.map(s => `<div class="bg-white p-5 rounded-2xl border border-gray-100 flex justify-between items-center group shadow-sm"><div><h4 class="font-bold text-sm">${s.title}</h4><p class="text-[10px] text-gray-400 font-bold uppercase">${s.platform} | ${s.date} ${s.time}</p></div><button onclick="db.sch=db.sch.filter(x=>x.id!==${s.id});save();renderSchedule();" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`).join('') || '<p class="text-xs text-center py-4">Tiada Jadual.</p>'; }
         function renderBlastClientList() { document.getElementById('blast-client-list').innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl cursor-pointer"><input type="checkbox" class="blast-checkbox w-5 h-5 mr-4 accent-emerald-500" data-phone="${c.phone}" data-name="${c.name}"><div><p class="text-sm font-bold">${c.name}</p><p class="text-[10px] text-gray-400 font-bold">${c.phone}</p></div></label>`).join(''); }
         async function startBlast() { const checks = document.querySelectorAll('.blast-checkbox:checked'), msgTpl = document.getElementById('blast-msg').value; for(let c of checks) { const finalMsg = encodeURIComponent(msgTpl.replace('{name}', c.dataset.name)); window.open(`https://wa.me/${c.dataset.phone}?text=${finalMsg}`, '_blank'); await new Promise(r => setTimeout(r, 2000)); } }
         function generateCatalogText() { let c = "KATALOG:\n"; db.inv.slice(0, 10).forEach(i => c += `- ${i.name} RM${i.jual}\n`); document.getElementById('blast-msg').value = c; }
         
-        async function exportAndShare() { const element = document.getElementById('print-area'); const opt = { margin: 0, filename: `BizProDoc.pdf`, html2canvas: { scale: 3 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
-        function shareWhatsapp() { const total = document.getElementById('grandtotal').innerText; const msg = encodeURIComponent(`Terima kasih. Jumlah: ${total}`); window.open(`https://wa.me/?text=${msg}`, '_blank'); }
+        async function exportAndShare() { const element = document.getElementById('print-area'); const opt = { margin: 0.2, filename: `BizProDoc.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
+        function shareWhatsapp() { const total = document.getElementById('grandtotal').innerText; const msg = encodeURIComponent(`Terima kasih. Sila lihat dokumen anda. Jumlah: ${total}`); window.open(`https://wa.me/?text=${msg}`, '_blank'); }
     </script>
 </body>
 </html>
