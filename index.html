@@ -297,7 +297,7 @@
                 </div>
                 <div class="flux-card p-8">
                     <h3 class="font-bold mb-4">Senarai Template Chatbox</h3>
-                    <div id="ar-list" class="space-y-3"></div>
+                    <div id="ar-list" class="space-y-3 max-h-[400px] overflow-y-auto custom-scroll pr-2"></div>
                 </div>
             </div>
         </section>
@@ -339,13 +339,13 @@
     </main>
 
     <script>
-        // Sapaan Profesional Default
+        // Sapaan Profesional Default (Global)
         const defaultTemplates = [
-            { id: 1, title: '⭐ Sapaan Professional', msg: 'Salam Sejahtera {name}, terima kasih kerana menghubungi kami. Ada apa yang boleh kami bantu hari ini?' },
-            { id: 2, title: '📄 Info Sebut Harga', msg: 'Hai {name}, ini adalah sebut harga bagi produk yang diminta. Harga kami adalah yang terbaik mengikut kualiti yang ditawarkan. Sila semak fail dilampirkan.' },
-            { id: 3, title: '⏳ Follow-up Lembut', msg: 'Salam {name}, saya ingin menyusul (follow-up) berkenaan tawaran semalam. Adakah anda mempunyai sebarang soalan tambahan?' },
-            { id: 4, title: '✅ Close Deal / Terima Kasih', msg: 'Terima kasih {name} atas tempahan anda! Kami akan proses pesanan anda secepat mungkin. Harap anda berpuas hati dengan servis kami.' },
-            { id: 5, title: '🌙 Di Luar Waktu Pejabat', msg: 'Terima kasih atas mesej anda. Kami kini di luar waktu operasi. Kami akan menghubungi anda semula pada hari bekerja berikutnya. Terima kasih atas kesabaran anda.' }
+            { id: 101, title: '⭐ Sapaan Professional', msg: 'Salam Sejahtera {name}, terima kasih kerana menghubungi kami. Ada apa yang boleh kami bantu hari ini?' },
+            { id: 102, title: '📄 Info Sebut Harga', msg: 'Hai {name}, ini adalah sebut harga bagi produk yang diminta. Harga kami adalah yang terbaik mengikut kualiti yang ditawarkan. Sila semak fail dilampirkan.' },
+            { id: 103, title: '⏳ Follow-up Lembut', msg: 'Salam {name}, saya ingin menyusul (follow-up) berkenaan tawaran semalam. Adakah anda mempunyai sebarang soalan tambahan?' },
+            { id: 104, title: '✅ Close Deal / Terima Kasih', msg: 'Terima kasih {name} atas tempahan anda! Kami akan proses pesanan anda secepat mungkin. Harap anda berpuas hati dengan servis kami.' },
+            { id: 105, title: '🌙 Di Luar Waktu Pejabat', msg: 'Terima kasih atas mesej anda. Kami kini di luar waktu operasi. Kami akan menghubungi anda semula pada hari bekerja berikutnya. Terima kasih atas kesabaran anda.' }
         ];
 
         let db = {
@@ -358,8 +358,14 @@
             ref: JSON.parse(localStorage.getItem('f6_ref')) || { QUO: 1001, INV: 1001, REC: 1001 },
             prof: JSON.parse(localStorage.getItem('f6_prof')) || { name: '', addr: '', bank: '', logo: '', cop: '' },
             tax: JSON.parse(localStorage.getItem('f6_tax')) || [],
-            ar: JSON.parse(localStorage.getItem('f6_ar')) || defaultTemplates
+            ar: JSON.parse(localStorage.getItem('f6_ar')) || []
         };
+
+        // Fix: Gabungkan defaultTemplates jika db.ar kosong
+        if (db.ar.length === 0) {
+            db.ar = [...defaultTemplates];
+            localStorage.setItem('f6_ar', JSON.stringify(db.ar));
+        }
 
         let activeDiscount = 0;
 
@@ -372,7 +378,7 @@
             initApp(); 
         }
 
-        // --- INVENTORY FUNCTIONS (UPDATED: Spec & Hide/Show) ---
+        // --- INVENTORY FUNCTIONS ---
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body');
             tbody.innerHTML = db.inv.map((item, idx) => `
@@ -380,19 +386,14 @@
                     <td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div></td>
                     <td class="p-6">
                         <input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800">
-                        
                         <div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">
                             ${(item.details || []).map((d, dIdx) => `
                                 <div class="flex gap-1">
-                                    <input type="text" value="${d}" 
-                                        onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" 
-                                        placeholder="Spec/Warna/Saiz"
-                                        class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm">
+                                    <input type="text" value="${d}" onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" placeholder="Spec/Warna/Saiz" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm">
                                     <button onclick="db.inv[${idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button>
                                 </div>
                             `).join('')}
                         </div>
-
                         <div class="flex gap-4 mt-3">
                             <button onclick="if(!db.inv[${idx}].details) db.inv[${idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase tracking-tighter"><i class="fas fa-plus mr-1"></i> TAMBAH SPEC</button>
                             <button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
@@ -420,7 +421,6 @@
             const totalRev = paidTransactions.reduce((sum, h) => sum + h.total, 0);
             const totalMargin = paidTransactions.reduce((sum, h) => sum + h.margin, 0);
             const totalTax = db.tax.reduce((sum, t) => sum + t.amt, 0);
-            
             document.getElementById('dash-total-rev').innerText = `RM ${totalRev.toFixed(2)}`;
             document.getElementById('dash-total-margin').innerText = `RM ${totalMargin.toFixed(2)}`;
             document.getElementById('dash-tax-expense').innerText = `RM ${totalTax.toFixed(2)}`;
@@ -428,55 +428,35 @@
             renderJobs();
         }
 
-        // --- TAX RECORDS FUNCTIONS (UPDATED) ---
+        // --- TAX RECORDS ---
         function saveTaxRecord() {
             const date = document.getElementById('tax-date').value, amt = parseFloat(document.getElementById('tax-amount').value), cat = document.getElementById('tax-category').value, vendor = document.getElementById('tax-vendor').value, imgInput = document.getElementById('tax-img-input');
             if(!date || isNaN(amt) || !vendor) return alert("Sila isi semua maklumat!");
-            
-            const processSave = (imgData) => {
-                db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: imgData });
-                save(); renderTax(); document.getElementById('tax-modal').classList.add('hidden');
-                document.getElementById('tax-img-status').innerText = "Muat Naik Resit";
-            };
-
-            if(imgInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => processSave(e.target.result);
-                reader.readAsDataURL(imgInput.files[0]);
-            } else {
-                processSave('');
-            }
+            const processSave = (imgData) => { db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: imgData }); save(); renderTax(); document.getElementById('tax-modal').classList.add('hidden'); };
+            if(imgInput.files[0]) { const reader = new FileReader(); reader.onload = (e) => processSave(e.target.result); reader.readAsDataURL(imgInput.files[0]); } else { processSave(''); }
         }
 
         function renderTax() {
-            const tbody = document.getElementById('tax-table-body'); let total = 0;
-            const categories = {};
-            
+            const tbody = document.getElementById('tax-table-body'); let total = 0; const categories = {};
             tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => {
-                total += t.amt;
-                categories[t.cat] = (categories[t.cat] || 0) + t.amt;
+                total += t.amt; categories[t.cat] = (categories[t.cat] || 0) + t.amt;
                 return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition"><td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}</td><td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'}</td><td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span></td><td class="p-6 font-bold text-sm text-gray-800">${t.vendor}</td><td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}</td><td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button></td></tr>`;
             }).join('') || '<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">Tiada rekod perbelanjaan.</td></tr>';
-            
             document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`;
             document.getElementById('tax-receipt-count').innerText = db.tax.length;
-            
             const topCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b, '-');
             document.getElementById('tax-top-cat').innerText = topCat;
         }
 
         function deleteTax(id) { if(confirm("Padam rekod ini?")) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
 
-        // --- BILLING & HISTORY (UPDATED: INV TO REC) ---
+        // --- BILLING & HISTORY ---
         function generateFinalBilling() {
             const type = document.getElementById('billing-type').value; 
             const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); 
             const clientId = document.getElementById('bill-client-select').value;
             const client = db.cli.find(c => c.id == clientId);
-            
-            let total = 0, margin = 0;
-            let items = [];
-
+            let total = 0, margin = 0, items = [];
             selects.forEach((s, idx) => { 
                 const item = db.inv.find(i => i.id == s.value); 
                 const q = parseInt(qtys[idx].value); 
@@ -487,45 +467,18 @@
                     items.push({ name: item.name, qty: q, jual: item.jual, kos: item.kos });
                 } 
             });
-            
             const finalTotal = total - activeDiscount;
             const finalMargin = (type === 'REC') ? (margin - activeDiscount) : 0;
-
-            db.hist.push({ 
-                id: Date.now(), 
-                date: new Date().toLocaleDateString('en-GB'), 
-                ref: `${type}${db.ref[type]}`, 
-                type: type, 
-                clientName: client ? client.name : 'Umum', 
-                total: finalTotal, 
-                margin: finalMargin,
-                items: items,
-                discount: activeDiscount
-            });
-
-            db.ref[type]++; 
-            save(); 
-            alert(`Rekod ${type} Berjaya Disimpan!`); 
-            location.reload();
+            db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: `${type}${db.ref[type]}`, type: type, clientName: client ? client.name : 'Umum', total: finalTotal, margin: finalMargin, items: items, discount: activeDiscount });
+            db.ref[type]++; save(); alert(`Rekod ${type} Berjaya Disimpan!`); location.reload();
         }
 
         function convertInvToRec(id) {
-            const index = db.hist.findIndex(h => h.id === id);
-            if(index !== -1 && db.hist[index].type === 'INV') {
-                const inv = db.hist[index];
-                inv.type = 'REC';
-                inv.ref = `REC${db.ref.REC++}`;
-                
-                // Kira semula margin bila jadi Receipt
-                let margin = 0;
-                inv.items.forEach(item => {
-                    margin += (item.jual - item.kos) * item.qty;
-                });
-                inv.margin = margin - (inv.discount || 0);
-                
-                save();
-                renderHistory();
-                alert("Invoice telah ditukarkan kepada Receipt (Telah Dibayar)!");
+            const idx = db.hist.findIndex(h => h.id === id);
+            if(idx !== -1 && db.hist[idx].type === 'INV') {
+                const inv = db.hist[idx]; inv.type = 'REC'; inv.ref = `REC${db.ref.REC++}`;
+                let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; });
+                inv.margin = m - (inv.discount || 0); save(); renderHistory(); alert("Invoice telah ditukarkan kepada Receipt!");
             }
         }
 
@@ -549,11 +502,11 @@
             `).reverse().join('');
         }
 
-        // --- AR / CHATBOX FUNCTIONS (UPDATED) ---
+        // --- AR / CHATBOX FUNCTIONS (FIXED) ---
         function renderAR() {
             const list = document.getElementById('ar-list');
             list.innerHTML = db.ar.map(item => `
-                <div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100">
+                <div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100 section-animate">
                     <div class="flex-1 pr-4">
                         <p class="font-bold text-sm text-gray-800">${item.title}</p>
                         <p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p>
@@ -581,30 +534,20 @@
 
         function deleteAR(id) { if(confirm("Padam template?")) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
 
-        // --- SHARED UI LOGIC ---
+        // --- SHARED UI ---
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('active', 'bg-blue-600', 'text-white');
-                b.classList.add('text-gray-500');
-            });
+            document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active', 'bg-blue-600', 'text-white'); b.classList.add('text-gray-500'); });
             document.getElementById(`${id}-section`).classList.remove('hidden');
-            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(id));
-            if(activeBtn) { activeBtn.classList.add('active', 'bg-blue-600', 'text-white'); activeBtn.classList.remove('text-gray-500'); }
-            
-            const renderFuncs = {
-                dashboard: renderDashboard, inventory: renderInventory, crm: renderCRM,
-                billing: () => { populateBillingClients(); updateBillingTheme(); },
-                promo: renderCoupons, social: renderSchedule, blast: renderBlastClientList,
-                autoreply: renderAR, lhdn: renderTax, history: renderHistory
-            };
-            if(renderFuncs[id]) renderFuncs[id]();
+            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(id));
+            if(btn) { btn.classList.add('active', 'bg-blue-600', 'text-white'); btn.classList.remove('text-gray-500'); }
+            const funcs = { dashboard: renderDashboard, inventory: renderInventory, crm: renderCRM, billing: () => { populateBillingClients(); updateBillingTheme(); }, promo: renderCoupons, social: renderSchedule, blast: renderBlastClientList, autoreply: renderAR, lhdn: renderTax, history: renderHistory };
+            if(funcs[id]) funcs[id]();
         }
 
         function updateBillingTheme() { 
             const type = document.getElementById('billing-type').value; 
-            document.body.classList.remove('theme-QUO', 'theme-INV', 'theme-REC');
-            document.body.classList.add(`theme-${type}`);
+            document.body.className = `flex min-h-screen overflow-hidden theme-${type}`;
             document.getElementById('preview-title').innerText = type; 
             document.getElementById('watermark').innerText = type; 
             document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; 
@@ -620,12 +563,12 @@
             updateBizProfile(); renderDashboard();
         }
 
-        // --- HELPER CRM & OTHERS ---
+        // --- HELPERS ---
         function addClient() { const n = prompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
         function renderCRM() { document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
         function populateBillingClients() { const s = document.getElementById('bill-client-select'); s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
         function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input').appendChild(div); }
-        function calcBilling() { const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); body.innerHTML = ''; let subtotal = 0; selects.forEach((s, idx) => { const item = db.inv.find(i => i.id == s.value); if(item) { const lineTotal = item.jual * qtys[idx].value; subtotal += lineTotal; body.innerHTML += `<tr><td class="p-5 font-bold text-gray-800">${item.name}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black doc-accent-text">RM ${lineTotal.toFixed(2)}</td></tr>`; } }); const grand = subtotal - activeDiscount; document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; }
+        function calcBilling() { const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); body.innerHTML = ''; let sub = 0; selects.forEach((s, idx) => { const item = db.inv.find(i => i.id == s.value); if(item) { const line = item.jual * qtys[idx].value; sub += line; body.innerHTML += `<tr><td class="p-5 font-bold text-gray-800">${item.name}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black doc-accent-text">RM ${line.toFixed(2)}</td></tr>`; } }); const grand = sub - activeDiscount; document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; }
         function updateBizProfile() { db.prof.name = document.getElementById('set-biz-name').value; db.prof.addr = document.getElementById('set-biz-addr').value; db.prof.bank = document.getElementById('set-biz-bank').value; document.getElementById('prev-biz-name').innerText = db.prof.name || "NAMA SYARIKAT"; document.getElementById('prev-biz-addr').innerText = db.prof.addr || "ALAMAT"; document.getElementById('prev-biz-bank').innerText = db.prof.bank || "BANK"; if(db.prof.logo) { document.getElementById('prev-logo').src = db.prof.logo; document.getElementById('prev-logo').classList.remove('hidden'); } if(db.prof.cop) { document.getElementById('prev-cop').src = db.prof.cop; document.getElementById('prev-cop').classList.remove('hidden'); } save(); }
         function uploadProfileImg(i, t) { const r = new FileReader(); r.onload = (e) => { db.prof[t] = e.target.result; save(); updateBizProfile(); }; r.readAsDataURL(i.files[0]); }
         function addJob() { const t = prompt("Perkara:"), d = prompt("Tarikh:"); if(t && d) { db.jobs.push({ t, d, id: Date.now() }); save(); renderJobs(); } }
