@@ -15,15 +15,15 @@
         :root { --flux-accent: #007AFF; --flux-bg: #F2F2f7; --flux-card: rgba(255, 255, 255, 0.8); }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--flux-bg); color: #1c1c1e; }
         .flux-card { background: var(--flux-card); backdrop-filter: blur(20px); border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
-        .sidebar-item { border-radius: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .sidebar-item.active { background: var(--flux-accent); color: white; box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); }
+        .nav-item { border-radius: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+        .nav-item.active { background: var(--flux-accent); color: white; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25); }
         .flux-input { background: rgba(0,0,0,0.04); border-radius: 14px; border: 2px solid transparent; transition: 0.2s; }
         .flux-input:focus { border-color: var(--flux-accent); background: white; outline: none; }
         .social-card { transition: all 0.3s ease; cursor: pointer; }
         .social-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .section-animate { animation: fluxFade 0.4s ease-out; }
         @keyframes fluxFade { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
         
         .theme-QUO { --doc-color: #007AFF; }
@@ -32,9 +32,13 @@
         .doc-accent-bg { background-color: var(--doc-color) !important; }
         .doc-accent-text { color: var(--doc-color) !important; }
         .doc-accent-border { border-color: var(--doc-color) !important; }
+        
+        /* Untuk navbar responsif */
+        .navbar-scroll { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+        .navbar-scroll::-webkit-scrollbar { height: 3px; }
     </style>
 </head>
-<body class="flex min-h-screen overflow-hidden theme-QUO">
+<body class="flex flex-col min-h-screen overflow-hidden theme-QUO">
 
     <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
         <div class="text-center p-8 max-w-sm w-full">
@@ -51,68 +55,42 @@
         </div>
     </div>
 
-    <aside class="w-72 bg-white/70 backdrop-blur-xl border-r border-gray-200 p-6 flex flex-col no-print">
-        <div class="mb-10 flex items-center gap-3 px-2">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                <i class="fas fa-bolt text-white"></i>
-            </div>
-            <div>
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 py-2 sticky top-0 z-50 no-print">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                    <i class="fas fa-bolt text-white text-sm"></i>
+                </div>
                 <h1 class="font-extrabold text-xl tracking-tighter">BIZPRO</h1>
-                <span class="text-[10px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold">V6 FLUX</span>
+                <span class="text-[8px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold ml-1">V6 FLUX</span>
+            </div>
+            <div class="flex-1 navbar-scroll flex gap-1 justify-start lg:justify-center">
+                <button onclick="showSection('dashboard')" class="nav-item flex items-center gap-2"><i class="fas fa-home text-sm"></i><span class="hidden sm:inline">Dashboard</span></button>
+                <button onclick="showSection('inventory')" class="nav-item flex items-center gap-2"><i class="fas fa-th-large text-sm"></i><span class="hidden sm:inline">Inventory</span></button>
+                <button onclick="showSection('crm')" class="nav-item flex items-center gap-2"><i class="fas fa-user-friends text-sm"></i><span class="hidden sm:inline">CRM</span></button>
+                <button onclick="showSection('billing')" class="nav-item flex items-center gap-2"><i class="fas fa-receipt text-sm"></i><span class="hidden sm:inline">Billing</span></button>
+                <button onclick="showSection('promo')" class="nav-item flex items-center gap-2"><i class="fas fa-tags text-sm"></i><span class="hidden sm:inline">Coupon</span></button>
+                <button onclick="showSection('social')" class="nav-item flex items-center gap-2"><i class="fas fa-share-nodes text-sm"></i><span class="hidden sm:inline">Social</span></button>
+                <button onclick="showSection('blast')" class="nav-item flex items-center gap-2"><i class="fab fa-whatsapp text-sm"></i><span class="hidden sm:inline">Blast</span></button>
+                <button onclick="showSection('autoreply')" class="nav-item flex items-center gap-2"><i class="fas fa-comments text-sm"></i><span class="hidden sm:inline">Chatbox</span></button>
+                <button onclick="showSection('lhdn')" class="nav-item flex items-center gap-2"><i class="fas fa-file-invoice-dollar text-sm"></i><span class="hidden sm:inline">LHDN</span></button>
+                <button onclick="showSection('history')" class="nav-item flex items-center gap-2"><i class="fas fa-history text-sm"></i><span class="hidden sm:inline">History</span></button>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="exportData()" class="text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded-xl"><i class="fas fa-download"></i></button>
+                <button onclick="document.getElementById('import-file').click()" class="text-xs bg-blue-50 text-blue-600 p-2 rounded-xl"><i class="fas fa-upload"></i></button>
+                <input type="file" id="import-file" class="hidden" onchange="importData(event)">
             </div>
         </div>
+    </nav>
 
-        <nav class="space-y-1 flex-1 overflow-y-auto custom-scroll pr-1">
-            <button onclick="showSection('dashboard')" class="nav-btn active w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-sm">
-                <i class="fas fa-home"></i> Dashboard
-            </button>
-            <button onclick="showSection('inventory')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500 text-sm">
-                <i class="fas fa-th-large"></i> Inventory
-            </button>
-            <button onclick="showSection('crm')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500 text-sm">
-                <i class="fas fa-user-friends"></i> CRM Database
-            </button>
-            <button onclick="showSection('billing')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500 text-sm">
-                <i class="fas fa-receipt"></i> Billing
-            </button>
-            <button onclick="showSection('promo')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-purple-600 text-sm">
-                <i class="fas fa-tags"></i> Coupon Manager
-            </button>
-            <button onclick="showSection('social')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-pink-600 text-sm">
-                <i class="fas fa-share-nodes"></i> Social Marketing
-            </button>
-            <button onclick="showSection('blast')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-emerald-600 text-sm">
-                <i class="fab fa-whatsapp"></i> Smart Blast
-            </button>
-            <button onclick="showSection('autoreply')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-blue-500 text-sm">
-                <i class="fas fa-comments"></i> WhatsApp Chatbox
-            </button>
-            <button onclick="showSection('lhdn')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-orange-600 text-sm">
-                <i class="fas fa-file-invoice-dollar"></i> LHDN Tax Records
-            </button>
-            <button onclick="showSection('history')" class="nav-btn w-full text-left p-4 sidebar-item flex items-center gap-4 font-semibold text-gray-500 text-sm">
-                <i class="fas fa-history"></i> History
-            </button>
-        </nav>
-
-        <div class="pt-6 border-t border-gray-100 space-y-3">
-            <p class="text-[9px] text-center font-bold text-gray-300 uppercase mb-2">System by AzlanMymo</p>
-            <button onclick="exportData()" class="w-full flux-input p-3 text-xs font-bold flex items-center justify-center gap-2">
-                <i class="fas fa-download"></i> EXPORT BACKUP
-            </button>
-            <button onclick="document.getElementById('import-file').click()" class="w-full bg-blue-50 text-blue-600 p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
-                <i class="fas fa-upload"></i> IMPORT DATA
-            </button>
-            <input type="file" id="import-file" class="hidden" onchange="importData(event)">
-        </div>
-    </aside>
-
-    <main class="flex-1 p-8 overflow-y-auto">
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
         
         <section id="dashboard-section" class="section section-animate">
-            <div class="flex justify-between items-end mb-8">
+            <div class="flex justify-between items-end mb-6 flex-wrap gap-3">
                 <div>
-                    <h2 class="text-4xl font-black tracking-tight">Ringkasan Niaga</h2>
+                    <h2 class="text-3xl md:text-4xl font-black tracking-tight">Ringkasan Niaga</h2>
                     <p class="text-gray-500 font-medium">Prestasi semasa anda hari ini.</p>
                 </div>
                 <div class="text-right">
@@ -121,7 +99,7 @@
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <div class="lg:col-span-2 flux-card p-8 flex flex-col justify-between">
-                    <div class="flex justify-between items-start">
+                    <div class="flex justify-between items-start flex-wrap gap-3">
                         <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest">Revenue Terkini (Receipt)</h3>
                         <div class="flex gap-2">
                             <button onclick="showSection('lhdn')" class="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-[10px] font-bold tracking-tighter">REKOD CUKAI <i class="fas fa-plus"></i></button>
@@ -129,7 +107,7 @@
                         </div>
                     </div>
                     <div class="my-6">
-                        <h1 id="dash-total-rev" class="text-6xl font-black tracking-tighter text-blue-600">RM 0.00</h1>
+                        <h1 id="dash-total-rev" class="text-5xl md:text-6xl font-black tracking-tighter text-blue-600">RM 0.00</h1>
                         <p class="text-gray-400 font-medium mt-2">Berdasarkan jualan yang telah dibayar (Receipt)</p>
                     </div>
                     <div class="grid grid-cols-3 gap-4 border-t border-gray-100 pt-6">
@@ -158,12 +136,12 @@
         </section>
 
         <section id="inventory-section" class="section hidden section-animate">
-            <div class="flex justify-between items-center mb-8">
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
                 <h2 class="text-3xl font-black">Inventori Stok</h2>
-                <button onclick="addInventoryItem()" class="bg-black text-white px-8 py-3 rounded-2xl font-bold shadow-xl">+ Produk Baru</button>
+                <button onclick="addInventoryItem()" class="bg-black text-white px-6 py-2 rounded-2xl font-bold shadow-xl text-sm">+ Produk Baru</button>
             </div>
             <div class="flux-card overflow-x-auto">
-                <table class="w-full text-left">
+                <table class="w-full text-left min-w-[600px]">
                     <thead class="bg-gray-50/50 border-b border-gray-100">
                         <tr class="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
                             <th class="p-6">Imej</th>
@@ -180,7 +158,7 @@
         </section>
 
         <section id="crm-section" class="section hidden section-animate">
-            <div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black">Pangkalan Data Pelanggan</h2><button onclick="addClient()" class="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold shadow-xl">+ Tambah Lead</button></div>
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-3xl font-black">Pangkalan Data Pelanggan</h2><button onclick="addClient()" class="bg-blue-600 text-white px-6 py-2 rounded-2xl font-bold shadow-xl">+ Tambah Lead</button></div>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6" id="crm-list-grid"></div>
         </section>
 
@@ -203,31 +181,31 @@
                     <button onclick="generateFinalBilling()" class="w-full bg-black text-white py-5 rounded-3xl font-bold shadow-xl">SAHKAN & SIMPAN REKOD</button>
                     <div class="grid grid-cols-2 gap-2"><button onclick="exportAndShare()" class="bg-gray-100 p-4 rounded-2xl font-bold text-xs"><i class="fas fa-file-pdf mr-2"></i>Simpan PDF</button><button onclick="shareWhatsapp()" class="bg-emerald-50 text-emerald-600 p-4 rounded-2xl font-bold text-xs"><i class="fab fa-whatsapp mr-2"></i>WhatsApp</button></div>
                 </div>
-                <div id="print-area" class="lg:col-span-2 bg-white p-12 shadow-2xl relative min-h-[1050px] rounded-[40px] border border-gray-100">
+                <div id="print-area" class="lg:col-span-2 bg-white p-8 shadow-2xl relative min-h-[900px] rounded-[40px] border border-gray-100">
                     <div id="watermark" class="absolute inset-0 flex items-center justify-center opacity-[0.03] rotate-[-35deg] text-[150px] font-black pointer-events-none uppercase">QUO</div>
-                    <div class="flex justify-between items-start mb-16 relative z-10">
-                        <div class="flex items-center gap-5"><img id="prev-logo" src="" class="w-20 h-20 object-contain hidden"><div><h2 class="font-black text-3xl uppercase tracking-tighter" id="prev-biz-name">SYARIKAT ANDA</h2><p class="text-xs mt-2 max-w-[280px] text-gray-500 font-medium whitespace-pre-line leading-relaxed" id="prev-biz-addr">Alamat Perniagaan...</p></div></div>
+                    <div class="flex justify-between items-start mb-12 relative z-10 flex-wrap gap-3">
+                        <div class="flex items-center gap-5"><img id="prev-logo" src="" class="w-16 h-16 object-contain hidden"><div><h2 class="font-black text-2xl uppercase tracking-tighter" id="prev-biz-name">SYARIKAT ANDA</h2><p class="text-xs mt-2 max-w-[280px] text-gray-500 font-medium whitespace-pre-line leading-relaxed" id="prev-biz-addr">Alamat Perniagaan...</p></div></div>
                         <div class="text-right"><h1 id="preview-title" class="text-5xl font-black italic tracking-tighter doc-accent-text leading-none">QUO</h1><p id="ref-no" class="font-black text-xl mt-4">---</p><p class="text-[10px] font-bold text-gray-400 uppercase mt-1">Tarikh: <span id="prev-date" class="text-black"></span></p></div>
                     </div>
-                    <div class="grid grid-cols-2 mb-12 gap-10">
-                        <div class="bg-gray-50 p-6 rounded-3xl border-l-4 doc-accent-border"><p class="text-[9px] font-bold doc-accent-text uppercase mb-2">Kepada / Bill To:</p><p id="bill-to-client" class="font-bold text-gray-800 text-sm whitespace-pre-line leading-snug">---</p></div>
-                        <div class="p-6 text-right"><p class="text-[9px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Maklumat Pembayaran:</p><p id="prev-biz-bank" class="text-xs font-bold text-gray-700">---</p></div>
+                    <div class="grid grid-cols-2 mb-10 gap-8">
+                        <div class="bg-gray-50 p-5 rounded-2xl border-l-4 doc-accent-border"><p class="text-[9px] font-bold doc-accent-text uppercase mb-2">Kepada / Bill To:</p><p id="bill-to-client" class="font-bold text-gray-800 text-sm whitespace-pre-line leading-snug">---</p></div>
+                        <div class="p-5 text-right"><p class="text-[9px] font-bold text-gray-400 uppercase mb-2 tracking-widest">Maklumat Pembayaran:</p><p id="prev-biz-bank" class="text-xs font-bold text-gray-700">---</p></div>
                     </div>
-                    <table class="w-full mb-20 text-sm">
-                        <thead id="billing-thead" class="doc-accent-bg text-white"><tr class="text-left text-[10px] font-bold uppercase tracking-widest"><th class="p-5 rounded-tl-2xl">Perihalan Item</th><th class="p-5 text-center">Unit</th><th class="p-5 text-right">Harga (RM)</th><th class="p-5 text-right rounded-tr-2xl">Jumlah (RM)</th></tr></thead>
+                    <table class="w-full mb-12 text-sm">
+                        <thead id="billing-thead" class="doc-accent-bg text-white"><tr class="text-left text-[10px] font-bold uppercase tracking-widest"><th class="p-4 rounded-tl-2xl">Perihalan Item</th><th class="p-4 text-center">Unit</th><th class="p-4 text-right">Harga (RM)</th><th class="p-4 text-right rounded-tr-2xl">Jumlah (RM)</th></tr></thead>
                         <tbody id="preview-items-body" class="divide-y divide-gray-100"></tbody>
-                        <tfoot id="preview-discount-row" class="hidden"><tr><td colspan="3" class="p-5 text-right font-bold text-red-500 uppercase text-[10px]">Diskaun Kupon</td><td class="p-5 text-right font-black text-red-500" id="prev-discount-val">- RM 0.00</td></tr></tfoot>
+                        <tfoot id="preview-discount-row" class="hidden"><tr><td colspan="3" class="p-4 text-right font-bold text-red-500 uppercase text-[10px]">Diskaun Kupon</td><td class="p-4 text-right font-black text-red-500" id="prev-discount-val">- RM 0.00</td></tr></tfoot>
                     </table>
-                    <div class="flex justify-between items-end">
-                        <div class="relative"><img id="prev-cop" src="" class="w-32 h-32 object-contain hidden opacity-60"><p class="text-[10px] text-gray-300 font-bold mt-2 italic">Dokumen ini dijana secara digital.</p></div>
-                        <div class="w-72 bg-gray-900 p-8 rounded-[35px] text-right text-white shadow-xl"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Jumlah Keseluruhan</p><h2 class="text-3xl font-black" id="grandtotal">RM 0.00</h2></div>
+                    <div class="flex justify-between items-end flex-wrap gap-4">
+                        <div class="relative"><img id="prev-cop" src="" class="w-24 h-24 object-contain hidden opacity-60"><p class="text-[10px] text-gray-300 font-bold mt-2 italic">Dokumen ini dijana secara digital.</p></div>
+                        <div class="w-64 bg-gray-900 p-6 rounded-[35px] text-right text-white shadow-xl"><p class="text-[10px] font-bold text-gray-400 uppercase mb-1">Jumlah Keseluruhan</p><h2 class="text-2xl font-black" id="grandtotal">RM 0.00</h2></div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section id="promo-section" class="section hidden section-animate">
-            <div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black">Coupon Manager</h2><p class="text-gray-500 font-medium">Uruskan kod diskaun anda di sini.</p></div>
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-3xl font-black">Coupon Manager</h2><p class="text-gray-500 font-medium">Uruskan kod diskaun anda di sini.</p></div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="flux-card p-8 h-fit">
                     <h3 class="font-black text-lg mb-6 tracking-tight">Tambah Kupon Baru</h3>
@@ -242,7 +220,7 @@
         </section>
 
         <section id="social-section" class="section hidden section-animate">
-            <h2 class="text-4xl font-black mb-2 tracking-tight">Social Marketing</h2>
+            <h2 class="text-3xl md:text-4xl font-black mb-2 tracking-tight">Social Marketing</h2>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 <a href="https://www.facebook.com" target="_blank" class="flux-card p-6 flex flex-col items-center social-card"><div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-facebook-f"></i></div><span class="font-bold">Facebook</span></a>
                 <a href="https://www.tiktok.com" target="_blank" class="flux-card p-6 flex flex-col items-center social-card"><div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-2xl mb-3 shadow-lg"><i class="fab fa-tiktok"></i></div><span class="font-bold">TikTok</span></a>
@@ -265,7 +243,7 @@
 
         <section id="blast-section" class="section hidden section-animate">
             <div class="max-w-5xl mx-auto">
-                <div class="flex justify-between items-center mb-8"><h2 class="text-3xl font-black text-emerald-600 italic"><i class="fab fa-whatsapp mr-3"></i>Smart WhatsApp Blast</h2><button onclick="generateCatalogText()" class="bg-blue-50 text-blue-600 px-6 py-2 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-600 hover:text-white transition"><i class="fas fa-list-ul mr-2"></i> GENERATE KATALOG TEKS</button></div>
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl md:text-3xl font-black text-emerald-600 italic"><i class="fab fa-whatsapp mr-3"></i>Smart WhatsApp Blast</h2><button onclick="generateCatalogText()" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-600 hover:text-white transition"><i class="fas fa-list-ul mr-2"></i> GENERATE KATALOG TEKS</button></div>
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     <div class="lg:col-span-2 flux-card p-6"><p class="text-[10px] font-black text-gray-400 uppercase mb-4 tracking-widest">1. Pilih Penerima (CRM)</p><div id="blast-client-list" class="space-y-2 h-[450px] overflow-y-auto pr-2 custom-scroll"></div></div>
                     <div class="lg:col-span-3 space-y-6">
@@ -284,8 +262,8 @@
         </section>
 
         <section id="autoreply-section" class="section hidden section-animate">
-            <h2 class="text-4xl font-black mb-2 tracking-tight">WhatsApp Chatbox</h2>
-            <p class="text-gray-500 mb-8 font-medium">Urus template sapaan & jawapan pantas untuk pelanggan.</p>
+            <h2 class="text-3xl md:text-4xl font-black mb-2 tracking-tight">WhatsApp Chatbox</h2>
+            <p class="text-gray-500 mb-6 font-medium">Urus template sapaan & jawapan pantas untuk pelanggan.</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="flux-card p-8">
                     <h3 class="font-bold mb-4">Simpan Template Baru</h3>
@@ -303,20 +281,20 @@
         </section>
 
         <section id="lhdn-section" class="section hidden section-animate">
-            <div class="flex justify-between items-center mb-8"><div><h2 class="text-4xl font-black tracking-tight text-orange-600">LHDN Tax Records</h2><p class="text-gray-500 font-medium">Rekod perbelanjaan dan resit untuk tujuan audit.</p></div><div class="flex gap-3"><button onclick="document.getElementById('tax-modal').classList.remove('hidden')" class="bg-orange-600 text-white px-8 py-3 rounded-2xl font-bold shadow-xl">+ Rekod Belanja</button></div></div>
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-                <div class="flux-card p-6 text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total Tuntutan</p><h3 id="tax-total-amt" class="text-3xl font-black text-orange-600">RM 0.00</h3></div>
-                <div class="flux-card p-6 text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-1">Bilangan Resit</p><h3 id="tax-receipt-count" class="text-3xl font-black text-gray-800">0</h3></div>
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><div><h2 class="text-3xl font-black tracking-tight text-orange-600">LHDN Tax Records</h2><p class="text-gray-500 font-medium">Rekod perbelanjaan dan resit untuk tujuan audit.</p></div><div><button onclick="document.getElementById('tax-modal').classList.remove('hidden')" class="bg-orange-600 text-white px-6 py-2 rounded-2xl font-bold shadow-xl">+ Rekod Belanja</button></div></div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="flux-card p-6 text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-1">Total Tuntutan</p><h3 id="tax-total-amt" class="text-2xl font-black text-orange-600">RM 0.00</h3></div>
+                <div class="flux-card p-6 text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-1">Bilangan Resit</p><h3 id="tax-receipt-count" class="text-2xl font-black text-gray-800">0</h3></div>
                 <div class="flux-card p-6 text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-1">Kategori Tertinggi</p><h3 id="tax-top-cat" class="text-lg font-black text-gray-800 uppercase">-</h3></div>
                 <div class="flux-card p-6 text-center"><p class="text-[10px] font-black text-gray-400 uppercase mb-1">Status Audit</p><h3 class="text-lg font-black text-emerald-500 uppercase"><i class="fas fa-check-circle"></i> Tersusun</h3></div>
             </div>
-            <div class="flux-card overflow-x-auto"><table class="w-full text-left"><thead class="bg-gray-50/50 border-b border-gray-100"><tr class="text-[10px] uppercase font-bold text-gray-400 tracking-widest"><th class="p-6">Tarikh</th><th class="p-6">Resit</th><th class="p-6">Kategori</th><th class="p-6">Butiran / Vendor</th><th class="p-6 text-right">Jumlah (RM)</th><th class="p-6 text-center">Tindakan</th></tr></thead><tbody id="tax-table-body"></tbody></table></div>
+            <div class="flux-card overflow-x-auto"><table class="w-full text-left min-w-[600px]"><thead class="bg-gray-50/50 border-b border-gray-100"><tr class="text-[10px] uppercase font-bold text-gray-400 tracking-widest"><th class="p-6">Tarikh</th><th class="p-6">Resit</th><th class="p-6">Kategori</th><th class="p-6">Butiran / Vendor</th><th class="p-6 text-right">Jumlah (RM)</th><th class="p-6 text-center">Tindakan</th></tr></thead><tbody id="tax-table-body"></tbody></table></div>
         </section>
 
         <section id="history-section" class="section hidden section-animate">
-            <h2 class="text-3xl font-black mb-8">Rekod Transaksi</h2>
-            <div class="flux-card overflow-hidden">
-                <table class="w-full text-left text-sm">
+            <h2 class="text-3xl font-black mb-6">Rekod Transaksi</h2>
+            <div class="flux-card overflow-x-auto">
+                <table class="w-full text-left min-w-[600px] text-sm">
                     <thead class="bg-black text-white font-bold text-[10px] uppercase tracking-widest"><tr><th class="p-6">Tarikh</th><th class="p-6">No. Rujukan</th><th class="p-6">Pelanggan</th><th class="p-6">Jenis</th><th class="p-6 text-right">Jumlah (RM)</th><th class="p-6 text-center">Tindakan</th></tr></thead>
                     <tbody id="history-body" class="divide-y divide-gray-100"></tbody>
                 </table>
@@ -339,7 +317,7 @@
     </main>
 
     <script>
-        // Sapaan Profesional Default (Global)
+        // ================== DATA & STORAGE ==================
         const defaultTemplates = [
             { id: 101, title: '⭐ Sapaan Professional', msg: 'Salam Sejahtera {name}, terima kasih kerana menghubungi kami. Ada apa yang boleh kami bantu hari ini?' },
             { id: 102, title: '📄 Info Sebut Harga', msg: 'Hai {name}, ini adalah sebut harga bagi produk yang diminta. Harga kami adalah yang terbaik mengikut kualiti yang ditawarkan. Sila semak fail dilampirkan.' },
@@ -361,7 +339,6 @@
             ar: JSON.parse(localStorage.getItem('f6_ar')) || []
         };
 
-        // Fix: Gabungkan defaultTemplates jika db.ar kosong
         if (db.ar.length === 0) {
             db.ar = [...defaultTemplates];
             localStorage.setItem('f6_ar', JSON.stringify(db.ar));
@@ -378,7 +355,7 @@
             initApp(); 
         }
 
-        // --- INVENTORY FUNCTIONS ---
+        // ================== INVENTORY ==================
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body');
             tbody.innerHTML = db.inv.map((item, idx) => `
@@ -415,7 +392,7 @@
         function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); }
         function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
 
-        // --- DASHBOARD FUNCTIONS ---
+        // ================== DASHBOARD ==================
         function renderDashboard() {
             const paidTransactions = db.hist.filter(h => h.type === 'REC');
             const totalRev = paidTransactions.reduce((sum, h) => sum + h.total, 0);
@@ -428,7 +405,7 @@
             renderJobs();
         }
 
-        // --- TAX RECORDS ---
+        // ================== TAX ==================
         function saveTaxRecord() {
             const date = document.getElementById('tax-date').value, amt = parseFloat(document.getElementById('tax-amount').value), cat = document.getElementById('tax-category').value, vendor = document.getElementById('tax-vendor').value, imgInput = document.getElementById('tax-img-input');
             if(!date || isNaN(amt) || !vendor) return alert("Sila isi semua maklumat!");
@@ -450,7 +427,7 @@
 
         function deleteTax(id) { if(confirm("Padam rekod ini?")) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
 
-        // --- BILLING & HISTORY ---
+        // ================== BILLING & HISTORY ==================
         function generateFinalBilling() {
             const type = document.getElementById('billing-type').value; 
             const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); 
@@ -502,7 +479,7 @@
             `).reverse().join('');
         }
 
-        // --- AR / CHATBOX FUNCTIONS (FIXED) ---
+        // ================== AR / CHATBOX ==================
         function renderAR() {
             const list = document.getElementById('ar-list');
             list.innerHTML = db.ar.map(item => `
@@ -534,20 +511,20 @@
 
         function deleteAR(id) { if(confirm("Padam template?")) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
 
-        // --- SHARED UI ---
+        // ================== UI & NAVIGATION ==================
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active', 'bg-blue-600', 'text-white'); b.classList.add('text-gray-500'); });
+            document.querySelectorAll('.nav-item').forEach(b => { b.classList.remove('active'); b.classList.add('text-gray-500'); });
             document.getElementById(`${id}-section`).classList.remove('hidden');
-            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick').includes(id));
-            if(btn) { btn.classList.add('active', 'bg-blue-600', 'text-white'); btn.classList.remove('text-gray-500'); }
+            const btn = Array.from(document.querySelectorAll('.nav-item')).find(b => b.getAttribute('onclick').includes(id));
+            if(btn) { btn.classList.add('active'); btn.classList.remove('text-gray-500'); }
             const funcs = { dashboard: renderDashboard, inventory: renderInventory, crm: renderCRM, billing: () => { populateBillingClients(); updateBillingTheme(); }, promo: renderCoupons, social: renderSchedule, blast: renderBlastClientList, autoreply: renderAR, lhdn: renderTax, history: renderHistory };
             if(funcs[id]) funcs[id]();
         }
 
         function updateBillingTheme() { 
             const type = document.getElementById('billing-type').value; 
-            document.body.className = `flex min-h-screen overflow-hidden theme-${type}`;
+            document.body.className = `flex flex-col min-h-screen overflow-hidden theme-${type}`;
             document.getElementById('preview-title').innerText = type; 
             document.getElementById('watermark').innerText = type; 
             document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; 
@@ -563,7 +540,7 @@
             updateBizProfile(); renderDashboard();
         }
 
-        // --- HELPERS ---
+        // ================== HELPERS ==================
         function addClient() { const n = prompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
         function renderCRM() { document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
         function populateBillingClients() { const s = document.getElementById('bill-client-select'); s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
@@ -590,4 +567,3 @@
     </script>
 </body>
 </html>
-    
