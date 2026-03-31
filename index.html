@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>BizPro v6 | Flux Edition (Tax Ready)</title>
+    <title>BizPro v6 | Flux Edition (Low Stock Alert)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -23,10 +23,9 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* prevent body scroll, main will scroll */
+            overflow: hidden;
         }
         
-        /* Main content area - scrollable vertically */
         main {
             flex: 1;
             overflow-y: auto;
@@ -58,16 +57,41 @@
         .doc-accent-text { color: var(--doc-color) !important; }
         .doc-accent-border { border-color: var(--doc-color) !important; }
         
-        /* Drawer animation */
         .drawer-transition { transition: transform 0.3s ease-in-out; }
         .drawer-open { transform: translateX(0); }
         .drawer-closed { transform: translateX(-100%); }
         .overlay { transition: opacity 0.3s ease; }
         
-        /* Ensure sections are scrollable */
-        .section {
-            display: block;
-            width: 100%;
+        /* Low stock row highlight */
+        .low-stock-row {
+            background-color: #fee2e2 !important;
+            border-left: 4px solid #ef4444;
+        }
+        /* Toast notification */
+        .toast-notify {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #1f2937;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 28px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+            z-index: 60;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.85);
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(100%); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -88,7 +112,7 @@
         </div>
     </div>
 
-    <!-- Navbar with menu button & home button -->
+    <!-- Navbar -->
     <nav class="bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 py-2 sticky top-0 z-50 no-print flex items-center justify-between">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
@@ -107,7 +131,7 @@
         </div>
     </nav>
 
-    <!-- Drawer (off-canvas menu) -->
+    <!-- Drawer (sama seperti sebelumnya) -->
     <div id="drawerOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-all overlay" onclick="closeDrawer()"></div>
     <div id="drawer" class="fixed top-0 left-0 bottom-0 w-80 bg-white/95 backdrop-blur-xl shadow-2xl z-50 flex flex-col drawer-transition drawer-closed border-r border-gray-100">
         <div class="flex justify-between items-center p-5 border-b border-gray-100">
@@ -143,6 +167,9 @@
                 <i class="fas fa-upload"></i> IMPORT DATA
             </button>
             <input type="file" id="import-file" class="hidden" onchange="importData(event)">
+            <button onclick="openThresholdModal()" class="w-full bg-amber-50 text-amber-600 p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i> Set Stok Rendah (Ambang)
+            </button>
             <p class="text-[9px] text-center text-gray-300 font-bold mt-2">System by AzlanMymo</p>
         </div>
     </div>
@@ -159,6 +186,16 @@
                     <p id="current-date-display" class="font-bold text-blue-600 uppercase tracking-widest text-xs"></p>
                 </div>
             </div>
+            
+            <!-- LOW STOCK PANEL -->
+            <div id="low-stock-panel" class="mb-8 flux-card p-6 bg-red-50 border-red-200 hidden">
+                <div class="flex items-center gap-3 mb-3">
+                    <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                    <h3 class="font-black text-red-600">⚠️ Stok Kritikal (≤ ambang)</h3>
+                </div>
+                <div id="low-stock-list" class="space-y-2 text-sm"></div>
+            </div>
+            
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <div class="lg:col-span-2 flux-card p-8 flex flex-col justify-between">
                     <div class="flex justify-between items-start flex-wrap gap-3">
@@ -197,7 +234,7 @@
             </div>
         </section>
 
-        <!-- INVENTORY SECTION -->
+        <!-- INVENTORY SECTION (dengan highlight low stock) -->
         <section id="inventory-section" class="section hidden section-animate">
             <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
                 <h2 class="text-3xl font-black">Inventori Stok</h2>
@@ -220,6 +257,12 @@
             </div>
         </section>
 
+        <!-- CRM, Billing, Promo, Social, Blast, Autoreply, LHDN, History sections sama seperti sebelumnya -->
+        <!-- ... (saya akan sertakan semula semua modul lain untuk memastikan kod lengkap) ... -->
+        <!-- Untuk menjimatkan ruang, saya akan teruskan dengan script dan fungsi baru low stock. 
+             Modul lain tetap sama seperti versi terbaru yang berfungsi. -->
+        
+        <!-- ================== MODUL LAIN (DISALIN DARI VERSI SEBELUM) ================== -->
         <!-- CRM SECTION -->
         <section id="crm-section" class="section hidden section-animate">
             <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-3xl font-black">Pangkalan Data Pelanggan</h2><button onclick="addClient()" class="bg-blue-600 text-white px-6 py-2 rounded-2xl font-bold shadow-xl">+ Tambah Lead</button></div>
@@ -407,7 +450,8 @@
             ref: JSON.parse(localStorage.getItem('f6_ref')) || { QUO: 1001, INV: 1001, REC: 1001 },
             prof: JSON.parse(localStorage.getItem('f6_prof')) || { name: '', addr: '', bank: '', logo: '', cop: '' },
             tax: JSON.parse(localStorage.getItem('f6_tax')) || [],
-            ar: JSON.parse(localStorage.getItem('f6_ar')) || []
+            ar: JSON.parse(localStorage.getItem('f6_ar')) || [],
+            lowStockThreshold: parseInt(localStorage.getItem('lowStockThreshold')) || 5
         };
 
         if (db.ar.length === 0) {
@@ -418,7 +462,10 @@
         let activeDiscount = 0;
 
         function save() {
-            Object.keys(db).forEach(key => localStorage.setItem(`f6_${key}`, JSON.stringify(db[key])));
+            Object.keys(db).forEach(key => {
+                if (key !== 'lowStockThreshold') localStorage.setItem(`f6_${key}`, JSON.stringify(db[key]));
+            });
+            localStorage.setItem('lowStockThreshold', db.lowStockThreshold);
         }
 
         function enterSystem() { 
@@ -426,26 +473,72 @@
             initApp(); 
         }
 
-        // DRAWER FUNCTIONS
-        function openDrawer() {
-            document.getElementById('drawer').classList.remove('drawer-closed');
-            document.getElementById('drawer').classList.add('drawer-open');
-            document.getElementById('drawerOverlay').classList.remove('hidden');
+        // ================== LOW STOCK FUNCTIONS ==================
+        function getLowStockItems() {
+            return db.inv.filter(item => item.qty <= db.lowStockThreshold);
         }
-        function closeDrawer() {
-            document.getElementById('drawer').classList.add('drawer-closed');
-            document.getElementById('drawer').classList.remove('drawer-open');
-            document.getElementById('drawerOverlay').classList.add('hidden');
-        }
-        document.getElementById('menuToggleBtn').addEventListener('click', openDrawer);
-        document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 
-        // INVENTORY
+        function showLowStockToast(message) {
+            // Remove existing toast
+            const oldToast = document.querySelector('.toast-notify');
+            if (oldToast) oldToast.remove();
+            const toast = document.createElement('div');
+            toast.className = 'toast-notify';
+            toast.innerHTML = `<i class="fas fa-exclamation-triangle text-red-400 mr-2"></i> ${message} <button onclick="this.parentElement.remove()" class="ml-2 text-white font-bold">✕</button>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+
+        function updateLowStockPanel() {
+            const lowItems = getLowStockItems();
+            const panel = document.getElementById('low-stock-panel');
+            const container = document.getElementById('low-stock-list');
+            if (lowItems.length === 0) {
+                panel.classList.add('hidden');
+                return;
+            }
+            panel.classList.remove('hidden');
+            container.innerHTML = lowItems.map(item => `
+                <div class="flex justify-between items-center border-b border-red-100 pb-2">
+                    <span class="font-bold">${item.name}</span>
+                    <span class="text-red-600 font-black">Stok: ${item.qty}</span>
+                    <button onclick="showSection('inventory'); closeDrawer();" class="text-xs bg-red-100 px-2 py-1 rounded-full">Pergi ke Inventory</button>
+                </div>
+            `).join('');
+        }
+
+        function checkLowStockAndNotify(previousLowIds = []) {
+            const lowItems = getLowStockItems();
+            const currentLowIds = lowItems.map(i => i.id);
+            // Check for newly low items
+            const newLow = lowItems.filter(i => !previousLowIds.includes(i.id));
+            if (newLow.length > 0) {
+                const names = newLow.map(i => i.name).join(', ');
+                showLowStockToast(`⚠️ Stok kritikal: ${names} (≤ ${db.lowStockThreshold})`);
+            }
+            updateLowStockPanel();
+            return currentLowIds;
+        }
+
+        function openThresholdModal() {
+            const newVal = prompt(`Tetapkan ambang stok rendah (stok ≤ nilai ini akan dianggap kritikal):`, db.lowStockThreshold);
+            if (newVal !== null && !isNaN(parseInt(newVal))) {
+                db.lowStockThreshold = parseInt(newVal);
+                save();
+                checkLowStockAndNotify([]);
+                renderInventory(); // refresh highlight
+                alert(`Ambang stok rendah ditukar kepada ${db.lowStockThreshold}`);
+            }
+        }
+
+        // ================== INVENTORY (with low stock highlight) ==================
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body');
-            tbody.innerHTML = db.inv.map((item, idx) => `
-                <tr class="border-b border-gray-50 align-top hover:bg-gray-50/50 transition">
+            const lowIds = getLowStockItems().map(i => i.id);
+            tbody.innerHTML = db.inv.map((item, idx) => {
+                const isLow = lowIds.includes(item.id);
+                return `
+                <tr class="border-b border-gray-50 align-top hover:bg-gray-50/50 transition ${isLow ? 'low-stock-row' : ''}">
                     <td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div></td>
                     <td class="p-6">
                         <input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800">
@@ -471,14 +564,32 @@
                         <button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
 
-        function addInventoryItem() { db.inv.push({ id: Date.now(), name: 'Produk Baru', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true }); renderInventory(); save(); }
-        function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); }
+        function addInventoryItem() { 
+            db.inv.push({ id: Date.now(), name: 'Produk Baru', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true }); 
+            renderInventory(); 
+            save();
+            checkLowStockAndNotify([]);
+        }
+        function updateInv(idx, field, val) { 
+            const oldQty = db.inv[idx].qty;
+            db.inv[idx][field] = (field === 'name') ? val : parseFloat(val);
+            save();
+            renderInventory();
+            if (field === 'qty') {
+                // Check if stock just became low
+                const lowItems = getLowStockItems();
+                if (lowItems.some(i => i.id === db.inv[idx].id)) {
+                    showLowStockToast(`⚠️ Stok ${db.inv[idx].name} kini kritikal (${db.inv[idx].qty})`);
+                }
+                updateLowStockPanel();
+            }
+        }
         function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
 
-        // DASHBOARD
+        // ================== DASHBOARD (with low stock) ==================
         function renderDashboard() {
             const paidTransactions = db.hist.filter(h => h.type === 'REC');
             const totalRev = paidTransactions.reduce((sum, h) => sum + h.total, 0);
@@ -489,37 +600,19 @@
             document.getElementById('dash-tax-expense').innerText = `RM ${totalTax.toFixed(2)}`;
             document.getElementById('dash-inv-count').innerText = `${db.inv.length} Jenis`;
             renderJobs();
+            updateLowStockPanel();
         }
 
-        // TAX
-        function saveTaxRecord() {
-            const date = document.getElementById('tax-date').value, amt = parseFloat(document.getElementById('tax-amount').value), cat = document.getElementById('tax-category').value, vendor = document.getElementById('tax-vendor').value, imgInput = document.getElementById('tax-img-input');
-            if(!date || isNaN(amt) || !vendor) return alert("Sila isi semua maklumat!");
-            const processSave = (imgData) => { db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: imgData }); save(); renderTax(); document.getElementById('tax-modal').classList.add('hidden'); };
-            if(imgInput.files[0]) { const reader = new FileReader(); reader.onload = (e) => processSave(e.target.result); reader.readAsDataURL(imgInput.files[0]); } else { processSave(''); }
-        }
-
-        function renderTax() {
-            const tbody = document.getElementById('tax-table-body'); let total = 0; const categories = {};
-            tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => {
-                total += t.amt; categories[t.cat] = (categories[t.cat] || 0) + t.amt;
-                return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition"><td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}</td><td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'}</td><td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span></td><td class="p-6 font-bold text-sm text-gray-800">${t.vendor}</td><td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}</td><td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button></td></tr>`;
-            }).join('') || '<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">Tiada rekod perbelanjaan.</td></tr>';
-            document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`;
-            document.getElementById('tax-receipt-count').innerText = db.tax.length;
-            const topCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b, '-');
-            document.getElementById('tax-top-cat').innerText = topCat;
-        }
-
-        function deleteTax(id) { if(confirm("Padam rekod ini?")) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
-
-        // BILLING & HISTORY
-        function generateFinalBilling() {
+        // ================== BILLING (override generate to check low stock after) ==================
+        const originalGenerate = window.generateFinalBilling;
+        window.generateFinalBilling = function() {
             const type = document.getElementById('billing-type').value; 
             const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); 
             const clientId = document.getElementById('bill-client-select').value;
             const client = db.cli.find(c => c.id == clientId);
             let total = 0, margin = 0, items = [];
+            // Store previous low stock IDs before deduction
+            const previousLowIds = getLowStockItems().map(i => i.id);
             selects.forEach((s, idx) => { 
                 const item = db.inv.find(i => i.id == s.value); 
                 const q = parseInt(qtys[idx].value); 
@@ -533,29 +626,55 @@
             const finalTotal = total - activeDiscount;
             const finalMargin = (type === 'REC') ? (margin - activeDiscount) : 0;
             db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: `${type}${db.ref[type]}`, type: type, clientName: client ? client.name : 'Umum', total: finalTotal, margin: finalMargin, items: items, discount: activeDiscount });
-            db.ref[type]++; save(); alert(`Rekod ${type} Berjaya Disimpan!`); location.reload();
-        }
+            db.ref[type]++; 
+            save(); 
+            // After saving, check low stock again
+            checkLowStockAndNotify(previousLowIds);
+            renderInventory(); // refresh highlight
+            alert(`Rekod ${type} Berjaya Disimpan!`);
+            location.reload();
+        };
 
-        function convertInvToRec(id) {
-            const idx = db.hist.findIndex(h => h.id === id);
-            if(idx !== -1 && db.hist[idx].type === 'INV') {
-                const inv = db.hist[idx]; inv.type = 'REC'; inv.ref = `REC${db.ref.REC++}`;
-                let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; });
-                inv.margin = m - (inv.discount || 0); save(); renderHistory(); alert("Invoice telah ditukarkan kepada Receipt!");
-            }
+        // ================== COPY ALL OTHER FUNCTIONS FROM PREVIOUS VERSION ==================
+        // (drawer, CRM, billing helpers, tax, history, AR, social, blast, etc.)
+        // Untuk memastikan kod tidak terlalu panjang, saya akan sertakan fungsi yang hilang.
+        // Sebenarnya semua fungsi lain sudah ada dalam versi sebelumnya. Saya akan ringkaskan dengan menyalin blok penting.
+        
+        // DRAWER
+        function openDrawer() { document.getElementById('drawer').classList.remove('drawer-closed'); document.getElementById('drawer').classList.add('drawer-open'); document.getElementById('drawerOverlay').classList.remove('hidden'); }
+        function closeDrawer() { document.getElementById('drawer').classList.add('drawer-closed'); document.getElementById('drawer').classList.remove('drawer-open'); document.getElementById('drawerOverlay').classList.add('hidden'); }
+        document.getElementById('menuToggleBtn').addEventListener('click', openDrawer);
+        document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+        
+        // TAX
+        function saveTaxRecord() {
+            const date = document.getElementById('tax-date').value, amt = parseFloat(document.getElementById('tax-amount').value), cat = document.getElementById('tax-category').value, vendor = document.getElementById('tax-vendor').value, imgInput = document.getElementById('tax-img-input');
+            if(!date || isNaN(amt) || !vendor) return alert("Sila isi semua maklumat!");
+            const processSave = (imgData) => { db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: imgData }); save(); renderTax(); document.getElementById('tax-modal').classList.add('hidden'); };
+            if(imgInput.files[0]) { const reader = new FileReader(); reader.onload = (e) => processSave(e.target.result); reader.readAsDataURL(imgInput.files[0]); } else { processSave(''); }
         }
-
+        function renderTax() {
+            const tbody = document.getElementById('tax-table-body'); let total = 0; const categories = {};
+            tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => {
+                total += t.amt; categories[t.cat] = (categories[t.cat] || 0) + t.amt;
+                return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition"><td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}</td><td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'}</td><td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span></td><td class="p-6 font-bold text-sm text-gray-800">${t.vendor}</td><td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}</td><td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500 transition"><i class="fas fa-trash"></i></button></td></tr>`;
+            }).join('') || '<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">Tiada rekod perbelanjaan.</td></tr>';
+            document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`;
+            document.getElementById('tax-receipt-count').innerText = db.tax.length;
+            const topCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b, '-');
+            document.getElementById('tax-top-cat').innerText = topCat;
+        }
+        function deleteTax(id) { if(confirm("Padam rekod ini?")) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
+        
+        // HISTORY
         function renderHistory() {
             document.getElementById('history-body').innerHTML = db.hist.map(h => `
                 <tr class="hover:bg-gray-50 transition">
                     <td class="p-6">${h.date}</td>
                     <td class="p-6 font-bold text-blue-600">${h.ref}</td>
                     <td class="p-6 font-medium">${h.clientName}</td>
-                    <td class="p-6">
-                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${h.type === 'REC' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}">
-                            ${h.type}
-                        </span>
-                    </td>
+                    <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${h.type === 'REC' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}">${h.type}</span></td>
                     <td class="p-6 text-right font-black">RM ${h.total.toFixed(2)}</td>
                     <td class="p-6 text-center space-x-2">
                         ${h.type === 'INV' ? `<button onclick="convertInvToRec(${h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> SET PAID</button>` : ''}
@@ -564,70 +683,41 @@
                 </tr>
             `).reverse().join('');
         }
-
-        // AR / CHATBOX
+        function convertInvToRec(id) {
+            const idx = db.hist.findIndex(h => h.id === id);
+            if(idx !== -1 && db.hist[idx].type === 'INV') {
+                const inv = db.hist[idx]; inv.type = 'REC'; inv.ref = `REC${db.ref.REC++}`;
+                let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; });
+                inv.margin = m - (inv.discount || 0); save(); renderHistory(); alert("Invoice telah ditukarkan kepada Receipt!");
+            }
+        }
+        
+        // AR
         function renderAR() {
             const list = document.getElementById('ar-list');
             list.innerHTML = db.ar.map(item => `
                 <div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100 section-animate">
-                    <div class="flex-1 pr-4">
-                        <p class="font-bold text-sm text-gray-800">${item.title}</p>
-                        <p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold uppercase">SALIN</button>
-                        <button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button>
-                    </div>
+                    <div class="flex-1 pr-4"><p class="font-bold text-sm text-gray-800">${item.title}</p><p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p></div>
+                    <div class="flex gap-2"><button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold uppercase">SALIN</button><button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button></div>
                 </div>
             `).join('') || '<p class="text-gray-400 text-xs italic py-4">Tiada template sapaan.</p>';
         }
-
-        function saveAR() {
-            const title = document.getElementById('ar-title').value, msg = document.getElementById('ar-msg').value;
-            if(!title || !msg) return alert("Sila isi tajuk dan mesej!");
-            db.ar.push({ id: Date.now(), title, msg });
-            save(); renderAR();
-            document.getElementById('ar-title').value = ''; document.getElementById('ar-msg').value = '';
-        }
-
-        function copyToClipboard(msg) {
-            const text = decodeURIComponent(msg);
-            navigator.clipboard.writeText(text).then(() => { alert("Template disalin ke papan klip!"); });
-        }
-
+        function saveAR() { const title = document.getElementById('ar-title').value, msg = document.getElementById('ar-msg').value; if(!title || !msg) return alert("Sila isi tajuk dan mesej!"); db.ar.push({ id: Date.now(), title, msg }); save(); renderAR(); document.getElementById('ar-title').value = ''; document.getElementById('ar-msg').value = ''; }
+        function copyToClipboard(msg) { const text = decodeURIComponent(msg); navigator.clipboard.writeText(text).then(() => { alert("Template disalin ke papan klip!"); }); }
         function deleteAR(id) { if(confirm("Padam template?")) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
-
-        // UI & NAVIGATION
+        
+        // UI
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.getElementById(`${id}-section`).classList.remove('hidden');
-            document.querySelectorAll('.nav-item-drawer').forEach(btn => {
-                btn.classList.remove('active');
-                if(btn.getAttribute('onclick').includes(id)) btn.classList.add('active');
-            });
+            document.querySelectorAll('.nav-item-drawer').forEach(btn => { btn.classList.remove('active'); if(btn.getAttribute('onclick').includes(id)) btn.classList.add('active'); });
             const funcs = { dashboard: renderDashboard, inventory: renderInventory, crm: renderCRM, billing: () => { populateBillingClients(); updateBillingTheme(); }, promo: renderCoupons, social: renderSchedule, blast: renderBlastClientList, autoreply: renderAR, lhdn: renderTax, history: renderHistory };
             if(funcs[id]) funcs[id]();
         }
-
-        function updateBillingTheme() { 
-            const type = document.getElementById('billing-type').value; 
-            document.body.className = `theme-${type}`;
-            document.getElementById('preview-title').innerText = type; 
-            document.getElementById('watermark').innerText = type; 
-            document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; 
-            document.getElementById('prev-date').innerText = new Date().toLocaleDateString('en-GB'); 
-        }
-
-        function initApp() { 
-            const now = new Date();
-            document.getElementById('current-date-display').innerText = now.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); 
-            document.getElementById('set-biz-name').value = db.prof.name; 
-            document.getElementById('set-biz-addr').value = db.prof.addr; 
-            document.getElementById('set-biz-bank').value = db.prof.bank; 
-            updateBizProfile(); renderDashboard();
-        }
-
-        // HELPERS
+        function updateBillingTheme() { const type = document.getElementById('billing-type').value; document.body.className = `theme-${type}`; document.getElementById('preview-title').innerText = type; document.getElementById('watermark').innerText = type; document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; document.getElementById('prev-date').innerText = new Date().toLocaleDateString('en-GB'); }
+        function initApp() { const now = new Date(); document.getElementById('current-date-display').innerText = now.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); document.getElementById('set-biz-name').value = db.prof.name; document.getElementById('set-biz-addr').value = db.prof.addr; document.getElementById('set-biz-bank').value = db.prof.bank; updateBizProfile(); renderDashboard(); checkLowStockAndNotify([]); }
+        
+        // HELPERS (CRM, billing helpers, etc.)
         function addClient() { const n = prompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
         function renderCRM() { document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
         function populateBillingClients() { const s = document.getElementById('bill-client-select'); s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
