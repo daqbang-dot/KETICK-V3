@@ -13,7 +13,31 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         :root { --flux-accent: #007AFF; --flux-bg: #F2F2f7; --flux-card: rgba(255, 255, 255, 0.8); }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--flux-bg); color: #1c1c1e; }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--flux-bg); 
+            color: #1c1c1e;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* prevent body scroll, main will scroll */
+        }
+        
+        /* Main content area - scrollable vertically */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            main { padding: 2rem; }
+        }
+        
         .flux-card { background: var(--flux-card); backdrop-filter: blur(20px); border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
         .nav-item-drawer { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-radius: 20px; transition: all 0.2s ease; color: #1c1c1e; font-weight: 600; }
         .nav-item-drawer.active { background: var(--flux-accent); color: white; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2); }
@@ -39,9 +63,15 @@
         .drawer-open { transform: translateX(0); }
         .drawer-closed { transform: translateX(-100%); }
         .overlay { transition: opacity 0.3s ease; }
+        
+        /* Ensure sections are scrollable */
+        .section {
+            display: block;
+            width: 100%;
+        }
     </style>
 </head>
-<body class="flex flex-col min-h-screen overflow-hidden theme-QUO">
+<body class="theme-QUO">
 
     <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
         <div class="text-center p-8 max-w-sm w-full">
@@ -68,11 +98,9 @@
             <span class="text-[8px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold ml-1">V6 FLUX</span>
         </div>
         <div class="flex items-center gap-2">
-            <!-- Home button (go to dashboard) -->
             <button onclick="showSection('dashboard')" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
                 <i class="fas fa-home text-lg"></i>
             </button>
-            <!-- Menu toggle button -->
             <button id="menuToggleBtn" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
                 <i class="fas fa-bars text-lg"></i>
             </button>
@@ -119,8 +147,8 @@
         </div>
     </div>
 
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-        
+    <main>
+        <!-- DASHBOARD SECTION -->
         <section id="dashboard-section" class="section section-animate">
             <div class="flex justify-between items-end mb-6 flex-wrap gap-3">
                 <div>
@@ -169,6 +197,7 @@
             </div>
         </section>
 
+        <!-- INVENTORY SECTION -->
         <section id="inventory-section" class="section hidden section-animate">
             <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
                 <h2 class="text-3xl font-black">Inventori Stok</h2>
@@ -191,11 +220,13 @@
             </div>
         </section>
 
+        <!-- CRM SECTION -->
         <section id="crm-section" class="section hidden section-animate">
             <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-3xl font-black">Pangkalan Data Pelanggan</h2><button onclick="addClient()" class="bg-blue-600 text-white px-6 py-2 rounded-2xl font-bold shadow-xl">+ Tambah Lead</button></div>
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6" id="crm-list-grid"></div>
         </section>
 
+        <!-- BILLING SECTION -->
         <section id="billing-section" class="section hidden section-animate">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="no-print space-y-4">
@@ -238,6 +269,7 @@
             </div>
         </section>
 
+        <!-- PROMO SECTION -->
         <section id="promo-section" class="section hidden section-animate">
             <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-3xl font-black">Coupon Manager</h2><p class="text-gray-500 font-medium">Uruskan kod diskaun anda di sini.</p></div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -253,6 +285,7 @@
             </div>
         </section>
 
+        <!-- SOCIAL SECTION -->
         <section id="social-section" class="section hidden section-animate">
             <h2 class="text-3xl md:text-4xl font-black mb-2 tracking-tight">Social Marketing</h2>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -275,6 +308,7 @@
             </div>
         </section>
 
+        <!-- BLAST SECTION -->
         <section id="blast-section" class="section hidden section-animate">
             <div class="max-w-5xl mx-auto">
                 <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><h2 class="text-2xl md:text-3xl font-black text-emerald-600 italic"><i class="fab fa-whatsapp mr-3"></i>Smart WhatsApp Blast</h2><button onclick="generateCatalogText()" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-600 hover:text-white transition"><i class="fas fa-list-ul mr-2"></i> GENERATE KATALOG TEKS</button></div>
@@ -295,6 +329,7 @@
             </div>
         </section>
 
+        <!-- AUTOREPLY SECTION -->
         <section id="autoreply-section" class="section hidden section-animate">
             <h2 class="text-3xl md:text-4xl font-black mb-2 tracking-tight">WhatsApp Chatbox</h2>
             <p class="text-gray-500 mb-6 font-medium">Urus template sapaan & jawapan pantas untuk pelanggan.</p>
@@ -314,6 +349,7 @@
             </div>
         </section>
 
+        <!-- LHDN SECTION -->
         <section id="lhdn-section" class="section hidden section-animate">
             <div class="flex justify-between items-center mb-6 flex-wrap gap-3"><div><h2 class="text-3xl font-black tracking-tight text-orange-600">LHDN Tax Records</h2><p class="text-gray-500 font-medium">Rekod perbelanjaan dan resit untuk tujuan audit.</p></div><div><button onclick="document.getElementById('tax-modal').classList.remove('hidden')" class="bg-orange-600 text-white px-6 py-2 rounded-2xl font-bold shadow-xl">+ Rekod Belanja</button></div></div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -325,6 +361,7 @@
             <div class="flux-card overflow-x-auto"><table class="w-full text-left min-w-[600px]"><thead class="bg-gray-50/50 border-b border-gray-100"><tr class="text-[10px] uppercase font-bold text-gray-400 tracking-widest"><th class="p-6">Tarikh</th><th class="p-6">Resit</th><th class="p-6">Kategori</th><th class="p-6">Butiran / Vendor</th><th class="p-6 text-right">Jumlah (RM)</th><th class="p-6 text-center">Tindakan</th></tr></thead><tbody id="tax-table-body"></tbody></table></div>
         </section>
 
+        <!-- HISTORY SECTION -->
         <section id="history-section" class="section hidden section-animate">
             <h2 class="text-3xl font-black mb-6">Rekod Transaksi</h2>
             <div class="flux-card overflow-x-auto">
@@ -335,6 +372,7 @@
             </div>
         </section>
 
+        <!-- TAX MODAL -->
         <div id="tax-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-center justify-center hidden">
             <div class="bg-white w-full max-w-md rounded-[40px] p-8 section-animate">
                 <div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-black">Rekod Baru</h3><button onclick="document.getElementById('tax-modal').classList.add('hidden')" class="text-gray-400 hover:text-black"><i class="fas fa-times"></i></button></div>
@@ -347,7 +385,6 @@
                 </div>
             </div>
         </div>
-
     </main>
 
     <script>
@@ -389,7 +426,7 @@
             initApp(); 
         }
 
-        // ================== DRAWER FUNCTIONS ==================
+        // DRAWER FUNCTIONS
         function openDrawer() {
             document.getElementById('drawer').classList.remove('drawer-closed');
             document.getElementById('drawer').classList.add('drawer-open');
@@ -402,10 +439,9 @@
         }
         document.getElementById('menuToggleBtn').addEventListener('click', openDrawer);
         document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
-        // close on ESC key
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 
-        // ================== INVENTORY ==================
+        // INVENTORY
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body');
             tbody.innerHTML = db.inv.map((item, idx) => `
@@ -442,7 +478,7 @@
         function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); }
         function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
 
-        // ================== DASHBOARD ==================
+        // DASHBOARD
         function renderDashboard() {
             const paidTransactions = db.hist.filter(h => h.type === 'REC');
             const totalRev = paidTransactions.reduce((sum, h) => sum + h.total, 0);
@@ -455,7 +491,7 @@
             renderJobs();
         }
 
-        // ================== TAX ==================
+        // TAX
         function saveTaxRecord() {
             const date = document.getElementById('tax-date').value, amt = parseFloat(document.getElementById('tax-amount').value), cat = document.getElementById('tax-category').value, vendor = document.getElementById('tax-vendor').value, imgInput = document.getElementById('tax-img-input');
             if(!date || isNaN(amt) || !vendor) return alert("Sila isi semua maklumat!");
@@ -477,7 +513,7 @@
 
         function deleteTax(id) { if(confirm("Padam rekod ini?")) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
 
-        // ================== BILLING & HISTORY ==================
+        // BILLING & HISTORY
         function generateFinalBilling() {
             const type = document.getElementById('billing-type').value; 
             const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); 
@@ -529,7 +565,7 @@
             `).reverse().join('');
         }
 
-        // ================== AR / CHATBOX ==================
+        // AR / CHATBOX
         function renderAR() {
             const list = document.getElementById('ar-list');
             list.innerHTML = db.ar.map(item => `
@@ -561,11 +597,10 @@
 
         function deleteAR(id) { if(confirm("Padam template?")) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
 
-        // ================== UI & NAVIGATION ==================
+        // UI & NAVIGATION
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
             document.getElementById(`${id}-section`).classList.remove('hidden');
-            // update active class in drawer
             document.querySelectorAll('.nav-item-drawer').forEach(btn => {
                 btn.classList.remove('active');
                 if(btn.getAttribute('onclick').includes(id)) btn.classList.add('active');
@@ -576,7 +611,7 @@
 
         function updateBillingTheme() { 
             const type = document.getElementById('billing-type').value; 
-            document.body.className = `flex flex-col min-h-screen overflow-hidden theme-${type}`;
+            document.body.className = `theme-${type}`;
             document.getElementById('preview-title').innerText = type; 
             document.getElementById('watermark').innerText = type; 
             document.getElementById('ref-no').innerText = `${type}${db.ref[type]}`; 
@@ -592,7 +627,7 @@
             updateBizProfile(); renderDashboard();
         }
 
-        // ================== HELPERS ==================
+        // HELPERS
         function addClient() { const n = prompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
         function renderCRM() { document.getElementById('crm-list-grid').innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
         function populateBillingClients() { const s = document.getElementById('bill-client-select'); s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
