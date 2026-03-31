@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>BizPro v6 | Flux Edition (Tax Ready)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,8 +15,9 @@
         :root { --flux-accent: #007AFF; --flux-bg: #F2F2f7; --flux-card: rgba(255, 255, 255, 0.8); }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--flux-bg); color: #1c1c1e; }
         .flux-card { background: var(--flux-card); backdrop-filter: blur(20px); border-radius: 28px; border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
-        .nav-item { border-radius: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; padding: 8px 16px; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
-        .nav-item.active { background: var(--flux-accent); color: white; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25); }
+        .nav-item-drawer { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-radius: 20px; transition: all 0.2s ease; color: #1c1c1e; font-weight: 600; }
+        .nav-item-drawer.active { background: var(--flux-accent); color: white; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2); }
+        .nav-item-drawer i { width: 24px; text-align: center; font-size: 1.2rem; }
         .flux-input { background: rgba(0,0,0,0.04); border-radius: 14px; border: 2px solid transparent; transition: 0.2s; }
         .flux-input:focus { border-color: var(--flux-accent); background: white; outline: none; }
         .social-card { transition: all 0.3s ease; cursor: pointer; }
@@ -33,9 +34,11 @@
         .doc-accent-text { color: var(--doc-color) !important; }
         .doc-accent-border { border-color: var(--doc-color) !important; }
         
-        /* Untuk navbar responsif */
-        .navbar-scroll { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
-        .navbar-scroll::-webkit-scrollbar { height: 3px; }
+        /* Drawer animation */
+        .drawer-transition { transition: transform 0.3s ease-in-out; }
+        .drawer-open { transform: translateX(0); }
+        .drawer-closed { transform: translateX(-100%); }
+        .overlay { transition: opacity 0.3s ease; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen overflow-hidden theme-QUO">
@@ -55,35 +58,66 @@
         </div>
     </div>
 
-    <!-- Top Navigation Bar -->
-    <nav class="bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 py-2 sticky top-0 z-50 no-print">
-        <div class="flex items-center justify-between gap-4 flex-wrap">
+    <!-- Navbar with menu button & home button -->
+    <nav class="bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 py-2 sticky top-0 z-50 no-print flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                <i class="fas fa-bolt text-white text-sm"></i>
+            </div>
+            <h1 class="font-extrabold text-xl tracking-tighter">BIZPRO</h1>
+            <span class="text-[8px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold ml-1">V6 FLUX</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <!-- Home button (go to dashboard) -->
+            <button onclick="showSection('dashboard')" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                <i class="fas fa-home text-lg"></i>
+            </button>
+            <!-- Menu toggle button -->
+            <button id="menuToggleBtn" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Drawer (off-canvas menu) -->
+    <div id="drawerOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-all overlay" onclick="closeDrawer()"></div>
+    <div id="drawer" class="fixed top-0 left-0 bottom-0 w-80 bg-white/95 backdrop-blur-xl shadow-2xl z-50 flex flex-col drawer-transition drawer-closed border-r border-gray-100">
+        <div class="flex justify-between items-center p-5 border-b border-gray-100">
             <div class="flex items-center gap-2">
                 <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
                     <i class="fas fa-bolt text-white text-sm"></i>
                 </div>
-                <h1 class="font-extrabold text-xl tracking-tighter">BIZPRO</h1>
-                <span class="text-[8px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold ml-1">V6 FLUX</span>
+                <span class="font-extrabold text-xl tracking-tighter">BIZPRO</span>
             </div>
-            <div class="flex-1 navbar-scroll flex gap-1 justify-start lg:justify-center">
-                <button onclick="showSection('dashboard')" class="nav-item flex items-center gap-2"><i class="fas fa-home text-sm"></i><span class="hidden sm:inline">Dashboard</span></button>
-                <button onclick="showSection('inventory')" class="nav-item flex items-center gap-2"><i class="fas fa-th-large text-sm"></i><span class="hidden sm:inline">Inventory</span></button>
-                <button onclick="showSection('crm')" class="nav-item flex items-center gap-2"><i class="fas fa-user-friends text-sm"></i><span class="hidden sm:inline">CRM</span></button>
-                <button onclick="showSection('billing')" class="nav-item flex items-center gap-2"><i class="fas fa-receipt text-sm"></i><span class="hidden sm:inline">Billing</span></button>
-                <button onclick="showSection('promo')" class="nav-item flex items-center gap-2"><i class="fas fa-tags text-sm"></i><span class="hidden sm:inline">Coupon</span></button>
-                <button onclick="showSection('social')" class="nav-item flex items-center gap-2"><i class="fas fa-share-nodes text-sm"></i><span class="hidden sm:inline">Social</span></button>
-                <button onclick="showSection('blast')" class="nav-item flex items-center gap-2"><i class="fab fa-whatsapp text-sm"></i><span class="hidden sm:inline">Blast</span></button>
-                <button onclick="showSection('autoreply')" class="nav-item flex items-center gap-2"><i class="fas fa-comments text-sm"></i><span class="hidden sm:inline">Chatbox</span></button>
-                <button onclick="showSection('lhdn')" class="nav-item flex items-center gap-2"><i class="fas fa-file-invoice-dollar text-sm"></i><span class="hidden sm:inline">LHDN</span></button>
-                <button onclick="showSection('history')" class="nav-item flex items-center gap-2"><i class="fas fa-history text-sm"></i><span class="hidden sm:inline">History</span></button>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="exportData()" class="text-xs bg-gray-100 hover:bg-gray-200 p-2 rounded-xl"><i class="fas fa-download"></i></button>
-                <button onclick="document.getElementById('import-file').click()" class="text-xs bg-blue-50 text-blue-600 p-2 rounded-xl"><i class="fas fa-upload"></i></button>
-                <input type="file" id="import-file" class="hidden" onchange="importData(event)">
+            <button id="closeDrawerBtn" class="p-2 rounded-full hover:bg-gray-100 transition">
+                <i class="fas fa-times text-gray-500"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4 custom-scroll">
+            <div class="px-3 space-y-1">
+                <button onclick="showSection('dashboard'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fas fa-home"></i> Dashboard</button>
+                <button onclick="showSection('inventory'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fas fa-th-large"></i> Inventory</button>
+                <button onclick="showSection('crm'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fas fa-user-friends"></i> CRM Database</button>
+                <button onclick="showSection('billing'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fas fa-receipt"></i> Billing</button>
+                <button onclick="showSection('promo'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fas fa-tags"></i> Coupon Manager</button>
+                <button onclick="showSection('social'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fas fa-share-nodes"></i> Social Marketing</button>
+                <button onclick="showSection('blast'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fab fa-whatsapp"></i> Smart Blast</button>
+                <button onclick="showSection('autoreply'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fas fa-comments"></i> WhatsApp Chatbox</button>
+                <button onclick="showSection('lhdn'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fas fa-file-invoice-dollar"></i> LHDN Tax Records</button>
+                <button onclick="showSection('history'); closeDrawer();" class="nav-item-drawer w-full text-left"><i class="fas fa-history"></i> History</button>
             </div>
         </div>
-    </nav>
+        <div class="p-5 border-t border-gray-100 space-y-3">
+            <button onclick="exportData(); closeDrawer();" class="w-full flux-input p-3 text-xs font-bold flex items-center justify-center gap-2">
+                <i class="fas fa-download"></i> EXPORT BACKUP
+            </button>
+            <button onclick="document.getElementById('import-file').click(); closeDrawer();" class="w-full bg-blue-50 text-blue-600 p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                <i class="fas fa-upload"></i> IMPORT DATA
+            </button>
+            <input type="file" id="import-file" class="hidden" onchange="importData(event)">
+            <p class="text-[9px] text-center text-gray-300 font-bold mt-2">System by AzlanMymo</p>
+        </div>
+    </div>
 
     <main class="flex-1 p-4 md:p-8 overflow-y-auto">
         
@@ -150,7 +184,7 @@
                             <th class="p-6">Jual (RM)</th>
                             <th class="p-6">Baki Stok</th>
                             <th class="p-6 text-center">Tindakan</th>
-                        </tr>
+                         </tr>
                     </thead>
                     <tbody id="inventory-table-body"></tbody>
                 </table>
@@ -355,6 +389,22 @@
             initApp(); 
         }
 
+        // ================== DRAWER FUNCTIONS ==================
+        function openDrawer() {
+            document.getElementById('drawer').classList.remove('drawer-closed');
+            document.getElementById('drawer').classList.add('drawer-open');
+            document.getElementById('drawerOverlay').classList.remove('hidden');
+        }
+        function closeDrawer() {
+            document.getElementById('drawer').classList.add('drawer-closed');
+            document.getElementById('drawer').classList.remove('drawer-open');
+            document.getElementById('drawerOverlay').classList.add('hidden');
+        }
+        document.getElementById('menuToggleBtn').addEventListener('click', openDrawer);
+        document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
+        // close on ESC key
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+
         // ================== INVENTORY ==================
         function renderInventory() {
             const tbody = document.getElementById('inventory-table-body');
@@ -514,10 +564,12 @@
         // ================== UI & NAVIGATION ==================
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.nav-item').forEach(b => { b.classList.remove('active'); b.classList.add('text-gray-500'); });
             document.getElementById(`${id}-section`).classList.remove('hidden');
-            const btn = Array.from(document.querySelectorAll('.nav-item')).find(b => b.getAttribute('onclick').includes(id));
-            if(btn) { btn.classList.add('active'); btn.classList.remove('text-gray-500'); }
+            // update active class in drawer
+            document.querySelectorAll('.nav-item-drawer').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.getAttribute('onclick').includes(id)) btn.classList.add('active');
+            });
             const funcs = { dashboard: renderDashboard, inventory: renderInventory, crm: renderCRM, billing: () => { populateBillingClients(); updateBillingTheme(); }, promo: renderCoupons, social: renderSchedule, blast: renderBlastClientList, autoreply: renderAR, lhdn: renderTax, history: renderHistory };
             if(funcs[id]) funcs[id]();
         }
