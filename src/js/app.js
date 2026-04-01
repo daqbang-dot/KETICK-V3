@@ -98,69 +98,81 @@ async function activateSystem(key) {
 function showActivationModal() {
     const deviceId = getDeviceId(); // dapatkan ID peranti semasa
     return new Promise((resolve) => {
-        const modal = document.createElement('div');
-        modal.className = 'fixed inset-0 z-[2000] glass-modal-overlay flex items-center justify-center';
-        modal.innerHTML = `
-            <div class="glass-panel w-[90%] max-w-md p-8 rounded-[32px]">
-                <div class="text-5xl mb-4 drop-shadow-md text-center"><i class="fas fa-key text-purple-500"></i></div>
-                <h3 class="text-2xl font-black mb-2 text-center">Aktifkan Sistem</h3>
-                <div class="mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                    <p class="text-xs text-gray-600 dark:text-gray-300 mb-1">ID Peranti Anda:</p>
-                    <p class="text-xs font-mono break-all bg-white dark:bg-gray-900 p-2 rounded">${deviceId}</p>
-                    <button id="copy-device-id" class="mt-2 text-xs bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition">📋 Salin ID Peranti</button>
+        try {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 z-[2000] glass-modal-overlay flex items-center justify-center';
+            modal.innerHTML = `
+                <div class="glass-panel w-[90%] max-w-md p-8 rounded-[32px]">
+                    <div class="text-5xl mb-4 drop-shadow-md text-center"><i class="fas fa-key text-purple-500"></i></div>
+                    <h3 class="text-2xl font-black mb-2 text-center">Aktifkan Sistem</h3>
+                    <div class="mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                        <p class="text-xs text-gray-600 dark:text-gray-300 mb-1">ID Peranti Anda:</p>
+                        <p class="text-xs font-mono break-all bg-white dark:bg-gray-900 p-2 rounded">${deviceId}</p>
+                        <button id="copy-device-id" class="mt-2 text-xs bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition">📋 Salin ID Peranti</button>
+                    </div>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 text-center">Masukkan kunci yang diberikan oleh admin.</p>
+                    <input type="text" id="activation-key-input" class="w-full p-3 flux-input rounded-xl text-center uppercase" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX">
+                    <div class="flex gap-3 justify-center mt-6">
+                        <button id="key-cancel" class="flex-1 py-3 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 text-gray-800 dark:text-white font-bold">Batal</button>
+                        <button id="key-submit" class="flex-1 py-3 rounded-2xl bg-purple-600 text-white font-bold">Aktifkan</button>
+                    </div>
+                    <div id="key-error" class="text-red-500 text-xs mt-2 text-center hidden"></div>
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 text-center">Masukkan kunci yang diberikan oleh admin.</p>
-                <input type="text" id="activation-key-input" class="w-full p-3 flux-input rounded-xl text-center uppercase" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX">
-                <div class="flex gap-3 justify-center mt-6">
-                    <button id="key-cancel" class="flex-1 py-3 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 text-gray-800 dark:text-white font-bold">Batal</button>
-                    <button id="key-submit" class="flex-1 py-3 rounded-2xl bg-purple-600 text-white font-bold">Aktifkan</button>
-                </div>
-                <div id="key-error" class="text-red-500 text-xs mt-2 text-center hidden"></div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        const input = modal.querySelector('#activation-key-input');
-        const submitBtn = modal.querySelector('#key-submit');
-        const cancelBtn = modal.querySelector('#key-cancel');
-        const errorDiv = modal.querySelector('#key-error');
-        const copyBtn = modal.querySelector('#copy-device-id');
+            `;
+            document.body.appendChild(modal);
+            const input = modal.querySelector('#activation-key-input');
+            const submitBtn = modal.querySelector('#key-submit');
+            const cancelBtn = modal.querySelector('#key-cancel');
+            const errorDiv = modal.querySelector('#key-error');
+            const copyBtn = modal.querySelector('#copy-device-id');
 
-        copyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(deviceId).then(() => {
-                const originalText = copyBtn.innerText;
-                copyBtn.innerText = '✓ Disalin!';
-                setTimeout(() => { copyBtn.innerText = originalText; }, 1500);
-            }).catch(() => alert('Gagal menyalin. Salin secara manual.'));
-        });
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(deviceId).then(() => {
+                    const originalText = copyBtn.innerText;
+                    copyBtn.innerText = '✓ Disalin!';
+                    setTimeout(() => { copyBtn.innerText = originalText; }, 1500);
+                }).catch(() => alert('Gagal menyalin. Salin secara manual.'));
+            });
 
-        const cleanup = () => modal.remove();
+            const cleanup = () => modal.remove();
 
-        const doActivate = async () => {
-            const key = input.value.trim();
-            if (!key) {
-                errorDiv.textContent = 'Sila masukkan kunci.';
-                errorDiv.classList.remove('hidden');
-                return;
-            }
-            errorDiv.classList.add('hidden');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Mengesahkan...';
-            const success = await activateSystem(key);
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Aktifkan';
-            if (success) {
-                cleanup();
-                resolve(true);
+            const doActivate = async () => {
+                const key = input.value.trim();
+                if (!key) {
+                    errorDiv.textContent = 'Sila masukkan kunci.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+                errorDiv.classList.add('hidden');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Mengesahkan...';
+                const success = await activateSystem(key);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Aktifkan';
+                if (success) {
+                    cleanup();
+                    resolve(true);
+                } else {
+                    errorDiv.textContent = 'Kunci tidak sah.';
+                    errorDiv.classList.remove('hidden');
+                }
+            };
+
+            submitBtn.onclick = doActivate;
+            cancelBtn.onclick = () => { cleanup(); resolve(false); };
+            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') doActivate(); });
+            modal.addEventListener('click', (e) => { if (e.target === modal) cancelBtn.onclick(); });
+        } catch (err) {
+            console.error('Modal error:', err);
+            // Fallback to native prompt
+            alert('Gagal memaparkan modal. Guna prompt asli.');
+            const key = prompt('Masukkan kunci aktivasi:');
+            if (key) {
+                activateSystem(key).then(success => resolve(success));
             } else {
-                errorDiv.textContent = 'Kunci tidak sah.';
-                errorDiv.classList.remove('hidden');
+                resolve(false);
             }
-        };
-
-        submitBtn.onclick = doActivate;
-        cancelBtn.onclick = () => { cleanup(); resolve(false); };
-        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') doActivate(); });
-        modal.addEventListener('click', (e) => { if (e.target === modal) cancelBtn.onclick(); });
+        }
     });
 }
 
@@ -202,6 +214,7 @@ async function loadModule(moduleName) {
     const response = await fetch(`src/modules/${moduleName}/${moduleName}.html`);
     if (!response.ok) {
         console.error(`Failed to load module: ${moduleName}`);
+        alert(`Gagal memuat modul: ${moduleName}. Pastikan fail wujud di src/modules/${moduleName}/${moduleName}.html`);
         return;
     }
     const html = await response.text();
@@ -240,10 +253,12 @@ async function loadModule(moduleName) {
 
 // ================== INITIAL LOAD ==================
 function enterSystem() {
+    alert('enterSystem dipanggil'); // DEBUG
     document.getElementById('login-overlay').classList.add('hidden');
     setupAdminGesture();
 
     if (!isActivated()) {
+        alert('Sistem belum diaktifkan. Tunjuk modal aktivasi.'); // DEBUG
         const setupBtn = document.getElementById('first-time-setup-btn');
         if (setupBtn) {
             setupBtn.classList.remove('hidden');
@@ -269,6 +284,7 @@ function enterSystem() {
         }
         return;
     } else {
+        alert('Sistem sudah diaktifkan.'); // DEBUG
         const setupBtn = document.getElementById('first-time-setup-btn');
         if (setupBtn) setupBtn.classList.add('hidden');
         logActivity('app_open', { deviceId: getDeviceId() });
@@ -278,6 +294,7 @@ function enterSystem() {
 }
 
 function initAppAfterActivation() {
+    alert('initAppAfterActivation dipanggil'); // DEBUG
     const now = new Date();
     const dateDisplay = document.getElementById('current-date-display');
     if (dateDisplay) dateDisplay.innerText = now.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -642,18 +659,18 @@ async function deleteAR(id) { const confirmed = await showConfirm(currentLang===
 
 // LHDN Tax
 async function saveTaxRecord() { const date = document.getElementById('tax-date')?.value, amt = parseFloat(document.getElementById('tax-amount')?.value), cat = document.getElementById('tax-category')?.value, vendor = document.getElementById('tax-vendor')?.value, imgInput = document.getElementById('tax-img-input'); if(!date || isNaN(amt) || !vendor) return await showAlert(currentLang==='BM'?"Sila isi semua maklumat!":"Please fill all information!"); const processSave = (imgData) => { db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: imgData }); save(); renderTax(); document.getElementById('tax-modal').classList.add('hidden'); }; if(imgInput.files[0]) { const reader = new FileReader(); reader.onload = (e) => processSave(e.target.result); reader.readAsDataURL(imgInput.files[0]); } else { processSave(''); } }
-function renderTax() { const tbody = document.getElementById('tax-table-body'); if(!tbody) return; let total = 0; const categories = {}; tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => { total += t.amt; categories[t.cat] = (categories[t.cat] || 0) + t.amt; return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition"><td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}</td><td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'}</td><td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span></td><td class="p-6 font-bold text-sm text-gray-800">${t.vendor}</td><td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}</td><td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button></td></tr>`; }).join('') || `<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">${t('Tiada rekod perbelanjaan.')}</td></tr>`; document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`; document.getElementById('tax-receipt-count').innerText = db.tax.length; const topCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b, '-'); document.getElementById('tax-top-cat').innerText = topCat; }
+function renderTax() { const tbody = document.getElementById('tax-table-body'); if(!tbody) return; let total = 0; const categories = {}; tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => { total += t.amt; categories[t.cat] = (categories[t.cat] || 0) + t.amt; return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition"><td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date} -<td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'} -<td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span> -<td class="p-6 font-bold text-sm text-gray-800">${t.vendor} -<td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)} -<td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button> -`; }).join('') || `|<td colspan="6" class="p-10 text-center text-gray-400 font-bold">${t('Tiada rekod perbelanjaan.')} -`; document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`; document.getElementById('tax-receipt-count').innerText = db.tax.length; const topCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b, '-'); document.getElementById('tax-top-cat').innerText = topCat; }
 async function deleteTax(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam rekod ini?":"Delete this record?"); if(confirmed) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
 
 // History
 async function convertInvToRec(id) { const idx = db.hist.findIndex(h => h.id === id); if(idx !== -1 && db.hist[idx].type === 'INV') { const inv = db.hist[idx]; inv.type = 'REC'; const newRefNum = getNextRef('REC'); inv.ref = `REC${newRefNum}`; let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; }); inv.margin = m - (inv.discount || 0); save(); renderHistory(); await showAlert(currentLang==='BM'?"Invoice ditukar kepada Receipt!":"Invoice converted to Receipt!"); } }
-function renderHistory() { const container = document.getElementById('history-body'); if(!container) return; container.innerHTML = db.hist.map(h => `<tr class="hover:bg-gray-50 transition"><td class="p-6">${h.date}</td><td class="p-6 font-bold text-blue-600">${h.ref}</td><td class="p-6 font-medium">${h.clientName}</td><td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${h.type === 'REC' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}">${h.type}</span></td><td class="p-6 text-right font-black">RM ${h.total.toFixed(2)}</td><td class="p-6 text-center space-x-2"><button onclick="viewDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-blue-500 hover:text-blue-700 text-xs font-bold"><i class="fas fa-eye mr-1"></i> Review</button><button onclick="downloadDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-download mr-1"></i> Download</button>${h.type === 'INV' ? `<button onclick="convertInvToRec(${h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> ${t('SET PAID')}</button>` : ''}<button onclick="deleteDoc(${h.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td></tr>`).reverse().join(''); }
+function renderHistory() { const container = document.getElementById('history-body'); if(!container) return; container.innerHTML = db.hist.map(h => `<tr class="hover:bg-gray-50 transition"><td class="p-6">${h.date} -<td class="p-6 font-bold text-blue-600">${h.ref} -<td class="p-6 font-medium">${h.clientName} -<td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${h.type === 'REC' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}">${h.type}</span> -<td class="p-6 text-right font-black">RM ${h.total.toFixed(2)} -<td class="p-6 text-center space-x-2"><button onclick="viewDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-blue-500 hover:text-blue-700 text-xs font-bold"><i class="fas fa-eye mr-1"></i> Review</button><button onclick="downloadDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-download mr-1"></i> Download</button>${h.type === 'INV' ? `<button onclick="convertInvToRec(${h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> ${t('SET PAID')}</button>` : ''}<button onclick="deleteDoc(${h.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button> -`).reverse().join(''); }
 
 // Document review and PDF
-function viewDocument(hist) { currentReviewDoc = hist; const type = hist.type; const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); const bizName = db.prof.name || "SYARIKAT ANDA"; const bizAddr = db.prof.addr || "Alamat Perniagaan"; const bizBank = db.prof.bank || "Bank & No Akaun"; const clientName = hist.clientName || "Pelanggan"; const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name}</td><td style="padding:12px 8px; text-align:center;">${item.qty}</td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}</td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}</td></tr>`).join(''); const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); const discount = hist.discount || 0; const grand = subtotal - discount; const discountRow = discount > 0 ? `<tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon</td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}</td></tr>` : ''; const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th></tr></thead><tbody>${itemsHtml}${discountRow}</tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN</td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}</td></tr></tfoot></table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; document.getElementById('reviewDocContent').innerHTML = docHtml; document.getElementById('reviewModal').classList.remove('hidden'); }
+function viewDocument(hist) { currentReviewDoc = hist; const type = hist.type; const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); const bizName = db.prof.name || "SYARIKAT ANDA"; const bizAddr = db.prof.addr || "Alamat Perniagaan"; const bizBank = db.prof.bank || "Bank & No Akaun"; const clientName = hist.clientName || "Pelanggan"; const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name} -<td style="padding:12px 8px; text-align:center;">${item.qty} -<td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)} -<td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)} -`).join(''); const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); const discount = hist.discount || 0; const grand = subtotal - discount; const discountRow = discount > 0 ? ` -<td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon -<td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)} -` : ''; const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th> -</thead><tbody>${itemsHtml}${discountRow}</tbody><tfoot> -<td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN -<td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)} -</tfoot> -<div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; document.getElementById('reviewDocContent').innerHTML = docHtml; document.getElementById('reviewModal').classList.remove('hidden'); }
 function closeReviewModal() { document.getElementById('reviewModal').classList.add('hidden'); currentReviewDoc = null; }
 async function downloadReviewAsPDF() { if (!currentReviewDoc) return; const element = document.getElementById('reviewDocContent'); const opt = { margin: 0.2, filename: `${currentReviewDoc.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
-async function downloadDocument(hist) { const type = hist.type; const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); const bizName = db.prof.name || "SYARIKAT ANDA"; const bizAddr = db.prof.addr || "Alamat Perniagaan"; const bizBank = db.prof.bank || "Bank & No Akaun"; const clientName = hist.clientName || "Pelanggan"; const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name}</td><td style="padding:12px 8px; text-align:center;">${item.qty}</td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}</td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}</td></tr>`).join(''); const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); const discount = hist.discount || 0; const grand = subtotal - discount; const discountRow = discount > 0 ? `<tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon</td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}</td></tr>` : ''; const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto; padding:20px;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th></tr></thead><tbody>${itemsHtml}${discountRow}</tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN</td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}</td></tr></tfoot></table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; const tempDiv = document.createElement('div'); tempDiv.innerHTML = docHtml; document.body.appendChild(tempDiv); const opt = { margin: 0.2, filename: `${hist.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(tempDiv).save(); document.body.removeChild(tempDiv); }
+async function downloadDocument(hist) { const type = hist.type; const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); const bizName = db.prof.name || "SYARIKAT ANDA"; const bizAddr = db.prof.addr || "Alamat Perniagaan"; const bizBank = db.prof.bank || "Bank & No Akaun"; const clientName = hist.clientName || "Pelanggan"; const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name} -<td style="padding:12px 8px; text-align:center;">${item.qty} -<td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)} -<td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)} -`).join(''); const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); const discount = hist.discount || 0; const grand = subtotal - discount; const discountRow = discount > 0 ? ` -<td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon -<td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)} -` : ''; const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto; padding:20px;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th> -</thead><tbody>${itemsHtml}${discountRow}</tbody><tfoot> -<td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN -<td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)} -</tfoot> -<div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; const tempDiv = document.createElement('div'); tempDiv.innerHTML = docHtml; document.body.appendChild(tempDiv); const opt = { margin: 0.2, filename: `${hist.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(tempDiv).save(); document.body.removeChild(tempDiv); }
 
 // ================== DRAWER & PWA ==================
 function openDrawer() { document.getElementById('drawer').classList.remove('drawer-closed'); document.getElementById('drawer').classList.add('drawer-open'); document.getElementById('drawerOverlay').classList.remove('hidden'); }
