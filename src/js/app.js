@@ -56,14 +56,12 @@ function recycleRef(type, num) {
 let currentModule = 'dashboard';
 
 async function loadModule(moduleName) {
-    // Hide any open modals
     document.getElementById('reviewModal')?.classList.add('hidden');
     document.getElementById('tax-modal')?.classList.add('hidden');
 
     const appContent = document.getElementById('app-content');
     if (!appContent) return;
 
-    // Fetch module HTML
     const response = await fetch(`src/modules/${moduleName}/${moduleName}.html`);
     if (!response.ok) {
         console.error(`Failed to load module: ${moduleName}`);
@@ -74,7 +72,6 @@ async function loadModule(moduleName) {
 
     currentModule = moduleName;
 
-    // Call the specific render function for the module if it exists
     const renderFunc = {
         'dashboard': renderDashboard,
         'pos': () => { renderProductGrid(); renderCart(); },
@@ -91,7 +88,6 @@ async function loadModule(moduleName) {
 
     if (renderFunc) renderFunc();
 
-    // Update active drawer item
     document.querySelectorAll('.nav-item-drawer').forEach(btn => {
         const onclick = btn.getAttribute('onclick');
         if (onclick && onclick.includes(moduleName)) {
@@ -105,13 +101,10 @@ async function loadModule(moduleName) {
 // ================== INITIAL LOAD ==================
 function enterSystem() {
     document.getElementById('login-overlay').classList.add('hidden');
-    // Load dashboard by default
     loadModule('dashboard');
-    // Set date display
     const now = new Date();
     const dateDisplay = document.getElementById('current-date-display');
     if (dateDisplay) dateDisplay.innerText = now.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    // Load business profile into inputs
     const bizName = document.getElementById('set-biz-name');
     if (bizName) bizName.value = db.prof.name;
     const bizAddr = document.getElementById('set-biz-addr');
@@ -194,7 +187,6 @@ function applyLanguage() {
         const key = el.getAttribute('data-i18n');
         if (i18nDict[currentLang] && i18nDict[currentLang][key]) { el.innerText = i18nDict[currentLang][key]; }
     });
-    // Re-render dynamic components
     renderDashboard(); renderProductGrid(); renderCart(); renderInventory(); renderCRM(); renderCoupons(); renderSchedule(); renderAR(); renderTax(); renderHistory();
 }
 
@@ -210,7 +202,7 @@ function applyTheme() {
     else { document.body.classList.remove('dark-mode'); if (btn) btn.innerHTML = '<i class="fas fa-moon"></i>'; }
 }
 
-// ================== MODAL GLASS ==================
+// ================== MODAL GLASS (for alerts & confirmations only) ==================
 function showCustomModal(type, title, msg, defaultValue = '') {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-modal');
@@ -241,6 +233,7 @@ function showCustomModal(type, title, msg, defaultValue = '') {
 }
 const showAlert = async (msg) => await showCustomModal('alert', currentLang==='BM'?'Perhatian':'Attention', msg);
 const showConfirm = async (msg) => await showCustomModal('confirm', currentLang==='BM'?'Pengesahan':'Confirmation', msg);
+// We still keep showPrompt for other uses (e.g., openThresholdModal) but for jobs we'll use native prompt for reliability
 const showPrompt = async (msg, def='') => await showCustomModal('prompt', currentLang==='BM'?'Sila Masukkan Maklumat':'Please Enter Details', msg, def);
 
 // ================== FUNGSI UTAMA ==================
@@ -254,7 +247,7 @@ function checkLowStockAndNotify(previousLowIds = []) { const lowItems = getLowSt
 async function openThresholdModal() { const newVal = await showPrompt(currentLang==='BM'?`Tetapkan ambang stok rendah (stok ≤ nilai ini dianggap kritikal):`:`Set low stock threshold:`, db.lowStockThreshold); if (newVal !== null && !isNaN(parseInt(newVal))) { db.lowStockThreshold = parseInt(newVal); save(); checkLowStockAndNotify([]); renderInventory(); showAlert(currentLang==='BM'?`Ambang ditukar kepada ${db.lowStockThreshold}`:`Threshold changed to ${db.lowStockThreshold}`); } }
 
 // Inventory
-function renderInventory() { const tbody = document.getElementById('inventory-table-body'); if(!tbody) return; const lowIds = getLowStockItems().map(i => i.id); tbody.innerHTML = db.inv.map((item, idx) => `<tr class="border-b border-gray-50 align-top hover:bg-gray-50/50 transition ${lowIds.includes(item.id) ? 'low-stock-row' : ''}"><td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div> <td class="p-6"><input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800"><div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">${(item.details || []).map((d, dIdx) => `<div class="flex gap-1"><input type="text" value="${d}" onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" placeholder="Spec" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm"><button onclick="db.inv[${idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button></div>`).join('')}</div><div class="flex gap-4 mt-3"><button onclick="if(!db.inv[${idx}].details) db.inv[${idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> ${t('TAMBAH SPEC')}</button><button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? t('SOROK') : t('LIHAT')}</button></div> <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"> <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"> <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"> <td class="p-6 text-center"><button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button>    </tr>`).join(''); }
+function renderInventory() { const tbody = document.getElementById('inventory-table-body'); if(!tbody) return; const lowIds = getLowStockItems().map(i => i.id); tbody.innerHTML = db.inv.map((item, idx) => `<tr class="border-b border-gray-50 align-top hover:bg-gray-50/50 transition ${lowIds.includes(item.id) ? 'low-stock-row' : ''}"><td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div> <td class="p-6"><input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800"><div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">${(item.details || []).map((d, dIdx) => `<div class="flex gap-1"><input type="text" value="${d}" onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" placeholder="Spec" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm"><button onclick="db.inv[${idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button></div>`).join('')}</div><div class="flex gap-4 mt-3"><button onclick="if(!db.inv[${idx}].details) db.inv[${idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> ${t('TAMBAH SPEC')}</button><button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? t('SOROK') : t('LIHAT')}</button></div> <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"> <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"> <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"> <td class="p-6 text-center"><button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button>    </table>`).join(''); }
 function addInventoryItem() { db.inv.push({ id: Date.now(), name: currentLang==='BM'?'Produk Baru':'New Product', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true }); renderInventory(); save(); checkLowStockAndNotify([]); }
 function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); renderInventory(); if (field === 'qty') { const lowItems = getLowStockItems(); if (lowItems.some(i => i.id === db.inv[idx].id)) showLowStockToast(`⚠️ Stok ${db.inv[idx].name} kini kritikal (${db.inv[idx].qty})`); updateLowStockPanel(); } }
 function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
@@ -297,18 +290,18 @@ function uploadProfileImg(i, t) { const r = new FileReader(); r.onload = (e) => 
 
 // Jobs
 async function addJob() { 
-    const tStr = await showPrompt(currentLang==='BM'?"Perkara (contoh: Mesyuarat)":"Subject (e.g. Meeting):"); 
+    const tStr = prompt(currentLang==='BM'?"Perkara (contoh: Mesyuarat)":"Subject (e.g. Meeting):"); 
     if(!tStr) return;
-    const dStr = await showPrompt(currentLang==='BM'?"Tarikh (YYYY-MM-DD):":"Date (YYYY-MM-DD):"); 
+    const dStr = prompt(currentLang==='BM'?"Tarikh (YYYY-MM-DD):":"Date (YYYY-MM-DD):"); 
     if(!dStr) return;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dStr)) {
-        await showAlert(currentLang==='BM'?"Format tarikh salah. Gunakan YYYY-MM-DD":"Invalid date format. Use YYYY-MM-DD");
+        alert(currentLang==='BM'?"Format tarikh salah. Gunakan YYYY-MM-DD":"Invalid date format. Use YYYY-MM-DD");
         return;
     }
     db.jobs.push({ t: tStr, d: dStr, id: Date.now() }); 
     save(); 
     renderJobs(); 
-    await showAlert(currentLang==='BM'?"Nota berjaya ditambah!":"Note added successfully!");
+    alert(currentLang==='BM'?"Nota berjaya ditambah!":"Note added successfully!");
 }
 function renderJobs() { 
     const container = document.getElementById('calendar-widget'); 
