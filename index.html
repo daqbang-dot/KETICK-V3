@@ -50,7 +50,7 @@
         </div>
     </div>
 
-    <!-- Header & Drawer (same as original, but menu buttons call loadModule) -->
+    <!-- Header & Drawer -->
     <nav class="bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 py-2 sticky top-0 z-50 no-print flex items-center justify-between">
         <div class="flex items-center gap-2">
             <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
@@ -69,7 +69,7 @@
         </div>
     </nav>
 
-    <!-- Drawer (menu items now call loadModule) -->
+    <!-- Drawer -->
     <div id="drawerOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-all overlay" onclick="closeDrawer()"></div>
     <div id="drawer" class="fixed top-0 left-0 bottom-0 w-80 bg-white/95 backdrop-blur-xl shadow-2xl z-50 flex flex-col drawer-transition drawer-closed border-r border-gray-100">
         <div class="flex justify-between items-center p-5 border-b border-gray-100">
@@ -158,6 +158,36 @@
             <div class="flex gap-3 justify-center">
                 <button id="modal-cancel" class="hidden flex-1 py-4 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 dark:border-gray-600 text-gray-800 dark:text-white font-bold hover:bg-white/80 transition shadow-sm backdrop-blur-sm" data-i18n="btn-cancel">Batal</button>
                 <button id="modal-ok" class="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW Modal for Job/Note -->
+    <div id="job-modal" class="fixed inset-0 z-[1000] glass-modal-overlay flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-[90%] max-w-md p-8 rounded-[32px] transform scale-95 transition-transform duration-300">
+            <div class="text-5xl mb-4 drop-shadow-md text-center"><i class="fas fa-calendar-plus text-blue-500"></i></div>
+            <h3 id="job-modal-title" class="text-2xl font-black mb-4 text-center tracking-tight">Tambah Nota</h3>
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Perkara / Subject</label>
+                    <input type="text" id="job-subject" class="w-full p-3 flux-input rounded-xl" placeholder="Contoh: Mesyuarat">
+                </div>
+                <div>
+                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Tarikh / Date</label>
+                    <input type="date" id="job-date" class="w-full p-3 flux-input rounded-xl">
+                </div>
+                <div>
+                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Masa / Time (optional)</label>
+                    <input type="time" id="job-time" class="w-full p-3 flux-input rounded-xl">
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="job-reminder" class="w-5 h-5 accent-blue-600">
+                    <label for="job-reminder" class="text-sm font-medium text-gray-700 dark:text-gray-300">Ingatkan saya / Remind me</label>
+                </div>
+            </div>
+            <div class="flex gap-3 justify-center mt-6">
+                <button id="job-modal-cancel" class="flex-1 py-3 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 dark:border-gray-600 text-gray-800 dark:text-white font-bold hover:bg-white/80 transition shadow-sm backdrop-blur-sm">Batal</button>
+                <button id="job-modal-ok" class="flex-1 py-3 rounded-2xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">Simpan</button>
             </div>
         </div>
     </div>
