@@ -125,6 +125,12 @@ function enterSystem() {
     }
     
     checkLowStockAndNotify([]);
+    scheduleAllReminders(); // schedule reminders for existing jobs
+    
+    // Request notification permission
+    if (Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
 }
 
 // ================== DWIBAHASA & THEME ==================
@@ -202,7 +208,7 @@ function applyTheme() {
     else { document.body.classList.remove('dark-mode'); if (btn) btn.innerHTML = '<i class="fas fa-moon"></i>'; }
 }
 
-// ================== MODAL GLASS (for alerts & confirmations only) ==================
+// ================== MODAL GLASS (for alerts & confirmations) ==================
 function showCustomModal(type, title, msg, defaultValue = '') {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-modal');
@@ -233,7 +239,6 @@ function showCustomModal(type, title, msg, defaultValue = '') {
 }
 const showAlert = async (msg) => await showCustomModal('alert', currentLang==='BM'?'Perhatian':'Attention', msg);
 const showConfirm = async (msg) => await showCustomModal('confirm', currentLang==='BM'?'Pengesahan':'Confirmation', msg);
-// We still keep showPrompt for other uses (e.g., openThresholdModal) but for jobs we'll use native prompt for reliability
 const showPrompt = async (msg, def='') => await showCustomModal('prompt', currentLang==='BM'?'Sila Masukkan Maklumat':'Please Enter Details', msg, def);
 
 // ================== FUNGSI UTAMA ==================
@@ -247,7 +252,7 @@ function checkLowStockAndNotify(previousLowIds = []) { const lowItems = getLowSt
 async function openThresholdModal() { const newVal = await showPrompt(currentLang==='BM'?`Tetapkan ambang stok rendah (stok ≤ nilai ini dianggap kritikal):`:`Set low stock threshold:`, db.lowStockThreshold); if (newVal !== null && !isNaN(parseInt(newVal))) { db.lowStockThreshold = parseInt(newVal); save(); checkLowStockAndNotify([]); renderInventory(); showAlert(currentLang==='BM'?`Ambang ditukar kepada ${db.lowStockThreshold}`:`Threshold changed to ${db.lowStockThreshold}`); } }
 
 // Inventory
-function renderInventory() { const tbody = document.getElementById('inventory-table-body'); if(!tbody) return; const lowIds = getLowStockItems().map(i => i.id); tbody.innerHTML = db.inv.map((item, idx) => `<tr class="border-b border-gray-50 align-top hover:bg-gray-50/50 transition ${lowIds.includes(item.id) ? 'low-stock-row' : ''}"><td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div> <td class="p-6"><input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800"><div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">${(item.details || []).map((d, dIdx) => `<div class="flex gap-1"><input type="text" value="${d}" onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" placeholder="Spec" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm"><button onclick="db.inv[${idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button></div>`).join('')}</div><div class="flex gap-4 mt-3"><button onclick="if(!db.inv[${idx}].details) db.inv[${idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> ${t('TAMBAH SPEC')}</button><button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? t('SOROK') : t('LIHAT')}</button></div> <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"> <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"> <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"> <td class="p-6 text-center"><button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button>    </table>`).join(''); }
+function renderInventory() { const tbody = document.getElementById('inventory-table-body'); if(!tbody) return; const lowIds = getLowStockItems().map(i => i.id); tbody.innerHTML = db.inv.map((item, idx) => `<tr class="border-b border-gray-50 align-top hover:bg-gray-50/50 transition ${lowIds.includes(item.id) ? 'low-stock-row' : ''}"><td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div> <td class="p-6"><input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800"><div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">${(item.details || []).map((d, dIdx) => `<div class="flex gap-1"><input type="text" value="${d}" onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" placeholder="Spec" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm"><button onclick="db.inv[${idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button></div>`).join('')}</div><div class="flex gap-4 mt-3"><button onclick="if(!db.inv[${idx}].details) db.inv[${idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> ${t('TAMBAH SPEC')}</button><button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? t('SOROK') : t('LIHAT')}</button></div> <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"> <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"> <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"> <td class="p-6 text-center"><button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button>     \)`).join(''); }
 function addInventoryItem() { db.inv.push({ id: Date.now(), name: currentLang==='BM'?'Produk Baru':'New Product', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true }); renderInventory(); save(); checkLowStockAndNotify([]); }
 function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); renderInventory(); if (field === 'qty') { const lowItems = getLowStockItems(); if (lowItems.some(i => i.id === db.inv[idx].id)) showLowStockToast(`⚠️ Stok ${db.inv[idx].name} kini kritikal (${db.inv[idx].qty})`); updateLowStockPanel(); } }
 function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
@@ -288,29 +293,160 @@ function renderCRM() { const container = document.getElementById('crm-list-grid'
 function updateBizProfile() { db.prof.name = document.getElementById('set-biz-name')?.value || ''; db.prof.addr = document.getElementById('set-biz-addr')?.value || ''; db.prof.bank = document.getElementById('set-biz-bank')?.value || ''; const prevName = document.getElementById('prev-biz-name'); if(prevName) prevName.innerText = db.prof.name || "NAMA SYARIKAT"; const prevAddr = document.getElementById('prev-biz-addr'); if(prevAddr) prevAddr.innerText = db.prof.addr || "ALAMAT"; const prevBank = document.getElementById('prev-biz-bank'); if(prevBank) prevBank.innerText = db.prof.bank || "BANK"; if(db.prof.logo) { const logo = document.getElementById('prev-logo'); if(logo) { logo.src = db.prof.logo; logo.classList.remove('hidden'); } } if(db.prof.cop) { const cop = document.getElementById('prev-cop'); if(cop) { cop.src = db.prof.cop; cop.classList.remove('hidden'); } } save(); }
 function uploadProfileImg(i, t) { const r = new FileReader(); r.onload = (e) => { db.prof[t] = e.target.result; save(); updateBizProfile(); }; r.readAsDataURL(i.files[0]); }
 
-// Jobs
-async function addJob() { 
-    const tStr = prompt(currentLang==='BM'?"Perkara (contoh: Mesyuarat)":"Subject (e.g. Meeting):"); 
-    if(!tStr) return;
-    const dStr = prompt(currentLang==='BM'?"Tarikh (YYYY-MM-DD):":"Date (YYYY-MM-DD):"); 
-    if(!dStr) return;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dStr)) {
-        alert(currentLang==='BM'?"Format tarikh salah. Gunakan YYYY-MM-DD":"Invalid date format. Use YYYY-MM-DD");
-        return;
-    }
-    db.jobs.push({ t: tStr, d: dStr, id: Date.now() }); 
-    save(); 
-    renderJobs(); 
-    alert(currentLang==='BM'?"Nota berjaya ditambah!":"Note added successfully!");
+// ================== JOBS (JADUAL KERJA) with Glassmorphism Modal ==================
+function showJobModal() {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('job-modal');
+        const subjectInput = document.getElementById('job-subject');
+        const dateInput = document.getElementById('job-date');
+        const timeInput = document.getElementById('job-time');
+        const reminderCheck = document.getElementById('job-reminder');
+        const btnOk = document.getElementById('job-modal-ok');
+        const btnCancel = document.getElementById('job-modal-cancel');
+
+        // Reset form
+        subjectInput.value = '';
+        dateInput.value = new Date().toISOString().slice(0,10);
+        timeInput.value = '';
+        reminderCheck.checked = false;
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('.glass-panel').classList.remove('scale-95');
+        }, 10);
+
+        const cleanup = () => {
+            modal.classList.add('opacity-0');
+            modal.querySelector('.glass-panel').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            btnOk.onclick = null;
+            btnCancel.onclick = null;
+        };
+
+        btnOk.onclick = () => {
+            const subject = subjectInput.value.trim();
+            const date = dateInput.value;
+            const time = timeInput.value;
+            const reminder = reminderCheck.checked;
+
+            if (!subject) {
+                showAlert(currentLang === 'BM' ? 'Sila masukkan perkara.' : 'Please enter a subject.');
+                return;
+            }
+            if (!date) {
+                showAlert(currentLang === 'BM' ? 'Sila pilih tarikh.' : 'Please select a date.');
+                return;
+            }
+
+            let reminderTimestamp = null;
+            if (reminder) {
+                let reminderDateTime = date;
+                if (time) {
+                    reminderDateTime = `${date}T${time}`;
+                } else {
+                    // default time 09:00 if reminder checked but no time
+                    reminderDateTime = `${date}T09:00`;
+                }
+                const ts = new Date(reminderDateTime).getTime();
+                if (isNaN(ts)) {
+                    showAlert(currentLang === 'BM' ? 'Tarikh atau masa tidak sah.' : 'Invalid date or time.');
+                    return;
+                }
+                if (ts <= Date.now()) {
+                    showAlert(currentLang === 'BM' ? 'Masa peringatan mestilah pada masa hadapan.' : 'Reminder time must be in the future.');
+                    return;
+                }
+                reminderTimestamp = ts;
+            }
+
+            cleanup();
+            resolve({ subject, date, time, reminder, reminderTimestamp });
+        };
+
+        btnCancel.onclick = () => {
+            cleanup();
+            resolve(null);
+        };
+    });
 }
-function renderJobs() { 
-    const container = document.getElementById('calendar-widget'); 
-    if(!container) return;
-    if(db.jobs.length === 0) {
+
+function scheduleReminder(job) {
+    if (!job.reminder || !job.reminderTimestamp) return;
+
+    const now = Date.now();
+    const delay = job.reminderTimestamp - now;
+    if (delay <= 0) return;
+
+    // Request permission if not yet granted
+    if (Notification.permission !== 'granted') {
+        Notification.requestPermission();
+    }
+
+    setTimeout(() => {
+        if (Notification.permission === 'granted') {
+            new Notification('📅 Peringatan Jadual Kerja', {
+                body: `${job.t} pada ${job.d} ${job.time ? job.time : ''}`,
+                icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+            });
+        } else {
+            showAlert(`🔔 Peringatan: ${job.t} pada ${job.d} ${job.time ? job.time : ''}`);
+        }
+    }, delay);
+}
+
+function scheduleAllReminders() {
+    db.jobs.forEach(job => {
+        if (job.reminder && job.reminderTimestamp) {
+            scheduleReminder(job);
+        }
+    });
+}
+
+async function addJob() {
+    const result = await showJobModal();
+    if (!result) return;
+
+    const { subject, date, time, reminder, reminderTimestamp } = result;
+
+    const newJob = {
+        t: subject,
+        d: date,
+        time: time || '',
+        reminder: reminder,
+        reminderTimestamp: reminderTimestamp || null,
+        id: Date.now()
+    };
+    db.jobs.push(newJob);
+    save();
+    renderJobs();
+
+    if (reminder && reminderTimestamp) {
+        scheduleReminder(newJob);
+    }
+
+    showAlert(currentLang === 'BM' ? 'Nota berjaya ditambah!' : 'Note added successfully!');
+}
+
+function renderJobs() {
+    const container = document.getElementById('calendar-widget');
+    if (!container) return;
+    if (db.jobs.length === 0) {
         container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8 text-sm">${t('Tiada Jadual.')}</div>`;
         return;
     }
-    container.innerHTML = db.jobs.map(j => `<div class="bg-white p-5 rounded-[22px] border border-gray-100 relative group transition-all hover:shadow-xl"><p class="text-[10px] font-black text-blue-500 uppercase mb-1">${j.d}</p><h4 class="font-bold text-gray-800 text-sm">${j.t}</h4><button onclick="db.jobs = db.jobs.filter(x => x.id !== ${j.id}); save(); renderJobs();" class="absolute top-4 right-4 text-gray-200 hover:text-emerald-500 opacity-0 group-hover:opacity-100"><i class="fas fa-check-circle text-lg"></i></button></div>`).join(''); 
+    container.innerHTML = db.jobs.map(j => `
+        <div class="bg-white p-5 rounded-[22px] border border-gray-100 relative group transition-all hover:shadow-xl">
+            <div class="flex justify-between items-start">
+                <p class="text-[10px] font-black text-blue-500 uppercase mb-1">${j.d} ${j.time ? '• ' + j.time : ''}</p>
+                ${j.reminder ? '<i class="fas fa-bell text-amber-500 text-xs"></i>' : ''}
+            </div>
+            <h4 class="font-bold text-gray-800 text-sm">${j.t}</h4>
+            <button onclick="db.jobs = db.jobs.filter(x => x.id !== ${j.id}); save(); renderJobs();" class="absolute top-4 right-4 text-gray-200 hover:text-emerald-500 opacity-0 group-hover:opacity-100">
+                <i class="fas fa-check-circle text-lg"></i>
+            </button>
+        </div>
+    `).join('');
 }
 
 // Coupons
