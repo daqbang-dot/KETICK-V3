@@ -52,6 +52,128 @@ function recycleRef(type, num) {
     save();
 }
 
+// ================== ACTIVATION SYSTEM (No Backend) ==================
+const MASTER_SECRET = "BiZpro2025!@#"; // GANTI dengan rahsia anda
+
+function getDeviceId() {
+    let id = localStorage.getItem('bizpro_device_id');
+    if (!id) {
+        id = 'DEV-' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+        localStorage.setItem('bizpro_device_id', id);
+    }
+    return id;
+}
+
+async function hashString(str) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(str);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function generateActivationKey(deviceId) {
+    const raw = deviceId + MASTER_SECRET;
+    return await hashString(raw);
+}
+
+async function validateActivationKey(inputKey, deviceId) {
+    const expected = await generateActivationKey(deviceId);
+    return inputKey.toLowerCase() === expected.toLowerCase();
+}
+
+function isActivated() {
+    return localStorage.getItem('bizpro_activated') === 'true';
+}
+
+async function activateSystem(key) {
+    const deviceId = getDeviceId();
+    if (await validateActivationKey(key, deviceId)) {
+        localStorage.setItem('bizpro_activated', 'true');
+        return true;
+    }
+    return false;
+}
+
+function showActivationModal() {
+    return new Promise((resolve) => {
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 z-[2000] glass-modal-overlay flex items-center justify-center';
+        modal.innerHTML = `
+            <div class="glass-panel w-[90%] max-w-md p-8 rounded-[32px]">
+                <div class="text-5xl mb-4 drop-shadow-md text-center"><i class="fas fa-key text-purple-500"></i></div>
+                <h3 class="text-2xl font-black mb-2 text-center">Aktifkan Sistem</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 text-center">Masukkan kunci yang diberikan oleh admin.</p>
+                <input type="text" id="activation-key-input" class="w-full p-3 flux-input rounded-xl text-center uppercase" placeholder="XXXXXXXXXXXXXXX">
+                <div class="flex gap-3 justify-center mt-6">
+                    <button id="key-cancel" class="flex-1 py-3 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 text-gray-800 dark:text-white font-bold">Batal</button>
+                    <button id="key-submit" class="flex-1 py-3 rounded-2xl bg-purple-600 text-white font-bold">Aktifkan</button>
+                </div>
+                <div id="key-error" class="text-red-500 text-xs mt-2 text-center hidden"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        const input = modal.querySelector('#activation-key-input');
+        const submitBtn = modal.querySelector('#key-submit');
+        const cancelBtn = modal.querySelector('#key-cancel');
+        const errorDiv = modal.querySelector('#key-error');
+
+        const cleanup = () => modal.remove();
+
+        const doActivate = async () => {
+            const key = input.value.trim();
+            if (!key) {
+                errorDiv.textContent = 'Sila masukkan kunci.';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            errorDiv.classList.add('hidden');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Mengesahkan...';
+            const success = await activateSystem(key);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Aktifkan';
+            if (success) {
+                cleanup();
+                resolve(true);
+            } else {
+                errorDiv.textContent = 'Kunci tidak sah.';
+                errorDiv.classList.remove('hidden');
+            }
+        };
+
+        submitBtn.onclick = doActivate;
+        cancelBtn.onclick = () => { cleanup(); resolve(false); };
+        input.addEventListener('keypress', (e) => { if (e.key === 'Enter') doActivate(); });
+        modal.addEventListener('click', (e) => { if (e.target === modal) cancelBtn.onclick(); });
+    });
+}
+
+// ================== LOG ACTIVITY (localStorage) ==================
+function logActivity(event, data = {}) {
+    const logs = JSON.parse(localStorage.getItem('bizpro_activity_log') || '[]');
+    logs.push({ event, data, timestamp: new Date().toISOString() });
+    if (logs.length > 500) logs.shift();
+    localStorage.setItem('bizpro_activity_log', JSON.stringify(logs));
+}
+
+// ================== ADMIN GESTURE (click logo 5 times) ==================
+let logoClickCount = 0;
+let logoTimeout;
+function setupAdminGesture() {
+    const logo = document.getElementById('app-logo');
+    if (!logo) return;
+    logo.addEventListener('click', () => {
+        logoClickCount++;
+        clearTimeout(logoTimeout);
+        logoTimeout = setTimeout(() => { logoClickCount = 0; }, 1000);
+        if (logoClickCount >= 5) {
+            window.open('admin.html', '_blank');
+            logoClickCount = 0;
+        }
+    });
+}
+
 // ================== MODULE LOADING ==================
 let currentModule = 'dashboard';
 
@@ -88,6 +210,9 @@ async function loadModule(moduleName) {
 
     if (renderFunc) renderFunc();
 
+    // Log module view
+    logActivity('module_view', { module: moduleName });
+
     document.querySelectorAll('.nav-item-drawer').forEach(btn => {
         const onclick = btn.getAttribute('onclick');
         if (onclick && onclick.includes(moduleName)) {
@@ -101,7 +226,31 @@ async function loadModule(moduleName) {
 // ================== INITIAL LOAD ==================
 function enterSystem() {
     document.getElementById('login-overlay').classList.add('hidden');
-    loadModule('dashboard');
+    setupAdminGesture();
+
+    if (!isActivated()) {
+        const setupBtn = document.getElementById('first-time-setup-btn');
+        if (setupBtn) setupBtn.classList.remove('hidden');
+        setupBtn.onclick = async () => {
+            const activated = await showActivationModal();
+            if (activated) {
+                setupBtn.classList.add('hidden');
+                logActivity('app_open', { deviceId: getDeviceId() });
+                loadModule('dashboard');
+                initAppAfterActivation();
+            }
+        };
+        return;
+    } else {
+        const setupBtn = document.getElementById('first-time-setup-btn');
+        if (setupBtn) setupBtn.classList.add('hidden');
+        logActivity('app_open', { deviceId: getDeviceId() });
+        loadModule('dashboard');
+        initAppAfterActivation();
+    }
+}
+
+function initAppAfterActivation() {
     const now = new Date();
     const dateDisplay = document.getElementById('current-date-display');
     if (dateDisplay) dateDisplay.innerText = now.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -115,22 +264,15 @@ function enterSystem() {
     applyLanguage();
     updateBizProfile();
     renderDashboard();
-    
-    // If no jobs exist, add a sample
     if (db.jobs.length === 0) {
         const today = new Date().toISOString().slice(0,10);
         db.jobs.push({ t: "Contoh: Mesyuarat", d: today, id: Date.now() });
         save();
         renderJobs();
     }
-    
     checkLowStockAndNotify([]);
-    scheduleAllReminders(); // schedule reminders for existing jobs
-    
-    // Request notification permission
-    if (Notification.permission === 'default') {
-        Notification.requestPermission();
-    }
+    scheduleAllReminders();
+    if (Notification.permission === 'default') Notification.requestPermission();
 }
 
 // ================== DWIBAHASA & THEME ==================
@@ -279,7 +421,7 @@ async function generateFinalBilling() { const type = document.getElementById('bi
 async function deleteDoc(id) { const doc = db.hist.find(h => h.id === id); if (doc) { const type = doc.type; const refNum = parseInt(doc.ref.slice(3)); recycleRef(type, refNum); db.hist = db.hist.filter(h => h.id !== id); save(); renderHistory(); await showAlert(currentLang==='BM'?`Dokumen ${doc.ref} dibatalkan. Nombor akan diguna semula.`:`Document ${doc.ref} cancelled. Number will be recycled.`); } }
 function populateBillingClients() { const s = document.getElementById('bill-client-select'); if(s) s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
 function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input')?.appendChild(div); }
-function calcBilling() { const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); if(!body) return; body.innerHTML = ''; let sub = 0; selects.forEach((s, idx) => { const item = db.inv.find(i => i.id == s.value); if(item) { const line = item.jual * qtys[idx].value; sub += line; body.innerHTML += `<tr><td class="p-5 font-bold text-gray-800">${item.name}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black doc-accent-text">RM ${line.toFixed(2)}</td></tr>`; } }); const grand = sub - activeDiscount; document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; const discountRow = document.getElementById('preview-discount-row'); if(activeDiscount>0) { discountRow.classList.remove('hidden'); document.getElementById('prev-discount-val').innerText = `- RM ${activeDiscount.toFixed(2)}`; } else { discountRow.classList.add('hidden'); } }
+function calcBilling() { const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); if(!body) return; body.innerHTML = ''; let sub = 0; selects.forEach((s, idx) => { const item = db.inv.find(i => i.id == s.value); if(item) { const line = item.jual * qtys[idx].value; sub += line; body.innerHTML += `<td><td class="p-5 font-bold text-gray-800">${item.name}</td><td class="p-5 text-center font-bold">${qtys[idx].value}</td><td class="p-5 text-right">RM ${item.jual.toFixed(2)}</td><td class="p-5 text-right font-black doc-accent-text">RM ${line.toFixed(2)}</td></tr>`; } }); const grand = sub - activeDiscount; document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; const discountRow = document.getElementById('preview-discount-row'); if(activeDiscount>0) { discountRow.classList.remove('hidden'); document.getElementById('prev-discount-val').innerText = `- RM ${activeDiscount.toFixed(2)}`; } else { discountRow.classList.add('hidden'); } }
 async function applyCoupon() { const c = document.getElementById('coupon-input')?.value.toUpperCase(); if(db.coupons[c]) { activeDiscount = db.coupons[c]; await showAlert(currentLang==='BM'?"Kupon Guna!":"Coupon Applied!"); calcBilling(); } else { await showAlert(currentLang==='BM'?"Kupon Salah!":"Invalid Coupon!"); activeDiscount = 0; calcBilling(); } }
 function updateBillTo() { const id = document.getElementById('bill-client-select')?.value, c = db.cli.find(x => x.id == id); const billTo = document.getElementById('bill-to-client'); if(billTo) billTo.innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---'; }
 function shareWhatsapp() { const clientId = document.getElementById('bill-client-select')?.value; const client = db.cli.find(c => c.id == clientId); const phone = client ? client.phone : ''; const total = document.getElementById('grandtotal')?.innerText; const msg = encodeURIComponent(`Terima kasih. Sila lihat dokumen anda. Jumlah: ${total}`); if(phone) window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'); else window.open(`https://wa.me/?text=${msg}`, '_blank'); }
@@ -304,7 +446,6 @@ function showJobModal() {
         const btnOk = document.getElementById('job-modal-ok');
         const btnCancel = document.getElementById('job-modal-cancel');
 
-        // Reset form
         subjectInput.value = '';
         dateInput.value = new Date().toISOString().slice(0,10);
         timeInput.value = '';
@@ -345,7 +486,6 @@ function showJobModal() {
                 if (time) {
                     reminderDateTime = `${date}T${time}`;
                 } else {
-                    // default time 09:00 if reminder checked but no time
                     reminderDateTime = `${date}T09:00`;
                 }
                 const ts = new Date(reminderDateTime).getTime();
@@ -378,7 +518,6 @@ function scheduleReminder(job) {
     const delay = job.reminderTimestamp - now;
     if (delay <= 0) return;
 
-    // Request permission if not yet granted
     if (Notification.permission !== 'granted') {
         Notification.requestPermission();
     }
