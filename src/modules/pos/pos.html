@@ -1,0 +1,32 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 flux-card p-5">
+        <h2 class="text-2xl font-black mb-4"><i class="fas fa-cash-register mr-2"></i><span data-i18n="menu-pos">Mini POS</span></h2>
+        <div class="mb-4"><input type="text" id="pos-search" placeholder="Cari produk..." class="w-full p-3 flux-input text-sm" onkeyup="filterProducts()"></div>
+        <div id="product-grid" class="product-grid max-h-[500px] overflow-y-auto custom-scroll"></div>
+    </div>
+    <div class="flux-card p-5 flex flex-col">
+        <h3 class="font-black text-lg mb-3" data-i18n="pos-cust-info">Maklumat Pelanggan</h3>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+            <input type="text" id="pos-cust-name" placeholder="Nama" class="p-2 flux-input text-sm">
+            <input type="text" id="pos-cust-phone" placeholder="No Telefon" class="p-2 flux-input text-sm">
+        </div>
+        <div class="flex gap-2 mb-3">
+            <input type="text" id="pos-coupon" placeholder="Kod Kupon" class="flex-1 p-2 flux-input text-sm uppercase">
+            <button onclick="applyPosCoupon()" class="bg-gray-800 text-white px-3 rounded-xl text-xs font-bold" data-i18n="btn-use">GUNA</button>
+        </div>
+        <h3 class="font-black text-lg mb-3" data-i18n="pos-cart">Keranjang</h3>
+        <div id="cart-items" class="flex-1 overflow-y-auto custom-scroll space-y-2 mb-4 max-h-[300px]"></div>
+        <div class="border-t pt-3 space-y-2">
+            <div class="flex justify-between text-lg font-bold"><span data-i18n="pos-total">Jumlah:</span><span id="cart-total">RM 0.00</span></div>
+            <div class="flex justify-between text-sm text-red-500" id="discount-row" style="display:none;"><span data-i18n="pos-discount">Diskaun Kupon:</span><span id="cart-discount">- RM 0.00</span></div>
+            <div class="flex justify-between text-lg font-bold"><span data-i18n="pos-after-disc">Selepas Diskaun:</span><span id="cart-grand">RM 0.00</span></div>
+            <div class="flex gap-2 items-center"><span class="text-sm" data-i18n="pos-cash">Tunai (RM):</span><input type="number" id="cash-paid" class="flex-1 p-2 flux-input text-sm" placeholder="0.00" oninput="calculateChange()"></div>
+            <div class="flex justify-between text-sm"><span data-i18n="pos-change">Baki:</span><span id="change-amount" class="font-bold text-green-600">RM 0.00</span></div>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button onclick="completeSale()" class="bg-green-600 text-white py-3 rounded-xl font-bold"><i class="fas fa-check-circle mr-1"></i> <span data-i18n="btn-complete">Selesai</span></button>
+                <button onclick="clearCart()" class="bg-gray-200 text-gray-700 py-3 rounded-xl font-bold"><i class="fas fa-trash-alt mr-1"></i> <span data-i18n="btn-clear">Kosong</span></button>
+            </div>
+            <button onclick="printReceipt()" class="w-full bg-blue-600 text-white py-2 rounded-xl text-sm font-bold"><i class="fas fa-print mr-1"></i> <span data-i18n="btn-print">Cetak Resit</span></button>
+        </div>
+    </div>
+</div>
