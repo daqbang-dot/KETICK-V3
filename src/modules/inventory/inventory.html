@@ -1,0 +1,19 @@
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-black" data-i18n="inv-title">Inventori Stok</h2>
+    <button onclick="addInventoryItem()" class="bg-black text-white px-6 py-2 rounded-2xl font-bold" data-i18n="btn-new-prod">+ Produk Baru</button>
+</div>
+<div class="flux-card overflow-x-auto">
+    <table class="w-full text-left min-w-[600px]">
+        <thead class="bg-gray-50/50">
+            <tr class="text-[10px] uppercase font-bold text-gray-400 tracking-widest">
+                <th class="p-6" data-i18n="th-image">Imej</th>
+                <th class="p-6" data-i18n="th-info">Informasi Produk</th>
+                <th class="p-6" data-i18n="th-cost">Kos (RM)</th>
+                <th class="p-6" data-i18n="th-sell">Jual (RM)</th>
+                <th class="p-6" data-i18n="th-stock">Baki Stok</th>
+                <th class="p-6 text-center" data-i18n="th-action">Tindakan</th>
+            </tr>
+        </thead>
+        <tbody id="inventory-table-body"></tbody>
+    </table>
+</div>
