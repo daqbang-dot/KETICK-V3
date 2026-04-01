@@ -10,7 +10,14 @@
         <h3 class="font-black text-lg mb-6" data-i18n="social-plan">Rancang Content</h3>
         <select id="sch-platform" class="w-full p-3 flux-input mb-3"><option>FB</option><option>TT</option><option>IG</option><option>TH</option></select>
         <textarea id="sch-title" class="w-full p-3 flux-input h-24 mb-3" placeholder="Kapsyen"></textarea>
-        <div class="grid grid-cols-2 gap-3 mb-3"><input type="date" id="sch-date" class="p-3 flux-input"><input type="time" id="sch-time" class="p-3 flux-input"></div>
+        <div class="grid grid-cols-2 gap-3 mb-3">
+            <div class="relative"><input type="date" id="sch-date" class="p-3 flux-input w-full"><i class="fas fa-calendar-alt absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+            <div class="relative"><input type="time" id="sch-time" class="p-3 flux-input w-full"><i class="fas fa-clock absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i></div>
+        </div>
+        <div class="mb-3">
+            <label class="block text-sm font-medium mb-1">Muat Naik Fail (Gambar/Video)</label>
+            <input type="file" id="sch-file" accept="image/*,video/*" class="w-full p-2 flux-input text-sm">
+        </div>
         <button onclick="addSchedule()" class="w-full bg-pink-600 text-white py-4 rounded-2xl font-bold" data-i18n="btn-save">SIMPAN</button>
     </div>
     <div class="lg:col-span-2 flux-card p-8">
