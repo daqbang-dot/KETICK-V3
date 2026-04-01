@@ -1,21 +1,8 @@
-// ================== DEBUG VISUAL ==================
-const debugDiv = document.createElement('div');
-debugDiv.id = 'debug-log';
-debugDiv.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: black; color: lime; font-size: 10px; padding: 5px; z-index: 10000; max-height: 100px; overflow-y: auto; font-family: monospace;';
-document.body.appendChild(debugDiv);
-
+// ================== DEBUG VISUAL (disabled) ==================
 function debugLog(msg) {
-    const log = document.getElementById('debug-log');
-    if (log) {
-        const p = document.createElement('div');
-        p.innerText = new Date().toLocaleTimeString() + ' ' + msg;
-        log.appendChild(p);
-        log.scrollTop = log.scrollHeight;
-    }
-    console.log(msg);
+    // Optional: biarkan log di konsol jika masih diperlukan
+    // console.log(msg);
 }
-debugLog('App starting...');
-
 // ================== DATA & STORAGE ==================
 let db = {
     inv: JSON.parse(localStorage.getItem('f6_inv')) || [],
