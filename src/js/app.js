@@ -832,14 +832,23 @@ function setupSocialExtra() {
             parent.appendChild(iconSpan);
         }
     }
+
+    // Sediakan pautan sosial media
     const socialBtns = document.querySelectorAll('.flux-card a');
     socialBtns.forEach(btn => {
-        const platform = btn.querySelector('span')?.innerText.toLowerCase();
-        if (platform === 'facebook') btn.href = 'https://www.facebook.com/';
-        else if (platform === 'tiktok') btn.href = 'https://www.tiktok.com/';
-        else if (platform === 'instagram') btn.href = 'https://www.instagram.com/';
-        else if (platform === 'threads') btn.href = 'https://www.threads.net/';
-        btn.target = '_blank';
+        // Cuba dapatkan teks dari span (biasanya nama platform)
+        const span = btn.querySelector('span');
+        if (!span) return;
+        const platform = span.innerText.trim().toLowerCase();
+        let url = '';
+        if (platform === 'facebook') url = 'https://www.facebook.com/';
+        else if (platform === 'tiktok') url = 'https://www.tiktok.com/';
+        else if (platform === 'instagram') url = 'https://www.instagram.com/';
+        else if (platform === 'threads') url = 'https://www.threads.net/';
+        if (url) {
+            btn.href = url;
+            btn.target = '_blank';
+        }
     });
 }
 function addSchedule() {
