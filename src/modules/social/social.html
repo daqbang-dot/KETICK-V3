@@ -1,0 +1,20 @@
+<h2 class="text-3xl font-black mb-2" data-i18n="menu-social">Social Marketing</h2>
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+    <a href="#" class="flux-card p-6 flex flex-col items-center"><div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-3"><i class="fab fa-facebook-f"></i></div><span>Facebook</span></a>
+    <a href="#" class="flux-card p-6 flex flex-col items-center"><div class="w-14 h-14 bg-black text-white rounded-2xl flex items-center justify-center text-2xl mb-3"><i class="fab fa-tiktok"></i></div><span>TikTok</span></a>
+    <a href="#" class="flux-card p-6 flex flex-col items-center"><div class="w-14 h-14 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-600 text-white rounded-2xl flex items-center justify-center text-2xl mb-3"><i class="fab fa-instagram"></i></div><span>Instagram</span></a>
+    <a href="#" class="flux-card p-6 flex flex-col items-center"><div class="w-14 h-14 bg-gray-900 text-white rounded-2xl flex items-center justify-center text-2xl mb-3"><i class="fa-solid fa-at"></i></div><span>Threads</span></a>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="flux-card p-8">
+        <h3 class="font-black text-lg mb-6" data-i18n="social-plan">Rancang Content</h3>
+        <select id="sch-platform" class="w-full p-3 flux-input mb-3"><option>FB</option><option>TT</option><option>IG</option><option>TH</option></select>
+        <textarea id="sch-title" class="w-full p-3 flux-input h-24 mb-3" placeholder="Kapsyen"></textarea>
+        <div class="grid grid-cols-2 gap-3 mb-3"><input type="date" id="sch-date" class="p-3 flux-input"><input type="time" id="sch-time" class="p-3 flux-input"></div>
+        <button onclick="addSchedule()" class="w-full bg-pink-600 text-white py-4 rounded-2xl font-bold" data-i18n="btn-save">SIMPAN</button>
+    </div>
+    <div class="lg:col-span-2 flux-card p-8">
+        <h3 class="font-black text-lg mb-6" data-i18n="social-schedule">Jadual</h3>
+        <div id="schedule-list" class="space-y-3 max-h-[450px] overflow-y-auto"></div>
+    </div>
+</div>
