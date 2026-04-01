@@ -53,7 +53,7 @@
     <!-- Header & Drawer -->
     <nav class="bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 py-2 sticky top-0 z-50 no-print flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+            <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md" id="app-logo">
                 <i class="fas fa-bolt text-white text-sm"></i>
             </div>
             <h1 class="font-extrabold text-xl tracking-tighter">KETICK</h1>
@@ -112,6 +112,10 @@
             <button onclick="openThresholdModal()" class="w-full bg-amber-50 text-amber-600 p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
                 <i class="fas fa-exclamation-triangle"></i> <span data-i18n="btn-threshold">Set Stok Rendah (Ambang)</span>
             </button>
+            <!-- NEW: First Time Setup Button -->
+            <button id="first-time-setup-btn" class="w-full bg-purple-600 text-white p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hidden">
+                <i class="fas fa-key"></i> First Time Setup
+            </button>
             <p class="text-[9px] text-center text-gray-300 font-bold mt-2">System by AzlanMymo</p>
         </div>
     </div>
@@ -162,7 +166,7 @@
         </div>
     </div>
 
-    <!-- NEW Modal for Job/Note -->
+    <!-- Modal for Job/Note -->
     <div id="job-modal" class="fixed inset-0 z-[1000] glass-modal-overlay flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
         <div class="glass-panel w-[90%] max-w-md p-8 rounded-[32px] transform scale-95 transition-transform duration-300">
             <div class="text-5xl mb-4 drop-shadow-md text-center"><i class="fas fa-calendar-plus text-blue-500"></i></div>
