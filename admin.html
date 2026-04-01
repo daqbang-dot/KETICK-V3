@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BizPro Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/otpauth@latest/dist/otpauth.min.js"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow">
+        <h1 class="text-2xl font-bold mb-6">🔐 Admin Login</h1>
+        <div id="login-form">
+            <input type="password" id="admin-password" placeholder="Password" class="w-full p-3 border rounded-xl mb-3">
+            <input type="text" id="totp-code" placeholder="Kod TOTP (Google Authenticator)" class="w-full p-3 border rounded-xl mb-3">
+            <button id="login-btn" class="w-full bg-blue-600 text-white p-3 rounded-xl">Login</button>
+            <div id="login-error" class="text-red-500 text-sm mt-2 hidden"></div>
+        </div>
+        <div id="admin-content" class="hidden">
+            <h2 class="text-xl font-bold mb-4">Jana Kunci Aktifasi</h2>
+            <div>
+                <label class="block text-sm">ID Peranti Pengguna</label>
+                <input type="text" id="device-id" class="w-full p-2 border rounded mb-2" placeholder="Contoh: DEV-abc123...">
+                <button id="gen-key-btn" class="bg-green-600 text-white p-2 rounded w-full">Jana Kunci</button>
+                <div id="generated-key" class="mt-4 p-3 bg-gray-100 rounded hidden font-mono break-all"></div>
+            </div>
+            <hr class="my-6">
+            <h2 class="text-xl font-bold mb-4">📊 Statistik Ringkas</h2>
+            <div id="stats" class="space-y-2">
+                <p>Jumlah Pengguna Aktif: <span id="active-users">0</span></p>
+                <p>Jumlah Buka App: <span id="total-opens">0</span></p>
+                <p>Jumlah Klik Assist: <span id="total-assist">0</span></p>
+            </div>
+            <button id="reset-activation" class="mt-6 bg-red-500 text-white p-2 rounded w-full">Reset Pengaktifan (untuk ujian)</button>
+        </div>
+    </div>
+    <script>
+        // Ganti dengan rahsia sebenar
+        const ADMIN_PASSWORD = "Admin123";
+        // Rahsia TOTP – admin perlu tambah ke Google Authenticator (contoh: "JBSWY3DPEHPK3PXP")
+        const TOTP_SECRET = "JBSWY3DPEHPK3PXP"; // ganti dengan secret base32
+        const MASTER_SECRET = "BiZpro2025!@#"; // sama dengan di app.js
+
+        async function hashString(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function generateKey(deviceId) {
+            const raw = deviceId + MASTER_SECRET;
+            return await hashString(raw);
+        }
+
+        // TOTP validator
+        function validateTOTP(code) {
+            const totp = new OTPAuth.TOTP({ secret: TOTP_SECRET });
+            return totp.validate({ token: code }) !== null;
+        }
+
+        document.getElementById('login-btn').onclick = async () => {
+            const pass = document.getElementById('admin-password').value;
+            const totp = document.getElementById('totp-code').value;
+            if (pass === ADMIN_PASSWORD && validateTOTP(totp)) {
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+                loadStats();
+            } else {
+                const err = document.getElementById('login-error');
+                err.textContent = 'Password atau kod TOTP salah.';
+                err.classList.remove('hidden');
+            }
+        };
+
+        document.getElementById('gen-key-btn').onclick = async () => {
+            const deviceId = document.getElementById('device-id').value.trim();
+            if (!deviceId) return alert('Masukkan ID peranti');
+            const key = await generateKey(deviceId);
+            const keyDiv = document.getElementById('generated-key');
+            keyDiv.innerHTML = `<strong>Kunci:</strong> ${key}<br><button onclick="navigator.clipboard.writeText('${key}')" class="mt-2 text-sm bg-gray-200 p-1 rounded">Salin</button>`;
+            keyDiv.classList.remove('hidden');
+        };
+
+        async function loadStats() {
+            // Ambil data dari localStorage (atau boleh guna indexedDB jika lebih banyak)
+            // Di sini kita anggap data disimpan dalam localStorage dengan key tertentu.
+            // Untuk demo, kita baca dari localStorage (data aktiviti mungkin disimpan oleh app)
+            const activations = JSON.parse(localStorage.getItem('bizpro_activations') || '[]');
+            document.getElementById('active-users').innerText = activations.length;
+            // Untuk demo, kita baca log dari localStorage juga
+            const logs = JSON.parse(localStorage.getItem('bizpro_activity_log') || '[]');
+            const opens = logs.filter(l => l.event === 'app_open').length;
+            const assists = logs.filter(l => l.event === 'assist_click').length;
+            document.getElementById('total-opens').innerText = opens;
+            document.getElementById('total-assist').innerText = assists;
+        }
+
+        document.getElementById('reset-activation').onclick = () => {
+            localStorage.removeItem('bizpro_activated');
+            localStorage.removeItem('bizpro_device_id');
+            alert('Pengaktifan direset. Aplikasi akan minta kunci pada permulaan seterusnya.');
+        };
+    </script>
+</body>
+</html>
