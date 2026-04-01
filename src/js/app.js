@@ -122,6 +122,15 @@ function enterSystem() {
     applyLanguage();
     updateBizProfile();
     renderDashboard();
+    
+    // If no jobs exist, add a sample
+    if (db.jobs.length === 0) {
+        const today = new Date().toISOString().slice(0,10);
+        db.jobs.push({ t: "Contoh: Mesyuarat", d: today, id: Date.now() });
+        save();
+        renderJobs();
+    }
+    
     checkLowStockAndNotify([]);
 }
 
@@ -287,8 +296,29 @@ function updateBizProfile() { db.prof.name = document.getElementById('set-biz-na
 function uploadProfileImg(i, t) { const r = new FileReader(); r.onload = (e) => { db.prof[t] = e.target.result; save(); updateBizProfile(); }; r.readAsDataURL(i.files[0]); }
 
 // Jobs
-async function addJob() { const tStr = await showPrompt(currentLang==='BM'?"Perkara:":"Subject:"); if(!tStr) return; const dStr = await showPrompt(currentLang==='BM'?"Tarikh:":"Date:"); if(tStr && dStr) { db.jobs.push({ t: tStr, d: dStr, id: Date.now() }); save(); renderJobs(); } }
-function renderJobs() { const container = document.getElementById('calendar-widget'); if(container) container.innerHTML = db.jobs.map(j => `<div class="bg-white p-5 rounded-[22px] border border-gray-100 relative group transition-all hover:shadow-xl"><p class="text-[10px] font-black text-blue-500 uppercase mb-1">${j.d}</p><h4 class="font-bold text-gray-800 text-sm">${j.t}</h4><button onclick="db.jobs = db.jobs.filter(x => x.id !== ${j.id}); save(); renderJobs();" class="absolute top-4 right-4 text-gray-200 hover:text-emerald-500 opacity-0 group-hover:opacity-100"><i class="fas fa-check-circle text-lg"></i></button></div>`).join(''); }
+async function addJob() { 
+    const tStr = await showPrompt(currentLang==='BM'?"Perkara (contoh: Mesyuarat)":"Subject (e.g. Meeting):"); 
+    if(!tStr) return;
+    const dStr = await showPrompt(currentLang==='BM'?"Tarikh (YYYY-MM-DD):":"Date (YYYY-MM-DD):"); 
+    if(!dStr) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dStr)) {
+        await showAlert(currentLang==='BM'?"Format tarikh salah. Gunakan YYYY-MM-DD":"Invalid date format. Use YYYY-MM-DD");
+        return;
+    }
+    db.jobs.push({ t: tStr, d: dStr, id: Date.now() }); 
+    save(); 
+    renderJobs(); 
+    await showAlert(currentLang==='BM'?"Nota berjaya ditambah!":"Note added successfully!");
+}
+function renderJobs() { 
+    const container = document.getElementById('calendar-widget'); 
+    if(!container) return;
+    if(db.jobs.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8 text-sm">${t('Tiada Jadual.')}</div>`;
+        return;
+    }
+    container.innerHTML = db.jobs.map(j => `<div class="bg-white p-5 rounded-[22px] border border-gray-100 relative group transition-all hover:shadow-xl"><p class="text-[10px] font-black text-blue-500 uppercase mb-1">${j.d}</p><h4 class="font-bold text-gray-800 text-sm">${j.t}</h4><button onclick="db.jobs = db.jobs.filter(x => x.id !== ${j.id}); save(); renderJobs();" class="absolute top-4 right-4 text-gray-200 hover:text-emerald-500 opacity-0 group-hover:opacity-100"><i class="fas fa-check-circle text-lg"></i></button></div>`).join(''); 
+}
 
 // Coupons
 function renderCoupons() { const container = document.getElementById('coupon-list'); if(container) container.innerHTML = Object.entries(db.coupons).map(([c, v]) => `<div class="bg-white p-4 rounded-2xl border border-dashed border-purple-200 flex justify-between items-center"><div><p class="text-xs font-black text-purple-600">${c}</p><p class="text-lg font-bold">RM ${v}</p></div><button onclick="deleteCoupon('${c}')" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button></div>`).join('') || `<p class="text-xs">${t('Tiada Kupon.')}</p>`; }
