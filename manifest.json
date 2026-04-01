@@ -1,16 +1,17 @@
 {
-  "name": "BizPro v6",
+  "name": "BizPro POS",
   "short_name": "BizPro",
-  "description": "Mini POS, Billing & CRM System",
   "start_url": ".",
   "display": "standalone",
+  "background_color": "#007AFF",
   "theme_color": "#007AFF",
-  "background_color": "#FFFFFF",
+  "description": "Sistem POS & Billing",
   "icons": [
     {
-      "src": "icon-512.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
