@@ -225,6 +225,19 @@ let currentModule = 'dashboard';
 
 async function loadModule(moduleName) {
     debugLog('loadModule called: ' + moduleName);
+
+    // ================== SEBELUM MUAT MODUL, PERIKSA PENGATIFAN ==================
+    if (!isActivated()) {
+        debugLog('Not activated, showing activation modal first');
+        const activated = await showActivationModal();
+        if (!activated) {
+            debugLog('Activation failed or cancelled, abort module load');
+            return; // tidak muat modul
+        }
+        debugLog('Activation successful, proceeding to load module');
+    }
+
+    // Jika sudah diaktifkan atau baru sahaja diaktifkan, teruskan
     document.getElementById('reviewModal')?.classList.add('hidden');
     document.getElementById('tax-modal')?.classList.add('hidden');
 
@@ -492,7 +505,7 @@ function renderInventory() {
             <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"></td>
             <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"></td>
             <td class="p-6 text-center"><button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button></td>
-        </tr>`;
+         </tr>`;
     }).join(''); 
 }
 function addInventoryItem() { db.inv.push({ id: Date.now(), name: currentLang==='BM'?'Produk Baru':'New Product', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true }); renderInventory(); save(); checkLowStockAndNotify([]); }
@@ -516,7 +529,7 @@ async function completeSale() { if (cart.length === 0) { await showAlert(current
 async function printReceipt() { if (cart.length === 0) { await showAlert(currentLang==='BM'?"Tiada item dalam keranjang":"No items in cart"); return; } const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); const grand = total - posDiscount; const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; const change = cash - grand; const custName = document.getElementById('pos-cust-name').value.trim(); const custPhone = document.getElementById('pos-cust-phone').value.trim(); printReceiptNow(grand, cash, change, custName, custPhone); }
 function printReceiptNow(total, cash, change, custName, custPhone) { const bizName = db.prof.name || "SYARIKAT ANDA"; const bizAddr = db.prof.addr || ""; const date = new Date().toLocaleString(); let itemsHtml = ''; cart.forEach(item => { itemsHtml += `<div style="display:flex; justify-content:space-between;"><span>${item.name} x${item.qty}</span><span>RM ${(item.price * item.qty).toFixed(2)}</span></div>`; }); const receiptHtml = `<div style="width: 300px; margin:0 auto; font-family: monospace; padding: 16px; border: 1px solid #ccc; border-radius: 12px;"><div style="text-align: center; font-weight: bold; font-size: 16px;">${bizName}</div><div style="text-align: center; font-size: 10px;">${bizAddr}</div><div style="text-align: center; font-size: 10px;">${date}</div>${custName ? `<div style="margin-top:8px;">Pelanggan: ${custName} ${custPhone ? `(${custPhone})` : ''}</div>` : ''}<hr style="margin: 8px 0;">${itemsHtml}${posDiscount > 0 ? `<div style="display:flex; justify-content:space-between;"><span>Diskaun</span><span>- RM ${posDiscount.toFixed(2)}</span></div>` : ''}<hr style="margin: 8px 0;"><div style="display:flex; justify-content:space-between;"><strong>JUMLAH</strong><strong>RM ${total.toFixed(2)}</strong></div><div style="display:flex; justify-content:space-between;">TUNAI: RM ${cash.toFixed(2)}</div><div style="display:flex; justify-content:space-between;">BAKI: RM ${change >= 0 ? change.toFixed(2) : '0.00'}</div><hr style="margin: 8px 0;"><div style="text-align: center; font-size: 10px;">Terima kasih! Selamat datang lagi.</div></div>`; const printWindow = window.open('', '_blank'); printWindow.document.write(`<html><head><title>Resit POS</title><style>body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }</style></head><body>${receiptHtml}<script>window.onload = function() { window.print(); setTimeout(function(){ window.close(); }, 500); };<\/script></body></html>`); printWindow.document.close(); }
 
-// Billing (dibetulkan – fungsi ini masih panjang, saya ringkaskan dengan pembetulan sintaks)
+// Billing
 async function generateFinalBilling() { 
     const type = document.getElementById('billing-type')?.value; 
     const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); 
@@ -560,7 +573,7 @@ function calcBilling() {
                 <td class="p-5 text-center font-bold">${qtys[idx].value}</td>
                 <td class="p-5 text-right">RM ${item.jual.toFixed(2)}</td>
                 <td class="p-5 text-right font-black doc-accent-text">RM ${line.toFixed(2)}</td>
-            </tr>`; 
+             </tr>`; 
         } 
     }); 
     const grand = sub - activeDiscount; 
@@ -768,7 +781,7 @@ function renderTax() {
             <td class="p-6 font-bold text-sm text-gray-800">${t.vendor}</td>
             <td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}</td>
             <td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
-        </tr>`; 
+         </tr>`; 
     }).join('') || `<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">${t('Tiada rekod perbelanjaan.')}</td></tr>`; 
     document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`; 
     document.getElementById('tax-receipt-count').innerText = db.tax.length; 
@@ -794,7 +807,7 @@ function renderHistory() {
             ${h.type === 'INV' ? `<button onclick="convertInvToRec(${h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> ${t('SET PAID')}</button>` : ''}
             <button onclick="deleteDoc(${h.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
         </td>
-    </tr>`).reverse().join(''); 
+     </tr>`).reverse().join(''); 
 }
 
 // Document review and PDF (diringkaskan)
