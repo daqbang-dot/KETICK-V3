@@ -1,5 +1,4 @@
 // ================== DEBUG VISUAL ==================
-// Tambah elemen debug di bawah login overlay
 const debugDiv = document.createElement('div');
 debugDiv.id = 'debug-log';
 debugDiv.style.cssText = 'position: fixed; bottom: 0; left: 0; right: 0; background: black; color: lime; font-size: 10px; padding: 5px; z-index: 10000; max-height: 100px; overflow-y: auto; font-family: monospace;';
@@ -24,7 +23,7 @@ let db = {
     hist: JSON.parse(localStorage.getItem('f6_hist')) || [],
     jobs: JSON.parse(localStorage.getItem('f6_jobs')) || [],
     sch: JSON.parse(localStorage.getItem('f6_sch')) || [],
-    coupons: JSON.parse(localStorage.getItem('f6_coupons')) || [], // now array of objects {code, value, quantity}
+    coupons: JSON.parse(localStorage.getItem('f6_coupons')) || [],
     ref: JSON.parse(localStorage.getItem('f6_ref')) || { QUO: 1001, INV: 1001, REC: 1001 },
     refRecycle: JSON.parse(localStorage.getItem('f6_refRecycle')) || { QUO: [], INV: [], REC: [] },
     prof: JSON.parse(localStorage.getItem('f6_prof')) || { name: '', addr: '', bank: '', logo: '', cop: '' },
@@ -33,10 +32,9 @@ let db = {
     lowStockThreshold: parseInt(localStorage.getItem('lowStockThreshold')) || 5
 };
 
-// Convert old coupons format if necessary
 if (db.coupons && !Array.isArray(db.coupons)) {
     const old = db.coupons;
-    db.coupons = Object.entries(old).map(([code, value]) => ({ code, value, quantity: 999 })); // default quantity large
+    db.coupons = Object.entries(old).map(([code, value]) => ({ code, value, quantity: 999 }));
     localStorage.setItem('f6_coupons', JSON.stringify(db.coupons));
 }
 
@@ -201,7 +199,6 @@ function showActivationModal() {
     });
 }
 
-// ================== LOG ACTIVITY ==================
 function logActivity(event, data = {}) {
     const logs = JSON.parse(localStorage.getItem('bizpro_activity_log') || '[]');
     logs.push({ event, data, timestamp: new Date().toISOString() });
@@ -209,7 +206,6 @@ function logActivity(event, data = {}) {
     localStorage.setItem('bizpro_activity_log', JSON.stringify(logs));
 }
 
-// ================== ADMIN GESTURE ==================
 let logoClickCount = 0;
 let logoTimeout;
 function setupAdminGesture() {
@@ -226,7 +222,19 @@ function setupAdminGesture() {
     });
 }
 
-// ================== MODULE LOADING ==================
+// ================== BACK NAVIGATION ==================
+function setupHistoryNavigation() {
+    window.addEventListener('popstate', (event) => {
+        const state = event.state;
+        if (state && state.module) {
+            loadModule(state.module);
+        } else if (currentModule) {
+            loadModule(currentModule);
+        }
+    });
+}
+setupHistoryNavigation();
+
 let currentModule = 'dashboard';
 
 async function loadModule(moduleName) {
@@ -268,6 +276,7 @@ async function loadModule(moduleName) {
     }
 
     currentModule = moduleName;
+    history.pushState({ module: moduleName }, '', `#${moduleName}`);
 
     const renderFunc = {
         'dashboard': renderDashboard,
@@ -300,7 +309,6 @@ async function loadModule(moduleName) {
     });
 }
 
-// ================== INITIAL LOAD ==================
 function enterSystem() {
     debugLog('enterSystem called');
     document.getElementById('login-overlay').classList.add('hidden');
@@ -394,7 +402,7 @@ const i18nDict = {
         'blast-cat': 'KATALOG', 'blast-select': 'Pilih Penerima', 'blast-msg': 'Mesej', 'blast-img': 'Gambar', 'blast-delay': 'Sela (saat)',
         'auto-save': 'Simpan Template', 'auto-list': 'Senarai Template',
         'btn-record': '+ Rekod', 'tax-total': 'Total Tuntutan', 'tax-count': 'Bilangan Resit', 'tax-top': 'Kategori Tertinggi', 'tax-status': 'Status Audit', 'tax-ok': 'Tersusun', 'th-date': 'Tarikh', 'th-receipt': 'Resit', 'th-category': 'Kategori', 'th-vendor': 'Vendor', 'th-amount': 'Jumlah',
-        'hist-title': 'Rekod Transaksi', 'th-ref': 'No. Rujukan', 'th-client': 'Pelanggan', 'th-type': 'Jenis', 'th-phone': 'Telefon', 'btn-search': 'Cari', 'btn-wa': 'WhatsApp',
+        'hist-title': 'Rekod Transaksi', 'th-ref': 'No. Rujukan', 'th-client': 'Pelanggan', 'th-phone': 'Telefon', 'th-type': 'Jenis', 'btn-search': 'Cari', 'btn-wa': 'WhatsApp',
         'review-title': 'Review Dokumen', 'btn-close': 'Tutup', 'tax-new': 'Rekod Baru', 'tax-upload': 'Muat Naik Resit', 'btn-cancel': 'Batal',
         'Tiada Kupon.': 'Tiada Kupon.', 'Tiada Jadual.': 'Tiada Jadual.', 'Imej Sedia': 'Imej Sedia', 'Tiada template sapaan.': 'Tiada template sapaan.', 'SALIN': 'SALIN', 'Tiada rekod perbelanjaan.': 'Tiada rekod perbelanjaan.', 'SET PAID': 'SET PAID', 'TAMBAH SPEC': 'TAMBAH SPEC', 'SOROK': 'SOROK', 'LIHAT': 'LIHAT', 'Pergi ke Inventory': 'Pergi ke Inventory', 'Keranjang kosong': 'Keranjang kosong'
     },
@@ -413,7 +421,7 @@ const i18nDict = {
         'blast-cat': 'CATALOG', 'blast-select': 'Select Recipient', 'blast-msg': 'Message', 'blast-img': 'Image', 'blast-delay': 'Delay (sec)',
         'auto-save': 'Save Template', 'auto-list': 'Template List',
         'btn-record': '+ Record', 'tax-total': 'Total Claims', 'tax-count': 'Receipt Count', 'tax-top': 'Top Category', 'tax-status': 'Audit Status', 'tax-ok': 'Organized', 'th-date': 'Date', 'th-receipt': 'Receipt', 'th-category': 'Category', 'th-vendor': 'Vendor', 'th-amount': 'Amount',
-        'hist-title': 'Transaction Records', 'th-ref': 'Ref. No', 'th-client': 'Customer', 'th-type': 'Type', 'th-phone': 'Phone', 'btn-search': 'Search', 'btn-wa': 'WhatsApp',
+        'hist-title': 'Transaction Records', 'th-ref': 'Ref. No', 'th-client': 'Customer', 'th-phone': 'Phone', 'th-type': 'Type', 'btn-search': 'Search', 'btn-wa': 'WhatsApp',
         'review-title': 'Review Document', 'btn-close': 'Close', 'tax-new': 'New Record', 'tax-upload': 'Upload Receipt', 'btn-cancel': 'Cancel',
         'Tiada Kupon.': 'No Coupons.', 'Tiada Jadual.': 'No Schedule.', 'Imej Sedia': 'Image Ready', 'Tiada template sapaan.': 'No greeting templates.', 'SALIN': 'COPY', 'Tiada rekod perbelanjaan.': 'No expense records.', 'SET PAID': 'SET PAID', 'TAMBAH SPEC': 'ADD SPEC', 'SOROK': 'HIDE', 'LIHAT': 'VIEW', 'Pergi ke Inventory': 'Go to Inventory', 'Keranjang kosong': 'Cart is empty'
     }
@@ -449,7 +457,6 @@ function applyTheme() {
     else { document.body.classList.remove('dark-mode'); if (btn) btn.innerHTML = '<i class="fas fa-moon"></i>'; }
 }
 
-// ================== MODAL GLASS ==================
 function showCustomModal(type, title, msg, defaultValue = '') {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-modal');
@@ -482,8 +489,8 @@ const showAlert = async (msg) => await showCustomModal('alert', currentLang==='B
 const showConfirm = async (msg) => await showCustomModal('confirm', currentLang==='BM'?'Pengesahan':'Confirmation', msg);
 const showPrompt = async (msg, def='') => await showCustomModal('prompt', currentLang==='BM'?'Sila Masukkan Maklumat':'Please Enter Details', msg, def);
 
-// ================== FUNGSI UTAMA ==================
 let activeDiscount = 0; let cart = []; let posDiscount = 0; let currentReviewDoc = null;
+let blastImageData = null;
 
 // Low Stock
 function getLowStockItems() { return db.inv.filter(item => item.qty <= db.lowStockThreshold); }
@@ -517,11 +524,10 @@ function updateInvImg(input, idx) { const reader = new FileReader(); reader.onlo
 // Dashboard
 function renderDashboard() { const paidTransactions = db.hist.filter(h => h.type === 'REC'); const totalRev = paidTransactions.reduce((sum, h) => sum + h.total, 0); const totalMargin = paidTransactions.reduce((sum, h) => sum + h.margin, 0); const totalTax = db.tax.reduce((sum, t) => sum + t.amt, 0); const dashRev = document.getElementById('dash-total-rev'); if(dashRev) dashRev.innerText = `RM ${totalRev.toFixed(2)}`; const dashMargin = document.getElementById('dash-total-margin'); if(dashMargin) dashMargin.innerText = `RM ${totalMargin.toFixed(2)}`; const dashTax = document.getElementById('dash-tax-expense'); if(dashTax) dashTax.innerText = `RM ${totalTax.toFixed(2)}`; const dashInvCount = document.getElementById('dash-inv-count'); if(dashInvCount) dashInvCount.innerText = `${db.inv.length} Unit`; renderJobs(); updateLowStockPanel(); }
 
-// ================== MINI POS (enhanced) ==================
+// ================== MINI POS ==================
 function renderProductGrid() {
     const searchTerm = (document.getElementById('pos-search')?.value || '').toLowerCase();
     let filtered = db.inv.filter(p => p.name.toLowerCase().includes(searchTerm));
-    // Sort by salesCount (most sold first) to show top 4 as bestsellers
     const sorted = [...filtered].sort((a,b) => (b.salesCount || 0) - (a.salesCount || 0));
     const top4 = sorted.slice(0,4);
     const others = sorted.slice(4);
@@ -549,54 +555,18 @@ function productCard(p) {
         <div class="text-[10px] text-gray-400">Stok: ${p.qty}</div>
     </div>`;
 }
-function setupPosExtra() {
-    // No extra for now
-}
-// Rest of POS functions (addToCart, etc.) remain same except modify completeSale to store phone and share receipt
-async function completeSale() {
-    if (cart.length === 0) { await showAlert(currentLang==='BM'?"Keranjang kosong":"Cart is empty"); return; }
-    const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-    const grand = total - posDiscount;
-    const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0;
-    if (cash < grand) { await showAlert(currentLang==='BM'?"Tunai tidak mencukupi":"Insufficient cash"); return; }
-    const custName = document.getElementById('pos-cust-name').value.trim();
-    const custPhone = document.getElementById('pos-cust-phone').value.trim();
-    if (custName) {
-        const existing = db.cli.find(c => c.name.toLowerCase() === custName.toLowerCase());
-        if (!existing) {
-            db.cli.push({ id: Date.now(), name: custName, phone: custPhone, addr: '' });
-            save(); renderCRM();
-        } else if (custPhone && existing.phone !== custPhone) {
-            existing.phone = custPhone; save(); renderCRM();
-        }
-    }
-    let margin = 0; const items = []; const previousLowIds = getLowStockItems().map(i => i.id);
-    for (let item of cart) {
-        const product = db.inv.find(p => p.id === item.id);
-        if (product) {
-            if (product.qty < item.qty) { await showAlert(currentLang==='BM'?`Stok ${product.name} tidak mencukupi`:`Not enough stock for ${product.name}`); return; }
-            product.qty -= item.qty;
-            product.salesCount = (product.salesCount || 0) + item.qty; // increment sales count
-            margin += (product.jual - product.kos) * item.qty;
-            items.push({ name: product.name, qty: item.qty, jual: product.jual, kos: product.kos });
-        }
-    }
-    const newRef = `REC${getNextRef('REC')}`;
-    db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: newRef, type: 'REC', clientName: custName || 'POS Walk-in', phone: custPhone, total: grand, margin: margin, items: items, discount: posDiscount });
-    save();
-    checkLowStockAndNotify(previousLowIds);
-    renderInventory(); renderDashboard();
-    const change = cash - grand;
-    printReceiptNow(grand, cash, change, custName, custPhone);
-    // Auto share receipt via WhatsApp if phone exists
-    if (custPhone) {
-        const receiptMsg = generateReceiptMessage(grand, custName, items);
-        const encodedMsg = encodeURIComponent(receiptMsg);
-        window.open(`https://wa.me/${custPhone}?text=${encodedMsg}`, '_blank');
-    }
-    clearCart();
-    await showAlert(currentLang==='BM'?"Jualan selesai. Resit dibuka.":"Sale complete. Receipt generated.");
-}
+function setupPosExtra() {}
+async function addToCart(productId) { const product = db.inv.find(p => p.id === productId); if (!product) return; if (product.qty <= 0) { await showAlert(currentLang==='BM'?"Stok habis!":"Out of stock!"); return; } const existing = cart.find(i => i.id === productId); if (existing) { if (existing.qty + 1 > product.qty) { await showAlert(currentLang==='BM'?"Stok tidak mencukupi":"Insufficient stock"); return; } existing.qty++; } else { cart.push({ id: product.id, name: product.name, price: product.jual, qty: 1 }); } renderCart(); }
+async function updateCartQty(id, delta) { const idx = cart.findIndex(i => i.id === id); if (idx === -1) return; const product = db.inv.find(p => p.id === id); const newQty = cart[idx].qty + delta; if (newQty <= 0) { cart.splice(idx,1); } else if (product && newQty > product.qty) { await showAlert(currentLang==='BM'?"Stok tidak mencukupi":"Insufficient stock"); return; } else { cart[idx].qty = newQty; } renderCart(); }
+function removeCartItem(id) { cart = cart.filter(i => i.id !== id); renderCart(); }
+function renderCart() { const container = document.getElementById('cart-items'); if (!container) return; if (cart.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-4">${t('Keranjang kosong')}</div>`; document.getElementById('cart-total').innerText = 'RM 0.00'; document.getElementById('cart-grand').innerText = 'RM 0.00'; document.getElementById('discount-row').style.display = 'none'; calculateChange(); return; } let total = 0; container.innerHTML = cart.map(item => { const lineTotal = item.price * item.qty; total += lineTotal; return `<div class="cart-item"><div><span class="font-bold">${item.name}</span><div class="text-xs text-gray-500">RM ${item.price.toFixed(2)}</div></div><div class="cart-qty"><button onclick="updateCartQty(${item.id}, -1)">-</button><span class="w-8 text-center">${item.qty}</span><button onclick="updateCartQty(${item.id}, 1)">+</button><button onclick="removeCartItem(${item.id})" class="text-red-500 ml-2"><i class="fas fa-trash-alt"></i></button></div><div class="font-bold">RM ${lineTotal.toFixed(2)}</div></div>`; }).join(''); document.getElementById('cart-total').innerText = `RM ${total.toFixed(2)}`; const grand = total - posDiscount; document.getElementById('cart-grand').innerText = `RM ${grand.toFixed(2)}`; if (posDiscount > 0) { document.getElementById('discount-row').style.display = 'flex'; document.getElementById('cart-discount').innerText = `- RM ${posDiscount.toFixed(2)}`; } else { document.getElementById('discount-row').style.display = 'none'; } calculateChange(); }
+function calculateChange() { const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); const grand = total - posDiscount; const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; const change = cash - grand; const changeSpan = document.getElementById('change-amount'); if (changeSpan) changeSpan.innerText = `RM ${change >= 0 ? change.toFixed(2) : '0.00'}`; return change; }
+function clearCart() { cart = []; posDiscount = 0; document.getElementById('pos-coupon').value = ''; renderCart(); document.getElementById('cash-paid').value = ''; calculateChange(); }
+async function applyPosCoupon() { const code = document.getElementById('pos-coupon').value.toUpperCase(); const coupon = db.coupons.find(c => c.code === code && c.quantity > 0); if (coupon) { posDiscount = coupon.value; coupon.quantity--; if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } save(); renderCoupons(); await showAlert(currentLang==='BM'?`Kupon ${code} digunakan: RM ${posDiscount} diskaun`:`Coupon ${code} applied: RM ${posDiscount} discount`); renderCart(); } else { await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!"); posDiscount = 0; renderCart(); } }
+async function completeSale() { if (cart.length === 0) { await showAlert(currentLang==='BM'?"Keranjang kosong":"Cart is empty"); return; } const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); const grand = total - posDiscount; const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; if (cash < grand) { await showAlert(currentLang==='BM'?"Tunai tidak mencukupi":"Insufficient cash"); return; } const custName = document.getElementById('pos-cust-name').value.trim(); const custPhone = document.getElementById('pos-cust-phone').value.trim(); if (custName) { const existing = db.cli.find(c => c.name.toLowerCase() === custName.toLowerCase()); if (!existing) { db.cli.push({ id: Date.now(), name: custName, phone: custPhone, addr: '' }); save(); renderCRM(); } else if (custPhone && existing.phone !== custPhone) { existing.phone = custPhone; save(); renderCRM(); } } let margin = 0; const items = []; const previousLowIds = getLowStockItems().map(i => i.id); for (let item of cart) { const product = db.inv.find(p => p.id === item.id); if (product) { if (product.qty < item.qty) { await showAlert(currentLang==='BM'?`Stok ${product.name} tidak mencukupi`:`Not enough stock for ${product.name}`); return; } product.qty -= item.qty; product.salesCount = (product.salesCount || 0) + item.qty; margin += (product.jual - product.kos) * item.qty; items.push({ name: product.name, qty: item.qty, jual: product.jual, kos: product.kos }); } } const newRef = `REC${getNextRef('REC')}`; db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: newRef, type: 'REC', clientName: custName || 'POS Walk-in', phone: custPhone, total: grand, margin: margin, items: items, discount: posDiscount }); save(); checkLowStockAndNotify(previousLowIds); renderInventory(); renderDashboard(); const change = cash - grand; printReceiptNow(grand, cash, change, custName, custPhone); if (custPhone) { const receiptMsg = generateReceiptMessage(grand, custName, items); const encodedMsg = encodeURIComponent(receiptMsg); window.open(`https://wa.me/${custPhone}?text=${encodedMsg}`, '_blank'); } clearCart(); await showAlert(currentLang==='BM'?"Jualan selesai. Resit dibuka.":"Sale complete. Receipt generated."); }
+async function printReceipt() { if (cart.length === 0) { await showAlert(currentLang==='BM'?"Tiada item dalam keranjang":"No items in cart"); return; } const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); const grand = total - posDiscount; const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; const change = cash - grand; const custName = document.getElementById('pos-cust-name').value.trim(); const custPhone = document.getElementById('pos-cust-phone').value.trim(); printReceiptNow(grand, cash, change, custName, custPhone); }
+function printReceiptNow(total, cash, change, custName, custPhone) { const bizName = db.prof.name || "SYARIKAT ANDA"; const bizAddr = db.prof.addr || ""; const date = new Date().toLocaleString(); let itemsHtml = ''; cart.forEach(item => { itemsHtml += `<div style="display:flex; justify-content:space-between;"><span>${item.name} x${item.qty}</span><span>RM ${(item.price * item.qty).toFixed(2)}</span></div>`; }); const receiptHtml = `<div style="width: 300px; margin:0 auto; font-family: monospace; padding: 16px; border: 1px solid #ccc; border-radius: 12px;"><div style="text-align: center; font-weight: bold; font-size: 16px;">${bizName}</div><div style="text-align: center; font-size: 10px;">${bizAddr}</div><div style="text-align: center; font-size: 10px;">${date}</div>${custName ? `<div style="margin-top:8px;">Pelanggan: ${custName} ${custPhone ? `(${custPhone})` : ''}</div>` : ''}<hr style="margin: 8px 0;">${itemsHtml}${posDiscount > 0 ? `<div style="display:flex; justify-content:space-between;"><span>Diskaun</span><span>- RM ${posDiscount.toFixed(2)}</span></div>` : ''}<hr style="margin: 8px 0;"><div style="display:flex; justify-content:space-between;"><strong>JUMLAH</strong><strong>RM ${total.toFixed(2)}</strong></div><div style="display:flex; justify-content:space-between;">TUNAI: RM ${cash.toFixed(2)}</div><div style="display:flex; justify-content:space-between;">BAKI: RM ${change >= 0 ? change.toFixed(2) : '0.00'}</div><hr style="margin: 8px 0;"><div style="text-align: center; font-size: 10px;">Terima kasih! Selamat datang lagi.</div></div>`; const printWindow = window.open('', '_blank'); printWindow.document.write(`<html><head><title>Resit POS</title><style>body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }</style></head><body>${receiptHtml}<script>window.onload = function() { window.print(); setTimeout(function(){ window.close(); }, 500); };<\/script></body></html>`); printWindow.document.close(); }
+
 function generateReceiptMessage(total, custName, items) {
     let msg = `🧾 *RESIT PEMBELIAN*\n`;
     if (custName) msg += `Pelanggan: ${custName}\n`;
@@ -606,9 +576,214 @@ function generateReceiptMessage(total, custName, items) {
     msg += `\n*JUMLAH: RM ${total.toFixed(2)}*\n\nTerima kasih!`;
     return msg;
 }
-// Other POS functions (addToCart, etc.) unchanged
 
-// ================== COUPON MANAGER (with quantity) ==================
+// ================== BILLING ==================
+async function generateFinalBilling() { 
+    const type = document.getElementById('billing-type')?.value; 
+    const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); 
+    const clientId = document.getElementById('bill-client-select')?.value; 
+    const client = db.cli.find(c => c.id == clientId); 
+    let total = 0, margin = 0, items = []; 
+    selects.forEach((s, idx) => { 
+        const item = db.inv.find(i => i.id == s.value); 
+        const q = parseInt(qtys[idx].value); 
+        if(item) { 
+            if(type !== 'QUO') item.qty -= q; 
+            total += item.jual * q; 
+            if(type === 'REC') margin += (item.jual - item.kos) * q; 
+            items.push({ name: item.name, qty: q, jual: item.jual, kos: item.kos }); 
+        } 
+    }); 
+    const finalTotal = total - activeDiscount; 
+    const finalMargin = (type === 'REC') ? (margin - activeDiscount) : 0; 
+    const refNum = getNextRef(type); 
+    const newRef = `${type}${refNum}`; 
+    db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: newRef, type: type, clientName: client ? client.name : 'Umum', phone: client?.phone || '', total: finalTotal, margin: finalMargin, items: items, discount: activeDiscount }); 
+    save(); 
+    await showAlert(currentLang==='BM'?`Rekod ${type} Berjaya Disimpan! No: ${newRef}`:`${type} Record Saved! No: ${newRef}`); 
+    location.reload(); 
+}
+async function deleteDoc(id) { const doc = db.hist.find(h => h.id === id); if (doc) { const type = doc.type; const refNum = parseInt(doc.ref.slice(3)); recycleRef(type, refNum); db.hist = db.hist.filter(h => h.id !== id); save(); renderHistory(); await showAlert(currentLang==='BM'?`Dokumen ${doc.ref} dibatalkan. Nombor akan diguna semula.`:`Document ${doc.ref} cancelled. Number will be recycled.`); } }
+function populateBillingClients() { const s = document.getElementById('bill-client-select'); if(s) s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
+function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input')?.appendChild(div); }
+function calcBilling() { 
+    const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); 
+    if(!body) return; 
+    body.innerHTML = ''; 
+    let sub = 0; 
+    selects.forEach((s, idx) => { 
+        const item = db.inv.find(i => i.id == s.value); 
+        if(item) { 
+            const line = item.jual * qtys[idx].value; 
+            sub += line; 
+            body.innerHTML += `<tr>
+                <td class="p-5 font-bold text-gray-800">${item.name}<\/td>
+                <td class="p-5 text-center font-bold">${qtys[idx].value}<\/td>
+                <td class="p-5 text-right">RM ${item.jual.toFixed(2)}<\/td>
+                <td class="p-5 text-right font-black doc-accent-text">RM ${line.toFixed(2)}<\/td>
+             <\/tr>`; 
+        } 
+    }); 
+    const grand = sub - activeDiscount; 
+    document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; 
+    const discountRow = document.getElementById('preview-discount-row'); 
+    if(activeDiscount>0) { 
+        discountRow.classList.remove('hidden'); 
+        document.getElementById('prev-discount-val').innerText = `- RM ${activeDiscount.toFixed(2)}`; 
+    } else { 
+        discountRow.classList.add('hidden'); 
+    } 
+}
+async function applyCoupon() { const c = document.getElementById('coupon-input')?.value.toUpperCase(); const coupon = db.coupons.find(coupon => coupon.code === c && coupon.quantity > 0); if (coupon) { activeDiscount = coupon.value; coupon.quantity--; if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } save(); renderCoupons(); await showAlert(currentLang==='BM'?"Kupon Guna!":"Coupon Applied!"); calcBilling(); } else { await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!"); activeDiscount = 0; calcBilling(); } }
+function updateBillTo() { const id = document.getElementById('bill-client-select')?.value, c = db.cli.find(x => x.id == id); const billTo = document.getElementById('bill-to-client'); if(billTo) billTo.innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---'; }
+function shareWhatsapp() { const clientId = document.getElementById('bill-client-select')?.value; const client = db.cli.find(c => c.id == clientId); const phone = client ? client.phone : ''; const total = document.getElementById('grandtotal')?.innerText; const msg = encodeURIComponent(`Terima kasih. Sila lihat dokumen anda. Jumlah: ${total}`); if(phone) window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'); else window.open(`https://wa.me/?text=${msg}`, '_blank'); }
+function updateBillingTheme() { const type = document.getElementById('billing-type')?.value; document.body.className = `theme-${type} ${isDarkTheme ? 'dark-mode' : ''}`; const previewTitle = document.getElementById('preview-title'); if(previewTitle) previewTitle.innerText = type; const watermark = document.getElementById('watermark'); if(watermark) watermark.innerText = type; const refNo = document.getElementById('ref-no'); if(refNo) refNo.innerText = `${type}${db.ref[type]}`; const prevDate = document.getElementById('prev-date'); if(prevDate) prevDate.innerText = new Date().toLocaleDateString('en-GB'); }
+
+// ================== CRM ==================
+async function addClient() { const n = await showPrompt(currentLang==='BM'?"Nama Pelanggan:":"Customer Name:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
+function renderCRM() { const container = document.getElementById('crm-list-grid'); if(container) container.innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
+
+// ================== BUSINESS PROFILE ==================
+function updateBizProfile() { db.prof.name = document.getElementById('set-biz-name')?.value || ''; db.prof.addr = document.getElementById('set-biz-addr')?.value || ''; db.prof.bank = document.getElementById('set-biz-bank')?.value || ''; const prevName = document.getElementById('prev-biz-name'); if(prevName) prevName.innerText = db.prof.name || "NAMA SYARIKAT"; const prevAddr = document.getElementById('prev-biz-addr'); if(prevAddr) prevAddr.innerText = db.prof.addr || "ALAMAT"; const prevBank = document.getElementById('prev-biz-bank'); if(prevBank) prevBank.innerText = db.prof.bank || "BANK"; if(db.prof.logo) { const logo = document.getElementById('prev-logo'); if(logo) { logo.src = db.prof.logo; logo.classList.remove('hidden'); } } if(db.prof.cop) { const cop = document.getElementById('prev-cop'); if(cop) { cop.src = db.prof.cop; cop.classList.remove('hidden'); } } save(); }
+function uploadProfileImg(i, t) { const r = new FileReader(); r.onload = (e) => { db.prof[t] = e.target.result; save(); updateBizProfile(); }; r.readAsDataURL(i.files[0]); }
+
+// ================== JOBS ==================
+function showJobModal() {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('job-modal');
+        const subjectInput = document.getElementById('job-subject');
+        const dateInput = document.getElementById('job-date');
+        const timeInput = document.getElementById('job-time');
+        const reminderCheck = document.getElementById('job-reminder');
+        const btnOk = document.getElementById('job-modal-ok');
+        const btnCancel = document.getElementById('job-modal-cancel');
+
+        subjectInput.value = '';
+        dateInput.value = new Date().toISOString().slice(0,10);
+        timeInput.value = '';
+        reminderCheck.checked = false;
+
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('.glass-panel').classList.remove('scale-95');
+        }, 10);
+
+        const cleanup = () => {
+            modal.classList.add('opacity-0');
+            modal.querySelector('.glass-panel').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            btnOk.onclick = null;
+            btnCancel.onclick = null;
+        };
+
+        btnOk.onclick = () => {
+            const subject = subjectInput.value.trim();
+            const date = dateInput.value;
+            const time = timeInput.value;
+            const reminder = reminderCheck.checked;
+
+            if (!subject) {
+                showAlert(currentLang === 'BM' ? 'Sila masukkan perkara.' : 'Please enter a subject.');
+                return;
+            }
+            if (!date) {
+                showAlert(currentLang === 'BM' ? 'Sila pilih tarikh.' : 'Please select a date.');
+                return;
+            }
+
+            let reminderTimestamp = null;
+            if (reminder) {
+                let reminderDateTime = date;
+                if (time) {
+                    reminderDateTime = `${date}T${time}`;
+                } else {
+                    reminderDateTime = `${date}T09:00`;
+                }
+                const ts = new Date(reminderDateTime).getTime();
+                if (isNaN(ts)) {
+                    showAlert(currentLang === 'BM' ? 'Tarikh atau masa tidak sah.' : 'Invalid date or time.');
+                    return;
+                }
+                if (ts <= Date.now()) {
+                    showAlert(currentLang === 'BM' ? 'Masa peringatan mestilah pada masa hadapan.' : 'Reminder time must be in the future.');
+                    return;
+                }
+                reminderTimestamp = ts;
+            }
+
+            cleanup();
+            resolve({ subject, date, time, reminder, reminderTimestamp });
+        };
+
+        btnCancel.onclick = () => {
+            cleanup();
+            resolve(null);
+        };
+    });
+}
+function scheduleReminder(job) {
+    if (!job.reminder || !job.reminderTimestamp) return;
+    const now = Date.now();
+    const delay = job.reminderTimestamp - now;
+    if (delay <= 0) return;
+    if (Notification.permission !== 'granted') Notification.requestPermission();
+    setTimeout(() => {
+        if (Notification.permission === 'granted') {
+            new Notification('📅 Peringatan Jadual Kerja', {
+                body: `${job.t} pada ${job.d} ${job.time ? job.time : ''}`,
+                icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+            });
+        } else {
+            showAlert(`🔔 Peringatan: ${job.t} pada ${job.d} ${job.time ? job.time : ''}`);
+        }
+    }, delay);
+}
+function scheduleAllReminders() {
+    db.jobs.forEach(job => {
+        if (job.reminder && job.reminderTimestamp) scheduleReminder(job);
+    });
+}
+async function addJob() {
+    const result = await showJobModal();
+    if (!result) return;
+    const { subject, date, time, reminder, reminderTimestamp } = result;
+    const newJob = {
+        t: subject,
+        d: date,
+        time: time || '',
+        reminder: reminder,
+        reminderTimestamp: reminderTimestamp || null,
+        id: Date.now()
+    };
+    db.jobs.push(newJob);
+    save();
+    renderJobs();
+    if (reminder && reminderTimestamp) scheduleReminder(newJob);
+    showAlert(currentLang === 'BM' ? 'Nota berjaya ditambah!' : 'Note added successfully!');
+}
+function renderJobs() {
+    const container = document.getElementById('calendar-widget');
+    if (!container) return;
+    if (db.jobs.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8 text-sm">${t('Tiada Jadual.')}</div>`;
+        return;
+    }
+    container.innerHTML = db.jobs.map(j => `
+        <div class="bg-white p-5 rounded-[22px] border border-gray-100 relative group transition-all hover:shadow-xl">
+            <div class="flex justify-between items-start">
+                <p class="text-[10px] font-black text-blue-500 uppercase mb-1">${j.d} ${j.time ? '• ' + j.time : ''}</p>
+                ${j.reminder ? '<i class="fas fa-bell text-amber-500 text-xs"></i>' : ''}
+            </div>
+            <h4 class="font-bold text-gray-800 text-sm">${j.t}</h4>
+            <button onclick="db.jobs = db.jobs.filter(x => x.id !== ${j.id}); save(); renderJobs();" class="absolute top-4 right-4 text-gray-200 hover:text-emerald-500 opacity-0 group-hover:opacity-100">
+                <i class="fas fa-check-circle text-lg"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+// ================== COUPON MANAGER ==================
 function renderCoupons() {
     const container = document.getElementById('coupon-list');
     if (!container) return;
@@ -645,69 +820,31 @@ function deleteCoupon(index) {
     save();
     renderCoupons();
 }
-async function applyCoupon(code) {
-    const coupon = db.coupons.find(c => c.code === code && c.quantity > 0);
-    if (coupon) {
-        activeDiscount = coupon.value;
-        coupon.quantity--;
-        if (coupon.quantity === 0) {
-            const idx = db.coupons.indexOf(coupon);
-            db.coupons.splice(idx,1);
-        }
-        save();
-        renderCoupons();
-        await showAlert(currentLang==='BM'?`Kupon ${code} digunakan! Diskaun RM ${activeDiscount}`:`Coupon ${code} applied! Discount RM ${activeDiscount}`);
-        calcBilling();
-    } else {
-        await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!");
-        activeDiscount = 0;
-        calcBilling();
-    }
-}
-// In POS, use same applyPosCoupon logic
-async function applyPosCoupon() {
-    const code = document.getElementById('pos-coupon').value.toUpperCase();
-    const coupon = db.coupons.find(c => c.code === code && c.quantity > 0);
-    if (coupon) {
-        posDiscount = coupon.value;
-        coupon.quantity--;
-        if (coupon.quantity === 0) {
-            const idx = db.coupons.indexOf(coupon);
-            db.coupons.splice(idx,1);
-        }
-        save();
-        renderCoupons();
-        await showAlert(currentLang==='BM'?`Kupon ${code} digunakan: RM ${posDiscount} diskaun`:`Coupon ${code} applied: RM ${posDiscount} discount`);
-        renderCart();
-    } else {
-        await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!");
-        posDiscount = 0;
-        renderCart();
-    }
-}
 
 // ================== SOCIAL MARKETING ==================
 function setupSocialExtra() {
-    // Add icons to date and time inputs
     const dateInput = document.getElementById('sch-date');
     const timeInput = document.getElementById('sch-time');
     if (dateInput) {
         const parent = dateInput.parentNode;
-        const iconSpan = document.createElement('span');
-        iconSpan.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400';
-        iconSpan.innerHTML = '<i class="fas fa-calendar-alt"></i>';
-        parent.style.position = 'relative';
-        parent.appendChild(iconSpan);
+        if (!parent.querySelector('.fa-calendar-alt')) {
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none';
+            iconSpan.innerHTML = '<i class="fas fa-calendar-alt"></i>';
+            parent.style.position = 'relative';
+            parent.appendChild(iconSpan);
+        }
     }
     if (timeInput) {
         const parent = timeInput.parentNode;
-        const iconSpan = document.createElement('span');
-        iconSpan.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400';
-        iconSpan.innerHTML = '<i class="fas fa-clock"></i>';
-        parent.style.position = 'relative';
-        parent.appendChild(iconSpan);
+        if (!parent.querySelector('.fa-clock')) {
+            const iconSpan = document.createElement('span');
+            iconSpan.className = 'absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none';
+            iconSpan.innerHTML = '<i class="fas fa-clock"></i>';
+            parent.style.position = 'relative';
+            parent.appendChild(iconSpan);
+        }
     }
-    // Make social buttons functional
     const socialBtns = document.querySelectorAll('.flux-card a');
     socialBtns.forEach(btn => {
         const platform = btn.querySelector('span')?.innerText.toLowerCase();
@@ -717,7 +854,6 @@ function setupSocialExtra() {
         else if (platform === 'threads') btn.href = 'https://www.threads.net/';
         btn.target = '_blank';
     });
-    // Add file upload and alarm handling in addSchedule
 }
 function addSchedule() {
     const platform = document.getElementById('sch-platform')?.value;
@@ -730,7 +866,6 @@ function addSchedule() {
         const reader = new FileReader();
         reader.readAsDataURL(fileInput.files[0]);
         reader.onload = () => { fileData = reader.result; };
-        // We'll handle async after reading? Better to use Promise
     }
     if (title && date && time) {
         const timestamp = new Date(`${date}T${time}`).getTime();
@@ -748,7 +883,6 @@ function addSchedule() {
         db.sch.push(scheduleItem);
         save();
         renderSchedule();
-        // Schedule alarm if timestamp > now
         if (timestamp > Date.now()) {
             const delay = timestamp - Date.now();
             setTimeout(() => {
@@ -766,7 +900,6 @@ function addSchedule() {
                 }
             }, delay);
         }
-        // Reset file input
         if (fileInput) fileInput.value = '';
         showAlert(currentLang === 'BM' ? 'Content dijadualkan!' : 'Content scheduled!');
     }
@@ -791,10 +924,9 @@ function renderSchedule() {
 }
 
 // ================== BLAST PINTAR ==================
-let blastImageData = null;
 function setupBlastExtra() {
     const delayInput = document.getElementById('blast-delay');
-    if (delayInput) delayInput.value = 30; // default 30 seconds
+    if (delayInput) delayInput.value = 30;
     delayInput.max = 999;
     const imgInput = document.getElementById('blast-img-input');
     if (imgInput) {
@@ -808,32 +940,84 @@ function setupBlastExtra() {
             }
         };
     }
-}
-async function startBlast() {
-    const cs = document.querySelectorAll('.blast-checkbox:checked');
-    let m = document.getElementById('blast-msg')?.value;
-    const delay = parseInt(document.getElementById('blast-delay')?.value) || 30;
-    if (delay < 30 || delay > 999) {
-        await showAlert('Sela masa mesti antara 30 hingga 999 saat.');
-        return;
-    }
-    for (let c of cs) {
-        const randomKey = Math.random().toString(36).substring(2, 8).toUpperCase();
-        const footer = `\n\n${randomKey}\n\nDihantar oleh BizPro System`;
-        const fullMsg = m + footer;
-        const text = encodeURIComponent(fullMsg.replace('{name}', c.dataset.name));
-        window.open(`https://wa.me/${c.dataset.phone}?text=${text}`, '_blank');
-        await new Promise(r => setTimeout(r, delay * 1000));
+    // Tambah butang ambil template jika belum
+    const container = document.querySelector('.flux-card.p-6:first-of-type');
+    if (container && !document.getElementById('template-selector')) {
+        const btn = document.createElement('button');
+        btn.id = 'template-selector';
+        btn.className = 'mt-3 w-full bg-blue-500 text-white p-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2';
+        btn.innerHTML = '<i class="fas fa-comment-dots"></i> Ambil Template';
+        btn.onclick = showTemplatePicker;
+        container.appendChild(btn);
     }
 }
-function generateCatalogText() {
-    let c = "KATALOG:\n";
-    db.inv.slice(0, 10).forEach(i => c += `- ${i.name} RM${i.jual}\n`);
-    const msgArea = document.getElementById('blast-msg');
-    if (msgArea) msgArea.value = c;
+function showTemplatePicker() {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-[2000] glass-modal-overlay flex items-center justify-center';
+    modal.innerHTML = `
+        <div class="glass-panel w-[90%] max-w-md p-6 rounded-[32px]">
+            <h3 class="text-xl font-black mb-4">Pilih Template</h3>
+            <div id="template-list-modal" class="max-h-96 overflow-y-auto space-y-2"></div>
+            <div class="flex justify-end mt-4">
+                <button class="close-modal py-2 px-4 bg-gray-200 rounded-xl">Tutup</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    const listContainer = modal.querySelector('#template-list-modal');
+    listContainer.innerHTML = db.ar.map(t => `
+        <div class="p-3 border rounded-lg cursor-pointer hover:bg-gray-100" data-msg="${encodeURIComponent(t.msg)}">
+            <div class="font-bold">${t.title}</div>
+            <div class="text-xs text-gray-500 truncate">${t.msg}</div>
+        </div>
+    `).join('');
+    listContainer.querySelectorAll('[data-msg]').forEach(el => {
+        el.addEventListener('click', () => {
+            const msg = decodeURIComponent(el.dataset.msg);
+            const msgArea = document.getElementById('blast-msg');
+            if (msgArea) msgArea.value = msg;
+            modal.remove();
+        });
+    });
+    modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
 }
+function renderBlastClientList() { const container = document.getElementById('blast-client-list'); if(container) container.innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl cursor-pointer"><input type="checkbox" class="blast-checkbox w-5 h-5 mr-4 accent-emerald-500" data-phone="${c.phone}" data-name="${c.name}"><div><p class="text-sm font-bold">${c.name}</p><p class="text-[10px] text-gray-400 font-bold">${c.phone}</p></div></label>`).join(''); }
+async function startBlast() { const cs = document.querySelectorAll('.blast-checkbox:checked'); let m = document.getElementById('blast-msg')?.value; const delay = parseInt(document.getElementById('blast-delay')?.value) || 30; if (delay < 30 || delay > 999) { await showAlert('Sela masa mesti antara 30 hingga 999 saat.'); return; } for (let c of cs) { const randomKey = Math.random().toString(36).substring(2, 8).toUpperCase(); const footer = `\n\n${randomKey}\n\nDihantar oleh BizPro System`; const fullMsg = m + footer; const text = encodeURIComponent(fullMsg.replace('{name}', c.dataset.name)); window.open(`https://wa.me/${c.dataset.phone}?text=${text}`, '_blank'); await new Promise(r => setTimeout(r, delay * 1000)); } }
+function generateCatalogText() { let c = "KATALOG:\n"; db.inv.slice(0, 10).forEach(i => c += `- ${i.name} RM${i.jual}\n`); const msgArea = document.getElementById('blast-msg'); if(msgArea) msgArea.value = c; }
 
-// ================== HISTORY (with search, phone, WhatsApp button) ==================
+// ================== AUTOREPLY ==================
+function renderAR() { const container = document.getElementById('ar-list'); if(container) container.innerHTML = db.ar.map(item => `<div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100"><div class="flex-1 pr-4"><p class="font-bold text-sm text-gray-800">${item.title}</p><p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p></div><div class="flex gap-2"><button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold uppercase">${t('SALIN')}</button><button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button></div></div>`).join('') || `<p class="text-gray-400 text-xs italic py-4">${t('Tiada template sapaan.')}</p>`; }
+async function saveAR() { const title = document.getElementById('ar-title')?.value, msg = document.getElementById('ar-msg')?.value; if(!title || !msg) return await showAlert(currentLang==='BM'?"Sila isi tajuk dan mesej!":"Please fill title and message!"); db.ar.push({ id: Date.now(), title, msg }); save(); renderAR(); document.getElementById('ar-title').value = ''; document.getElementById('ar-msg').value = ''; }
+function copyToClipboard(msg) { const text = decodeURIComponent(msg); navigator.clipboard.writeText(text).then(async () => { await showAlert(currentLang==='BM'?"Template disalin ke papan klip!":"Template copied to clipboard!"); }); }
+async function deleteAR(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam template?":"Delete template?"); if(confirmed) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
+
+// ================== LHDN TAX ==================
+async function saveTaxRecord() { const date = document.getElementById('tax-date')?.value, amt = parseFloat(document.getElementById('tax-amount')?.value), cat = document.getElementById('tax-category')?.value, vendor = document.getElementById('tax-vendor')?.value, imgInput = document.getElementById('tax-img-input'); if(!date || isNaN(amt) || !vendor) return await showAlert(currentLang==='BM'?"Sila isi semua maklumat!":"Please fill all information!"); const processSave = (imgData) => { db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: imgData }); save(); renderTax(); document.getElementById('tax-modal').classList.add('hidden'); }; if(imgInput.files[0]) { const reader = new FileReader(); reader.onload = (e) => processSave(e.target.result); reader.readAsDataURL(imgInput.files[0]); } else { processSave(''); } }
+function renderTax() { 
+    const tbody = document.getElementById('tax-table-body'); 
+    if(!tbody) return; 
+    let total = 0; 
+    const categories = {}; 
+    tbody.innerHTML = db.tax.sort((a,b) => new Date(b.date) - new Date(a.date)).map(t => { 
+        total += t.amt; 
+        categories[t.cat] = (categories[t.cat] || 0) + t.amt; 
+        return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition">
+            <td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}<\/td>
+            <td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'}<\/td>
+            <td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span><\/td>
+            <td class="p-6 font-bold text-sm text-gray-800">${t.vendor}<\/td>
+            <td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}<\/td>
+            <td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button><\/td>
+         <\/tr>`; 
+    }).join('') || `|<td colspan="6" class="p-10 text-center text-gray-400 font-bold">${t('Tiada rekod perbelanjaan.')}<\/td>`; 
+    document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`; 
+    document.getElementById('tax-receipt-count').innerText = db.tax.length; 
+    const topCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b, '-'); 
+    document.getElementById('tax-top-cat').innerText = topCat; 
+}
+async function deleteTax(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam rekod ini?":"Delete this record?"); if(confirmed) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
+
+// ================== HISTORY ==================
 function setupHistoryExtra() {
     const searchInput = document.getElementById('history-search');
     if (searchInput) {
@@ -873,14 +1057,54 @@ function renderHistory() {
 function sendReceiptViaWhatsApp(id) {
     const trans = db.hist.find(t => t.id === id);
     if (trans && trans.phone) {
-        const msg = generateReceiptMessage(trans.total, trans.clientName, trans.items);
+        const items = trans.items || [];
+        const msg = generateReceiptMessage(trans.total, trans.clientName, items);
         const encoded = encodeURIComponent(msg);
         window.open(`https://wa.me/${trans.phone}?text=${encoded}`, '_blank');
     }
 }
+async function convertInvToRec(id) { const idx = db.hist.findIndex(h => h.id === id); if(idx !== -1 && db.hist[idx].type === 'INV') { const inv = db.hist[idx]; inv.type = 'REC'; const newRefNum = getNextRef('REC'); inv.ref = `REC${newRefNum}`; let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; }); inv.margin = m - (inv.discount || 0); save(); renderHistory(); await showAlert(currentLang==='BM'?"Invoice ditukar kepada Receipt!":"Invoice converted to Receipt!"); } }
 
-// ================== JOBS & REMINDERS ==================
-// ... (keep existing functions)
+// ================== DOCUMENT REVIEW & PDF ==================
+function viewDocument(hist) { 
+    currentReviewDoc = hist; 
+    const type = hist.type; 
+    const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); 
+    const bizName = db.prof.name || "SYARIKAT ANDA"; 
+    const bizAddr = db.prof.addr || "Alamat Perniagaan"; 
+    const bizBank = db.prof.bank || "Bank & No Akaun"; 
+    const clientName = hist.clientName || "Pelanggan"; 
+    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name}<\/td><td style="padding:12px 8px; text-align:center;">${item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
+    const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); 
+    const discount = hist.discount || 0; 
+    const grand = subtotal - discount; 
+    const discountRow = discount > 0 ? `|<td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}<\/td><\/tr>` : ''; 
+    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody>${itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
+    document.getElementById('reviewDocContent').innerHTML = docHtml; 
+    document.getElementById('reviewModal').classList.remove('hidden'); 
+}
+function closeReviewModal() { document.getElementById('reviewModal').classList.add('hidden'); currentReviewDoc = null; }
+async function downloadReviewAsPDF() { if (!currentReviewDoc) return; const element = document.getElementById('reviewDocContent'); const opt = { margin: 0.2, filename: `${currentReviewDoc.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
+async function downloadDocument(hist) { 
+    const type = hist.type; 
+    const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); 
+    const bizName = db.prof.name || "SYARIKAT ANDA"; 
+    const bizAddr = db.prof.addr || "Alamat Perniagaan"; 
+    const bizBank = db.prof.bank || "Bank & No Akaun"; 
+    const clientName = hist.clientName || "Pelanggan"; 
+    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name}<\/td><td style="padding:12px 8px; text-align:center;">${item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
+    const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); 
+    const discount = hist.discount || 0; 
+    const grand = subtotal - discount; 
+    const discountRow = discount > 0 ? `|<td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}<\/td><\/tr>` : ''; 
+    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto; padding:20px;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody>${itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
+    const tempDiv = document.createElement('div'); 
+    tempDiv.innerHTML = docHtml; 
+    document.body.appendChild(tempDiv); 
+    const opt = { margin: 0.2, filename: `${hist.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; 
+    await html2pdf().set(opt).from(tempDiv).save(); 
+    document.body.removeChild(tempDiv); 
+}
 
 // ================== DRAWER & PWA ==================
 function openDrawer() { document.getElementById('drawer').classList.remove('drawer-closed'); document.getElementById('drawer').classList.add('drawer-open'); document.getElementById('drawerOverlay').classList.remove('hidden'); }
