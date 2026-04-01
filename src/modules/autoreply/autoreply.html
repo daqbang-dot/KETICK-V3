@@ -1,0 +1,13 @@
+<h2 class="text-3xl font-black mb-2" data-i18n="menu-auto">WhatsApp Chatbox</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="flux-card p-8">
+        <h3 class="font-bold mb-4" data-i18n="auto-save">Simpan Template</h3>
+        <input type="text" id="ar-title" class="w-full p-3 flux-input mb-3" placeholder="Tajuk">
+        <textarea id="ar-msg" class="w-full p-3 flux-input h-32" placeholder="Mesej"></textarea>
+        <button onclick="saveAR()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold" data-i18n="btn-save">Simpan</button>
+    </div>
+    <div class="flux-card p-8">
+        <h3 class="font-bold mb-4" data-i18n="auto-list">Senarai Template</h3>
+        <div id="ar-list" class="space-y-3 max-h-[400px] overflow-y-auto"></div>
+    </div>
+</div>
