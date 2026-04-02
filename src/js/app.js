@@ -833,10 +833,9 @@ function setupSocialExtra() {
         }
     }
 
-    // Sediakan pautan sosial media
-    const socialBtns = document.querySelectorAll('.flux-card a');
+    // Betulkan pemilih: cari semua <a> dengan kelas "flux-card"
+    const socialBtns = document.querySelectorAll('a.flux-card');
     socialBtns.forEach(btn => {
-        // Cuba dapatkan teks dari span (biasanya nama platform)
         const span = btn.querySelector('span');
         if (!span) return;
         const platform = span.innerText.trim().toLowerCase();
