@@ -276,7 +276,8 @@ async function loadModule(moduleName) {
         'blast': () => { renderBlastClientList(); setupBlastExtra(); },
         'autoreply': renderAR,
         'lhdn': () => { renderTax(); setupTaxModalReset(); },
-        'history': () => { renderHistory(); setupHistoryExtra(); }
+        'history': () => { renderHistory(); setupHistoryExtra(); },
+        'report': () => { /* No specific render needed, but we can add if needed */ }
     }[moduleName];
 
     if (renderFunc) {
@@ -377,6 +378,7 @@ const i18nDict = {
     'BM': {
         'welcome': 'Selamat Datang', 'enter-system': 'Masuk Sistem',
         'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventori', 'menu-crm': 'Pangkalan Data CRM', 'menu-bill': 'Pengebilan', 'menu-promo': 'Pengurus Kupon', 'menu-social': 'Pemasaran Sosial', 'menu-blast': 'Blast Pintar', 'menu-auto': 'Chatbox WhatsApp', 'menu-tax': 'Rekod Cukai LHDN', 'menu-hist': 'Sejarah',
+        'menu-report': 'Laporan', // BARU
         'btn-export': 'Eksport Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Stok Rendah (Ambang)',
         'dash-title': 'Ringkasan Niaga', 'dash-subtitle': 'Prestasi semasa anda hari ini.', 'dash-alert-stock': '⚠️ Stok Kritikal (≤ ambang)', 'lbl-rev-title': 'Revenue Terkini (Receipt)', 'btn-tax-record': 'REKOD CUKAI', 'lbl-rev-sub': 'Berdasarkan jualan yang telah dibayar (Receipt)', 'lbl-margin': 'Margin Keuntungan', 'lbl-exp': 'Belanja (Cukai)', 'lbl-stk': 'Jumlah Item Stok', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Jadual Kerja & Temujanji', 'btn-add-job': '+ Tambah Nota',
         'pos-cust-info': 'Maklumat Pelanggan', 'btn-use': 'GUNA', 'pos-cart': 'Keranjang', 'pos-total': 'Jumlah:', 'pos-discount': 'Diskaun Kupon:', 'pos-after-disc': 'Selepas Diskaun:', 'pos-cash': 'Tunai (RM):', 'pos-change': 'Baki:', 'btn-complete': 'Selesai', 'btn-clear': 'Kosong', 'btn-print': 'Cetak Resit',
@@ -396,6 +398,7 @@ const i18nDict = {
     'EN': {
         'welcome': 'Welcome', 'enter-system': 'Enter System',
         'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventory', 'menu-crm': 'CRM Database', 'menu-bill': 'Billing', 'menu-promo': 'Coupon Manager', 'menu-social': 'Social Marketing', 'menu-blast': 'Smart Blast', 'menu-auto': 'WhatsApp Chatbox', 'menu-tax': 'Tax Records', 'menu-hist': 'History',
+        'menu-report': 'Report', // BARU
         'btn-export': 'Export Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Low Stock Threshold',
         'dash-title': 'Business Summary', 'dash-subtitle': 'Your current performance today.', 'dash-alert-stock': '⚠️ Critical Stock (≤ threshold)', 'lbl-rev-title': 'Current Revenue (Receipt)', 'btn-tax-record': 'TAX RECORD', 'lbl-rev-sub': 'Based on paid sales (Receipt)', 'lbl-margin': 'Profit Margin', 'lbl-exp': 'Expenses (Tax)', 'lbl-stk': 'Total Stock Items', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Work Schedule & Appointments', 'btn-add-job': '+ Add Note',
         'pos-cust-info': 'Customer Information', 'btn-use': 'APPLY', 'pos-cart': 'Shopping Cart', 'pos-total': 'Total:', 'pos-discount': 'Coupon Discount:', 'pos-after-disc': 'After Discount:', 'pos-cash': 'Cash (RM):', 'pos-change': 'Change:', 'btn-complete': 'Complete', 'btn-clear': 'Clear', 'btn-print': 'Print Receipt',
@@ -985,11 +988,9 @@ function copyToClipboard(msg) { const text = decodeURIComponent(msg); navigator.
 async function deleteAR(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam template?":"Delete template?"); if(confirmed) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
 
 // ================== LHDN TAX (FIXED) ==================
-// Function to reset tax modal fields
 function resetTaxModal() {
     const modal = document.getElementById('tax-modal');
     if (!modal) return;
-    // Reset all input fields
     const dateInput = document.getElementById('tax-date');
     if (dateInput) dateInput.value = '';
     const amountInput = document.getElementById('tax-amount');
@@ -1003,47 +1004,38 @@ function resetTaxModal() {
     const imgStatus = document.getElementById('tax-img-status');
     if (imgStatus) imgStatus.innerText = t('tax-upload');
 }
-
-// Ensure modal resets when opened
 function setupTaxModalReset() {
     const openModalBtn = document.querySelector('#lhdn-section .bg-orange-600');
     if (openModalBtn) {
-        // Remove existing listener to avoid duplicates
         openModalBtn.removeEventListener('click', resetTaxModal);
         openModalBtn.addEventListener('click', () => {
-            // Small delay to ensure modal is shown after reset
             setTimeout(resetTaxModal, 50);
         });
     }
-    // Also reset when modal is closed via close button
     const closeModalBtn = document.querySelector('#tax-modal button[onclick*="hidden"]');
     if (closeModalBtn) {
         closeModalBtn.removeEventListener('click', resetTaxModal);
         closeModalBtn.addEventListener('click', resetTaxModal);
     }
 }
-
 async function saveTaxRecord() {
     const date = document.getElementById('tax-date')?.value;
     const amt = parseFloat(document.getElementById('tax-amount')?.value);
     const cat = document.getElementById('tax-category')?.value;
     const vendor = document.getElementById('tax-vendor')?.value;
     const imgInput = document.getElementById('tax-img-input');
-    
     if (!date || isNaN(amt) || !vendor) {
         await showAlert(currentLang==='BM'?"Sila isi semua maklumat!":"Please fill all information!");
         return;
     }
-    
     const processSave = (imgData) => {
         db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: imgData });
         save();
         renderTax();
         document.getElementById('tax-modal').classList.add('hidden');
-        resetTaxModal(); // Clear form after save
+        resetTaxModal();
         showAlert(currentLang==='BM'?"Rekod disimpan!":"Record saved!");
     };
-    
     if (imgInput && imgInput.files[0]) {
         const reader = new FileReader();
         reader.onload = (e) => processSave(e.target.result);
@@ -1052,7 +1044,6 @@ async function saveTaxRecord() {
         processSave('');
     }
 }
-
 function renderTax() { 
     const tbody = document.getElementById('tax-table-body'); 
     if(!tbody) return; 
