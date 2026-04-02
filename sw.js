@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bizpro-v17';
+const CACHE_NAME = 'bizpro-v18';
 const urlsToCache = [
   './',
   './index.html',
