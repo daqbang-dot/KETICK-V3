@@ -818,6 +818,11 @@ function setupSocialExtra() {
         }
     }
 
+    // Minta kebenaran notifikasi
+    if (Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+
     const socialBtns = document.querySelectorAll('a.flux-card');
     socialBtns.forEach(btn => {
         const span = btn.querySelector('span');
@@ -834,6 +839,7 @@ function setupSocialExtra() {
         }
     });
 }
+
 function addSchedule() {
     const platform = document.getElementById('sch-platform')?.value;
     const title = document.getElementById('sch-title')?.value;
@@ -848,6 +854,10 @@ function addSchedule() {
     }
     if (title && date && time) {
         const timestamp = new Date(`${date}T${time}`).getTime();
+        if (isNaN(timestamp) || timestamp <= Date.now()) {
+            showAlert(currentLang === 'BM' ? 'Tarikh dan masa mestilah pada masa hadapan.' : 'Date and time must be in the future.');
+            return;
+        }
         const scheduleItem = {
             id: Date.now(),
             platform,
@@ -862,27 +872,44 @@ function addSchedule() {
         db.sch.push(scheduleItem);
         save();
         renderSchedule();
-        if (timestamp > Date.now()) {
-            const delay = timestamp - Date.now();
-            setTimeout(() => {
-                if (!scheduleItem.notified) {
-                    scheduleItem.notified = true;
-                    save();
-                    if (Notification.permission === 'granted') {
-                        new Notification('📢 Peringatan Jadual Content', {
-                            body: `${scheduleItem.title} pada ${scheduleItem.date} ${scheduleItem.time}`,
-                            icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
-                        });
-                    } else {
-                        showAlert(`🔔 Peringatan: ${scheduleItem.title} pada ${scheduleItem.date} ${scheduleItem.time}`);
-                    }
+        
+        // Jadualkan notifikasi
+        const delay = timestamp - Date.now();
+        setTimeout(() => {
+            if (!scheduleItem.notified) {
+                scheduleItem.notified = true;
+                save();
+                // Peta platform ke URL
+                let platformUrl = '';
+                switch(platform) {
+                    case 'FB': platformUrl = 'https://www.facebook.com/'; break;
+                    case 'TT': platformUrl = 'https://www.tiktok.com/'; break;
+                    case 'IG': platformUrl = 'https://www.instagram.com/'; break;
+                    case 'TH': platformUrl = 'https://www.threads.net/'; break;
+                    default: platformUrl = 'https://www.facebook.com/';
                 }
-            }, delay);
-        }
+                if (Notification.permission === 'granted') {
+                    const notification = new Notification('📢 Masa untuk Post!', {
+                        body: `${scheduleItem.title}\nPlatform: ${scheduleItem.platform}`,
+                        icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+                    });
+                    notification.onclick = () => {
+                        window.open(platformUrl, '_blank');
+                        notification.close();
+                    };
+                } else {
+                    showAlert(`🔔 Peringatan: ${scheduleItem.title} pada ${scheduleItem.date} ${scheduleItem.time}\nSila post secara manual di ${scheduleItem.platform}.`);
+                }
+            }
+        }, delay);
+        
         if (fileInput) fileInput.value = '';
-        showAlert(currentLang === 'BM' ? 'Content dijadualkan!' : 'Content scheduled!');
+        showAlert(currentLang === 'BM' ? 'Content dijadualkan! Notifikasi akan dihantar pada masa yang ditetapkan.' : 'Content scheduled! Notification will be sent at the scheduled time.');
+    } else {
+        showAlert(currentLang === 'BM' ? 'Sila lengkapkan semua maklumat (platform, kapsyen, tarikh, masa).' : 'Please fill all fields (platform, caption, date, time).');
     }
 }
+
 function renderSchedule() {
     const container = document.getElementById('schedule-list');
     if (!container) return;
@@ -896,6 +923,7 @@ function renderSchedule() {
                 <h4 class="font-bold text-sm">${s.title}</h4>
                 <p class="text-[10px] text-gray-400 font-bold uppercase">${s.platform} | ${s.date} ${s.time}</p>
                 ${s.fileData ? `<p class="text-[8px] text-blue-500">📎 Fail ada</p>` : ''}
+                <p class="text-[8px] ${s.notified ? 'text-green-500' : 'text-orange-500'}">${s.notified ? '✅ Notified' : '⏳ Pending'}</p>
             </div>
             <button onclick="db.sch=db.sch.filter(x=>x.id!==${s.id});save();renderSchedule();" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button>
         </div>
