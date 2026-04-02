@@ -241,15 +241,14 @@
             </div>
 
             <div class="p-8 space-y-8">
-                <!-- Langkah 1: Install App -->
+                <!-- Langkah 1: Install App (DIUBAH) -->
                 <div class="border-l-4 border-green-500 pl-5">
                     <h3 class="text-2xl font-bold flex items-center gap-2"><i class="fas fa-download text-green-500"></i> Langkah 1: Install App</h3>
-                    <p class="text-gray-600 mt-2">Tekan butang di bawah, kemudian pilih <strong>"Add to Home Screen"</strong> atau <strong>"Install App"</strong> mengikut pelayar anda.</p>
+                    <p class="text-gray-600 mt-2">Tekan butang <strong>"Install App"</strong> di bawah. Sistem akan terbuka. Kemudian tekan ikon menu <i class="fas fa-bars"></i> (tiga garisan) di sudut kanan atas, dan pilih <strong>"Install App"</strong> untuk memasang ke homescreen telefon anda.</p>
                     <div class="mt-4 text-center">
                         <button id="installAppBtn" class="btn-install text-white px-8 py-3 rounded-full font-bold text-lg shadow-lg inline-flex items-center gap-2 hover:scale-105 transition">
-                            <i class="fas fa-mobile-alt"></i> Install App
+                            <i class="fas fa-mobile-alt"></i> Install App (Buka Sistem)
                         </button>
-                        <p class="text-xs text-gray-400 mt-2">*Selepas install, cari ikon BizPro di homescreen smartphone anda.</p>
                     </div>
                 </div>
 
@@ -325,7 +324,6 @@
             landingContent.style.display = 'none';
             setupSection.style.display = 'block';
             appBody.classList.add('show-setup');
-            // Tatal ke atas
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -347,7 +345,7 @@
         // Butang kembali ke landing
         if (backToLandingBtn) backToLandingBtn.addEventListener('click', showLanding);
 
-        // ---------- LOGIK SETUP (seperti setup.html) ----------
+        // ---------- LOGIK SETUP ----------
         let deviceId = localStorage.getItem('bizpro_device_id');
 
         function generateDeviceId() {
@@ -385,8 +383,9 @@
             }
         });
 
+        // BUTANG INSTALL APP - TERUS KE SISTEM
         installBtn.addEventListener('click', function() {
-            alert('📲 Cara Install App:\n\n1. Pada pelayar (Chrome/Safari), tekan ikon "Share" atau "Menu" (tiga titik).\n2. Pilih "Add to Home Screen" atau "Install App".\n3. Nama "BizPro v6" dan tekan "Add".\n\nSelepas itu, ikon BizPro akan muncul di homescreen telefon anda.');
+            window.location.href = SYSTEM_URL;
         });
 
         // Aktivasi
@@ -415,7 +414,6 @@
                 localStorage.setItem('bizpro_activated', 'true');
                 activationMessage.innerHTML = '<span class="text-green-600">✅ Aktivasi berjaya! Anda kini boleh melancarkan sistem.</span>';
                 checkActivationStatus();
-                // Optional: sembunyikan butang setup atau disable? Biarkan sahaja.
             } else {
                 activationMessage.innerHTML = '<span class="text-red-500">❌ Product Key tidak sah. Sila pastikan anda masukkan key yang betul dari provider.</span>';
             }
@@ -433,9 +431,6 @@
         // Initial UI
         updateDeviceIdUI();
         checkActivationStatus();
-
-        // Jika sudah diaktifkan, mungkin kita boleh terus tunjuk launch button, tapi biar user ke landing dulu.
-        // Optional: jika user datang dengan status activated, kita boleh paparkan button di landing juga? Biar mudah.
     </script>
 </body>
 </html>
