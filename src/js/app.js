@@ -277,7 +277,7 @@ async function loadModule(moduleName) {
         'autoreply': renderAR,
         'lhdn': () => { renderTax(); setupTaxModalReset(); },
         'history': () => { renderHistory(); setupHistoryExtra(); },
-        'report': () => { /* No specific render needed, but we can add if needed */ }
+        'report': () => { initReportModule(); }
     }[moduleName];
 
     if (renderFunc) {
@@ -378,7 +378,7 @@ const i18nDict = {
     'BM': {
         'welcome': 'Selamat Datang', 'enter-system': 'Masuk Sistem',
         'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventori', 'menu-crm': 'Pangkalan Data CRM', 'menu-bill': 'Pengebilan', 'menu-promo': 'Pengurus Kupon', 'menu-social': 'Pemasaran Sosial', 'menu-blast': 'Blast Pintar', 'menu-auto': 'Chatbox WhatsApp', 'menu-tax': 'Rekod Cukai LHDN', 'menu-hist': 'Sejarah',
-        'menu-report': 'Laporan', // BARU
+        'menu-report': 'Laporan',
         'btn-export': 'Eksport Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Stok Rendah (Ambang)',
         'dash-title': 'Ringkasan Niaga', 'dash-subtitle': 'Prestasi semasa anda hari ini.', 'dash-alert-stock': '⚠️ Stok Kritikal (≤ ambang)', 'lbl-rev-title': 'Revenue Terkini (Receipt)', 'btn-tax-record': 'REKOD CUKAI', 'lbl-rev-sub': 'Berdasarkan jualan yang telah dibayar (Receipt)', 'lbl-margin': 'Margin Keuntungan', 'lbl-exp': 'Belanja (Cukai)', 'lbl-stk': 'Jumlah Item Stok', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Jadual Kerja & Temujanji', 'btn-add-job': '+ Tambah Nota',
         'pos-cust-info': 'Maklumat Pelanggan', 'btn-use': 'GUNA', 'pos-cart': 'Keranjang', 'pos-total': 'Jumlah:', 'pos-discount': 'Diskaun Kupon:', 'pos-after-disc': 'Selepas Diskaun:', 'pos-cash': 'Tunai (RM):', 'pos-change': 'Baki:', 'btn-complete': 'Selesai', 'btn-clear': 'Kosong', 'btn-print': 'Cetak Resit',
@@ -398,7 +398,7 @@ const i18nDict = {
     'EN': {
         'welcome': 'Welcome', 'enter-system': 'Enter System',
         'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventory', 'menu-crm': 'CRM Database', 'menu-bill': 'Billing', 'menu-promo': 'Coupon Manager', 'menu-social': 'Social Marketing', 'menu-blast': 'Smart Blast', 'menu-auto': 'WhatsApp Chatbox', 'menu-tax': 'Tax Records', 'menu-hist': 'History',
-        'menu-report': 'Report', // BARU
+        'menu-report': 'Report',
         'btn-export': 'Export Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Low Stock Threshold',
         'dash-title': 'Business Summary', 'dash-subtitle': 'Your current performance today.', 'dash-alert-stock': '⚠️ Critical Stock (≤ threshold)', 'lbl-rev-title': 'Current Revenue (Receipt)', 'btn-tax-record': 'TAX RECORD', 'lbl-rev-sub': 'Based on paid sales (Receipt)', 'lbl-margin': 'Profit Margin', 'lbl-exp': 'Expenses (Tax)', 'lbl-stk': 'Total Stock Items', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Work Schedule & Appointments', 'btn-add-job': '+ Add Note',
         'pos-cust-info': 'Customer Information', 'btn-use': 'APPLY', 'pos-cart': 'Shopping Cart', 'pos-total': 'Total:', 'pos-discount': 'Coupon Discount:', 'pos-after-disc': 'After Discount:', 'pos-cash': 'Cash (RM):', 'pos-change': 'Change:', 'btn-complete': 'Complete', 'btn-clear': 'Clear', 'btn-print': 'Print Receipt',
@@ -606,7 +606,7 @@ function calcBilling() {
         if(item) { 
             const line = item.jual * qtys[idx].value; 
             sub += line; 
-            body.innerHTML += `<tr>
+            body.innerHTML += `<td>
                 <td class="p-5 font-bold text-gray-800">${item.name}<\/td>
                 <td class="p-5 text-center font-bold">${qtys[idx].value}<\/td>
                 <td class="p-5 text-right">RM ${item.jual.toFixed(2)}<\/td>
@@ -1162,6 +1162,77 @@ async function downloadDocument(hist) {
     const opt = { margin: 0.2, filename: `${hist.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; 
     await html2pdf().set(opt).from(tempDiv).save(); 
     document.body.removeChild(tempDiv); 
+}
+
+// ================== REPORT MODULE ==================
+function exportReport(type) {
+    if (typeof html2pdf === 'undefined') {
+        showAlert('Pustaka PDF tidak dimuatkan. Sila muat semula halaman.');
+        return;
+    }
+    
+    let title, headers, rows;
+    if (type === 'inventory') {
+        if (!db.inv.length) { showAlert('Tiada data inventori.'); return; }
+        title = 'Laporan Inventori';
+        headers = ['ID', 'Nama Produk', 'Kos (RM)', 'Harga Jual (RM)', 'Stok', 'Spesifikasi'];
+        rows = db.inv.map(item => [
+            item.id, item.name, item.kos, item.jual, item.qty,
+            (item.details || []).join('; ')
+        ]);
+    } else if (type === 'crm') {
+        if (!db.cli.length) { showAlert('Tiada data pelanggan.'); return; }
+        title = 'Laporan Pelanggan (CRM)';
+        headers = ['ID', 'Nama', 'Telefon', 'Alamat'];
+        rows = db.cli.map(c => [c.id, c.name, c.phone, c.addr]);
+    } else if (type === 'lhdn') {
+        if (!db.tax.length) { showAlert('Tiada rekod cukai.'); return; }
+        title = 'Laporan Cukai (LHDN)';
+        headers = ['Tarikh', 'Kategori', 'Vendor', 'Jumlah (RM)', 'Resit'];
+        rows = db.tax.map(t => [t.date, t.cat, t.vendor, t.amt, t.img ? 'Ada' : 'Tiada']);
+    } else {
+        return;
+    }
+
+    const html = `
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px;">
+            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;">${title}</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">Dijana pada: ${new Date().toLocaleString()}</p>
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead><tr style="background-color: #f3f4f6; border-bottom: 2px solid #ddd;">${headers.map(h => `<th style="padding: 8px; text-align: left; border: 1px solid #ddd;">${h}</th>`).join('')}<\/tr><\/thead>
+                <tbody>${rows.map(row => `<tr style="border-bottom: 1px solid #eee;">${row.map(cell => `<td style="padding: 8px; border: 1px solid #ddd;">${cell}<\/td>`).join('')}<\/tr>`).join('')}<\/tbody>
+            <\/table>
+        <\/div>
+    `;
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.innerHTML = html;
+    document.body.appendChild(tempDiv);
+    const opt = { margin: 0.5, filename: `${type}_report_${new Date().toISOString().slice(0,19)}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+    html2pdf().set(opt).from(tempDiv).save();
+    setTimeout(() => document.body.removeChild(tempDiv), 1000);
+    
+    // Update preview
+    const previewDiv = document.getElementById('report-preview');
+    if (previewDiv) {
+        previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,10).map(row => `<tr>${row.map(cell => `<td class="p-2 border-b">${cell}</td>`).join('')}</tr>`).join('')}</tbody><tr>`;
+    }
+}
+
+function initReportModule() {
+    const invBtn = document.getElementById('report-inventory-btn');
+    if (invBtn) {
+        invBtn.onclick = () => exportReport('inventory');
+    }
+    const crmBtn = document.getElementById('report-crm-btn');
+    if (crmBtn) {
+        crmBtn.onclick = () => exportReport('crm');
+    }
+    const lhdnBtn = document.getElementById('report-lhdn-btn');
+    if (lhdnBtn) {
+        lhdnBtn.onclick = () => exportReport('lhdn');
+    }
 }
 
 // ================== DRAWER & PWA ==================
