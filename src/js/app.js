@@ -984,37 +984,12 @@ async function saveAR() { const title = document.getElementById('ar-title')?.val
 function copyToClipboard(msg) { const text = decodeURIComponent(msg); navigator.clipboard.writeText(text).then(async () => { await showAlert(currentLang==='BM'?"Template disalin ke papan klip!":"Template copied to clipboard!"); }); }
 async function deleteAR(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam template?":"Delete template?"); if(confirmed) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
 
-// ================== LHDN TAX (FIXED + DOWNLOAD REPORT) ==================
-function exportTaxReport() {
-    if (db.tax.length === 0) {
-        showAlert(currentLang === 'BM' ? 'Tiada rekod cukai untuk dieksport.' : 'No tax records to export.');
-        return;
-    }
-    // Sediakan data CSV
-    const headers = ['Tarikh', 'Kategori', 'Vendor', 'Jumlah (RM)', 'Resit (URL)'];
-    const rows = db.tax.map(t => [
-        t.date,
-        t.cat,
-        t.vendor,
-        t.amt.toFixed(2),
-        t.img ? 'Ada' : 'Tiada'
-    ]);
-    const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.setAttribute('download', `tax_report_${new Date().toISOString().slice(0,19)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-    showAlert(currentLang === 'BM' ? 'Laporan CSV dimuat turun.' : 'CSV report downloaded.');
-}
-
+// ================== LHDN TAX (FIXED) ==================
+// Function to reset tax modal fields
 function resetTaxModal() {
     const modal = document.getElementById('tax-modal');
     if (!modal) return;
+    // Reset all input fields
     const dateInput = document.getElementById('tax-date');
     if (dateInput) dateInput.value = '';
     const amountInput = document.getElementById('tax-amount');
@@ -1029,14 +1004,18 @@ function resetTaxModal() {
     if (imgStatus) imgStatus.innerText = t('tax-upload');
 }
 
+// Ensure modal resets when opened
 function setupTaxModalReset() {
     const openModalBtn = document.querySelector('#lhdn-section .bg-orange-600');
     if (openModalBtn) {
+        // Remove existing listener to avoid duplicates
         openModalBtn.removeEventListener('click', resetTaxModal);
         openModalBtn.addEventListener('click', () => {
+            // Small delay to ensure modal is shown after reset
             setTimeout(resetTaxModal, 50);
         });
     }
+    // Also reset when modal is closed via close button
     const closeModalBtn = document.querySelector('#tax-modal button[onclick*="hidden"]');
     if (closeModalBtn) {
         closeModalBtn.removeEventListener('click', resetTaxModal);
@@ -1061,7 +1040,7 @@ async function saveTaxRecord() {
         save();
         renderTax();
         document.getElementById('tax-modal').classList.add('hidden');
-        resetTaxModal();
+        resetTaxModal(); // Clear form after save
         showAlert(currentLang==='BM'?"Rekod disimpan!":"Record saved!");
     };
     
@@ -1095,17 +1074,6 @@ function renderTax() {
     document.getElementById('tax-receipt-count').innerText = db.tax.length; 
     const topCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b, '-'); 
     document.getElementById('tax-top-cat').innerText = topCat; 
-
-    // Tambah butang download report jika belum ada
-    const container = document.querySelector('#lhdn-section .flex.justify-between');
-    if (container && !document.getElementById('tax-download-btn')) {
-        const downloadBtn = document.createElement('button');
-        downloadBtn.id = 'tax-download-btn';
-        downloadBtn.className = 'bg-green-600 text-white px-6 py-2 rounded-2xl font-bold ml-2';
-        downloadBtn.innerHTML = '<i class="fas fa-download mr-1"></i> Download Report';
-        downloadBtn.onclick = exportTaxReport;
-        container.appendChild(downloadBtn);
-    }
 }
 async function deleteTax(id) { 
     const confirmed = await showConfirm(currentLang==='BM'?"Padam rekod ini?":"Delete this record?"); 
