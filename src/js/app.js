@@ -817,12 +817,10 @@ function setupSocialExtra() {
             parent.appendChild(iconSpan);
         }
     }
-
     // Minta kebenaran notifikasi
     if (Notification.permission === 'default') {
         Notification.requestPermission();
     }
-
     const socialBtns = document.querySelectorAll('a.flux-card');
     socialBtns.forEach(btn => {
         const span = btn.querySelector('span');
@@ -879,7 +877,6 @@ function addSchedule() {
             if (!scheduleItem.notified) {
                 scheduleItem.notified = true;
                 save();
-                // Peta platform ke URL
                 let platformUrl = '';
                 switch(platform) {
                     case 'FB': platformUrl = 'https://www.facebook.com/'; break;
