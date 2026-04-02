@@ -3,181 +3,28 @@
     <p class="text-gray-500 mb-8" data-i18n="report-subtitle">Pilih jenis laporan dan muat turun dalam format PDF.</p>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-        <!-- Inventory Report Card -->
         <div class="flux-card p-6 hover:shadow-lg transition">
-            <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mb-4">
-                <i class="fas fa-boxes text-amber-600 text-xl"></i>
-            </div>
+            <div class="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-boxes text-amber-600 text-xl"></i></div>
             <h3 class="font-bold text-xl mb-2" data-i18n="report-inv-title">Laporan Inventori</h3>
             <p class="text-gray-500 text-sm mb-4" data-i18n="report-inv-desc">Senarai semua produk, kuantiti, harga kos & jualan.</p>
-            <button id="report-inventory-btn" class="w-full bg-amber-500 text-white py-2 rounded-xl font-bold hover:bg-amber-600 transition">
-                <i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn-download">Muat Turun PDF</span>
-            </button>
+            <button id="report-inventory-btn" class="w-full bg-amber-500 text-white py-2 rounded-xl font-bold hover:bg-amber-600 transition"><i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn-download">Muat Turun PDF</span></button>
         </div>
-
-        <!-- CRM Report Card -->
         <div class="flux-card p-6 hover:shadow-lg transition">
-            <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center mb-4">
-                <i class="fas fa-user-friends text-indigo-600 text-xl"></i>
-            </div>
+            <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-user-friends text-indigo-600 text-xl"></i></div>
             <h3 class="font-bold text-xl mb-2" data-i18n="report-crm-title">Laporan Pelanggan (CRM)</h3>
             <p class="text-gray-500 text-sm mb-4" data-i18n="report-crm-desc">Senarai pelanggan, nombor telefon, dan alamat.</p>
-            <button id="report-crm-btn" class="w-full bg-indigo-500 text-white py-2 rounded-xl font-bold hover:bg-indigo-600 transition">
-                <i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn-download">Muat Turun PDF</span>
-            </button>
+            <button id="report-crm-btn" class="w-full bg-indigo-500 text-white py-2 rounded-xl font-bold hover:bg-indigo-600 transition"><i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn-download">Muat Turun PDF</span></button>
         </div>
-
-        <!-- LHDN Report Card -->
         <div class="flux-card p-6 hover:shadow-lg transition">
-            <div class="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center mb-4">
-                <i class="fas fa-file-invoice-dollar text-orange-600 text-xl"></i>
-            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-file-invoice-dollar text-orange-600 text-xl"></i></div>
             <h3 class="font-bold text-xl mb-2" data-i18n="report-lhdn-title">Laporan Cukai (LHDN)</h3>
             <p class="text-gray-500 text-sm mb-4" data-i18n="report-lhdn-desc">Rekod perbelanjaan, kategori, vendor, dan jumlah.</p>
-            <button id="report-lhdn-btn" class="w-full bg-orange-500 text-white py-2 rounded-xl font-bold hover:bg-orange-600 transition">
-                <i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn-download">Muat Turun PDF</span>
-            </button>
+            <button id="report-lhdn-btn" class="w-full bg-orange-500 text-white py-2 rounded-xl font-bold hover:bg-orange-600 transition"><i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn-download">Muat Turun PDF</span></button>
         </div>
     </div>
 
-    <!-- Preview ringkas -->
     <div class="flux-card p-6">
         <h3 class="font-bold text-lg mb-4" data-i18n="report-preview">Pratonton Data (10 rekod terakhir)</h3>
-        <div id="report-preview" class="overflow-x-auto">
-            <p class="text-gray-400 text-center py-8">Pilih jenis laporan untuk pratonton.</p>
-        </div>
+        <div id="report-preview" class="overflow-x-auto"><p class="text-gray-400 text-center py-8">Pilih jenis laporan untuk pratonton.</p></div>
     </div>
 </div>
-
-<script>
-    (function() {
-        // Semak sama ada html2pdf wujud
-        if (typeof html2pdf === 'undefined') {
-            console.error('html2pdf tidak dimuatkan. Sila semak sambungan internet.');
-            showAlert('Pustaka PDF tidak dimuatkan. Sila muat semula halaman.');
-            return;
-        }
-
-        function exportToPDF(element, filename) {
-            const opt = {
-                margin: 0.5,
-                filename: filename,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, letterRendering: true },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
-        }
-
-        function buildReportHTML(title, headers, rows) {
-            return `
-                <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px;">
-                    <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;">${title}</h1>
-                    <p style="text-align: center; color: #666; margin-bottom: 20px;">Dijana pada: ${new Date().toLocaleString()}</p>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                        <thead>
-                            <tr style="background-color: #f3f4f6; border-bottom: 2px solid #ddd;">
-                                ${headers.map(h => `<th style="padding: 8px; text-align: left; border: 1px solid #ddd;">${h}</th>`).join('')}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows.map(row => `
-                                <tr style="border-bottom: 1px solid #eee;">
-                                    ${row.map(cell => `<td style="padding: 8px; border: 1px solid #ddd;">${cell === undefined ? '' : cell}<\/td>`).join('')}
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-        }
-
-        // Inventory report
-        document.getElementById('report-inventory-btn').addEventListener('click', () => {
-            if (!db.inv.length) {
-                showAlert(currentLang === 'BM' ? 'Tiada data inventori untuk dilaporkan.' : 'No inventory data to report.');
-                return;
-            }
-            const data = db.inv.map(item => ({
-                'ID': item.id,
-                'Nama Produk': item.name,
-                'Kos (RM)': item.kos,
-                'Harga Jual (RM)': item.jual,
-                'Stok': item.qty,
-                'Spesifikasi': (item.details || []).join('; ')
-            }));
-            const headers = ['ID', 'Nama Produk', 'Kos (RM)', 'Harga Jual (RM)', 'Stok', 'Spesifikasi'];
-            const rows = data.map(d => [d.ID, d['Nama Produk'], d['Kos (RM)'], d['Harga Jual (RM)'], d.Stok, d.Spesifikasi]);
-            const html = buildReportHTML('Laporan Inventori', headers, rows);
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            tempDiv.innerHTML = html;
-            document.body.appendChild(tempDiv);
-            setTimeout(() => {
-                exportToPDF(tempDiv, `inventory_report_${new Date().toISOString().slice(0,19)}.pdf`);
-                setTimeout(() => document.body.removeChild(tempDiv), 500);
-            }, 100);
-            // Update preview
-            const previewDiv = document.getElementById('report-preview');
-            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-        });
-
-        // CRM report
-        document.getElementById('report-crm-btn').addEventListener('click', () => {
-            if (!db.cli.length) {
-                showAlert(currentLang === 'BM' ? 'Tiada data pelanggan untuk dilaporkan.' : 'No customer data to report.');
-                return;
-            }
-            const data = db.cli.map(c => ({
-                'ID': c.id,
-                'Nama': c.name,
-                'Telefon': c.phone,
-                'Alamat': c.addr
-            }));
-            const headers = ['ID', 'Nama', 'Telefon', 'Alamat'];
-            const rows = data.map(d => [d.ID, d.Nama, d.Telefon, d.Alamat]);
-            const html = buildReportHTML('Laporan Pelanggan (CRM)', headers, rows);
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            tempDiv.innerHTML = html;
-            document.body.appendChild(tempDiv);
-            setTimeout(() => {
-                exportToPDF(tempDiv, `crm_report_${new Date().toISOString().slice(0,19)}.pdf`);
-                setTimeout(() => document.body.removeChild(tempDiv), 500);
-            }, 100);
-            const previewDiv = document.getElementById('report-preview');
-            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-        });
-
-        // LHDN report
-        document.getElementById('report-lhdn-btn').addEventListener('click', () => {
-            if (!db.tax.length) {
-                showAlert(currentLang === 'BM' ? 'Tiada rekod cukai untuk dilaporkan.' : 'No tax records to report.');
-                return;
-            }
-            const data = db.tax.map(t => ({
-                'Tarikh': t.date,
-                'Kategori': t.cat,
-                'Vendor': t.vendor,
-                'Jumlah (RM)': t.amt,
-                'Resit': t.img ? 'Ada' : 'Tiada'
-            }));
-            const headers = ['Tarikh', 'Kategori', 'Vendor', 'Jumlah (RM)', 'Resit'];
-            const rows = data.map(d => [d.Tarikh, d.Kategori, d.Vendor, d['Jumlah (RM)'], d.Resit]);
-            const html = buildReportHTML('Laporan Cukai (LHDN)', headers, rows);
-            const tempDiv = document.createElement('div');
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
-            tempDiv.innerHTML = html;
-            document.body.appendChild(tempDiv);
-            setTimeout(() => {
-                exportToPDF(tempDiv, `lhdn_report_${new Date().toISOString().slice(0,19)}.pdf`);
-                setTimeout(() => document.body.removeChild(tempDiv), 500);
-            }, 100);
-            const previewDiv = document.getElementById('report-preview');
-            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-        });
-    })();
-</script>
