@@ -275,7 +275,7 @@ async function loadModule(moduleName) {
         'social': () => { renderSchedule(); setupSocialExtra(); },
         'blast': () => { renderBlastClientList(); setupBlastExtra(); },
         'autoreply': renderAR,
-        'lhdn': renderTax,
+        'lhdn': () => { renderTax(); setupTaxModalReset(); },
         'history': () => { renderHistory(); setupHistoryExtra(); }
     }[moduleName];
 
@@ -833,7 +833,6 @@ function setupSocialExtra() {
         }
     }
 
-    // Betulkan pemilih: cari semua <a> dengan kelas "flux-card"
     const socialBtns = document.querySelectorAll('a.flux-card');
     socialBtns.forEach(btn => {
         const span = btn.querySelector('span');
@@ -935,7 +934,6 @@ function setupBlastExtra() {
             }
         };
     }
-    // Tambah butang ambil template jika belum
     const container = document.querySelector('.flux-card.p-6:first-of-type');
     if (container && !document.getElementById('template-selector')) {
         const btn = document.createElement('button');
@@ -986,8 +984,75 @@ async function saveAR() { const title = document.getElementById('ar-title')?.val
 function copyToClipboard(msg) { const text = decodeURIComponent(msg); navigator.clipboard.writeText(text).then(async () => { await showAlert(currentLang==='BM'?"Template disalin ke papan klip!":"Template copied to clipboard!"); }); }
 async function deleteAR(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam template?":"Delete template?"); if(confirmed) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
 
-// ================== LHDN TAX ==================
-async function saveTaxRecord() { const date = document.getElementById('tax-date')?.value, amt = parseFloat(document.getElementById('tax-amount')?.value), cat = document.getElementById('tax-category')?.value, vendor = document.getElementById('tax-vendor')?.value, imgInput = document.getElementById('tax-img-input'); if(!date || isNaN(amt) || !vendor) return await showAlert(currentLang==='BM'?"Sila isi semua maklumat!":"Please fill all information!"); const processSave = (imgData) => { db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: imgData }); save(); renderTax(); document.getElementById('tax-modal').classList.add('hidden'); }; if(imgInput.files[0]) { const reader = new FileReader(); reader.onload = (e) => processSave(e.target.result); reader.readAsDataURL(imgInput.files[0]); } else { processSave(''); } }
+// ================== LHDN TAX (FIXED) ==================
+// Function to reset tax modal fields
+function resetTaxModal() {
+    const modal = document.getElementById('tax-modal');
+    if (!modal) return;
+    // Reset all input fields
+    const dateInput = document.getElementById('tax-date');
+    if (dateInput) dateInput.value = '';
+    const amountInput = document.getElementById('tax-amount');
+    if (amountInput) amountInput.value = '';
+    const categorySelect = document.getElementById('tax-category');
+    if (categorySelect) categorySelect.selectedIndex = 0;
+    const vendorInput = document.getElementById('tax-vendor');
+    if (vendorInput) vendorInput.value = '';
+    const imgInput = document.getElementById('tax-img-input');
+    if (imgInput) imgInput.value = '';
+    const imgStatus = document.getElementById('tax-img-status');
+    if (imgStatus) imgStatus.innerText = t('tax-upload');
+}
+
+// Ensure modal resets when opened
+function setupTaxModalReset() {
+    const openModalBtn = document.querySelector('#lhdn-section .bg-orange-600');
+    if (openModalBtn) {
+        // Remove existing listener to avoid duplicates
+        openModalBtn.removeEventListener('click', resetTaxModal);
+        openModalBtn.addEventListener('click', () => {
+            // Small delay to ensure modal is shown after reset
+            setTimeout(resetTaxModal, 50);
+        });
+    }
+    // Also reset when modal is closed via close button
+    const closeModalBtn = document.querySelector('#tax-modal button[onclick*="hidden"]');
+    if (closeModalBtn) {
+        closeModalBtn.removeEventListener('click', resetTaxModal);
+        closeModalBtn.addEventListener('click', resetTaxModal);
+    }
+}
+
+async function saveTaxRecord() {
+    const date = document.getElementById('tax-date')?.value;
+    const amt = parseFloat(document.getElementById('tax-amount')?.value);
+    const cat = document.getElementById('tax-category')?.value;
+    const vendor = document.getElementById('tax-vendor')?.value;
+    const imgInput = document.getElementById('tax-img-input');
+    
+    if (!date || isNaN(amt) || !vendor) {
+        await showAlert(currentLang==='BM'?"Sila isi semua maklumat!":"Please fill all information!");
+        return;
+    }
+    
+    const processSave = (imgData) => {
+        db.tax.push({ id: Date.now(), date, amt, cat, vendor, img: imgData });
+        save();
+        renderTax();
+        document.getElementById('tax-modal').classList.add('hidden');
+        resetTaxModal(); // Clear form after save
+        showAlert(currentLang==='BM'?"Rekod disimpan!":"Record saved!");
+    };
+    
+    if (imgInput && imgInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => processSave(e.target.result);
+        reader.readAsDataURL(imgInput.files[0]);
+    } else {
+        processSave('');
+    }
+}
+
 function renderTax() { 
     const tbody = document.getElementById('tax-table-body'); 
     if(!tbody) return; 
@@ -1004,13 +1069,20 @@ function renderTax() {
             <td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}<\/td>
             <td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button><\/td>
          <\/tr>`; 
-    }).join('') || `|<td colspan="6" class="p-10 text-center text-gray-400 font-bold">${t('Tiada rekod perbelanjaan.')}<\/td>`; 
+    }).join('') || `<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">${t('Tiada rekod perbelanjaan.')}<\/td><\/tr>`; 
     document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`; 
     document.getElementById('tax-receipt-count').innerText = db.tax.length; 
     const topCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b, '-'); 
     document.getElementById('tax-top-cat').innerText = topCat; 
 }
-async function deleteTax(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam rekod ini?":"Delete this record?"); if(confirmed) { db.tax = db.tax.filter(t => t.id !== id); save(); renderTax(); } }
+async function deleteTax(id) { 
+    const confirmed = await showConfirm(currentLang==='BM'?"Padam rekod ini?":"Delete this record?"); 
+    if(confirmed) { 
+        db.tax = db.tax.filter(t => t.id !== id); 
+        save(); 
+        renderTax(); 
+    } 
+}
 
 // ================== HISTORY ==================
 function setupHistoryExtra() {
