@@ -1,6 +1,6 @@
 <div class="max-w-6xl mx-auto">
     <h2 class="text-3xl font-black mb-6" data-i18n="report-title">Laporan Sistem</h2>
-    <p class="text-gray-500 mb-8" data-i18n="report-subtitle">Pilih jenis laporan dan muat turun dalam format CSV.</p>
+    <p class="text-gray-500 mb-8" data-i18n="report-subtitle">Pilih jenis laporan dan muat turun dalam format PDF.</p>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         <!-- Inventory Report Card -->
@@ -11,7 +11,7 @@
             <h3 class="font-bold text-xl mb-2" data-i18n="report-inv-title">Laporan Inventori</h3>
             <p class="text-gray-500 text-sm mb-4" data-i18n="report-inv-desc">Senarai semua produk, kuantiti, harga kos & jualan.</p>
             <button id="report-inventory-btn" class="w-full bg-amber-500 text-white py-2 rounded-xl font-bold hover:bg-amber-600 transition">
-                <i class="fas fa-download mr-2"></i> <span data-i18n="btn-download">Muat Turun CSV</span>
+                <i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn-download">Muat Turun PDF</span>
             </button>
         </div>
 
@@ -23,7 +23,7 @@
             <h3 class="font-bold text-xl mb-2" data-i18n="report-crm-title">Laporan Pelanggan (CRM)</h3>
             <p class="text-gray-500 text-sm mb-4" data-i18n="report-crm-desc">Senarai pelanggan, nombor telefon, dan alamat.</p>
             <button id="report-crm-btn" class="w-full bg-indigo-500 text-white py-2 rounded-xl font-bold hover:bg-indigo-600 transition">
-                <i class="fas fa-download mr-2"></i> <span data-i18n="btn-download">Muat Turun CSV</span>
+                <i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn-download">Muat Turun PDF</span>
             </button>
         </div>
 
@@ -35,12 +35,12 @@
             <h3 class="font-bold text-xl mb-2" data-i18n="report-lhdn-title">Laporan Cukai (LHDN)</h3>
             <p class="text-gray-500 text-sm mb-4" data-i18n="report-lhdn-desc">Rekod perbelanjaan, kategori, vendor, dan jumlah.</p>
             <button id="report-lhdn-btn" class="w-full bg-orange-500 text-white py-2 rounded-xl font-bold hover:bg-orange-600 transition">
-                <i class="fas fa-download mr-2"></i> <span data-i18n="btn-download">Muat Turun CSV</span>
+                <i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn-download">Muat Turun PDF</span>
             </button>
         </div>
     </div>
 
-    <!-- Preview ringkas (optional) -->
+    <!-- Preview ringkas -->
     <div class="flux-card p-6">
         <h3 class="font-bold text-lg mb-4" data-i18n="report-preview">Pratonton Data (10 rekod terakhir)</h3>
         <div id="report-preview" class="overflow-x-auto">
@@ -51,25 +51,40 @@
 
 <script>
     (function() {
-        // Fungsi untuk eksport CSV
-        function exportToCSV(data, filename) {
-            if (!data || data.length === 0) {
-                showAlert(currentLang === 'BM' ? 'Tiada data untuk dieksport.' : 'No data to export.');
-                return;
-            }
-            const headers = Object.keys(data[0]);
-            const rows = data.map(row => headers.map(h => JSON.stringify(row[h] || '').replace(/,/g, ';')).join(','));
-            const csvContent = [headers.join(','), ...rows].join('\n');
-            const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.href = url;
-            link.setAttribute('download', `${filename}_${new Date().toISOString().slice(0,19)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            showAlert(currentLang === 'BM' ? 'Laporan dimuat turun.' : 'Report downloaded.');
+        // Fungsi eksport ke PDF menggunakan html2pdf
+        function exportToPDF(element, filename) {
+            const opt = {
+                margin: 0.5,
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, letterRendering: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Bina HTML untuk laporan
+        function buildReportHTML(title, headers, rows) {
+            return `
+                <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px;">
+                    <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;">${title}</h1>
+                    <p style="text-align: center; color: #666; margin-bottom: 20px;">Dijana pada: ${new Date().toLocaleString()}</p>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                        <thead>
+                            <tr style="background-color: #f3f4f6; border-bottom: 2px solid #ddd;">
+                                ${headers.map(h => `<th style="padding: 8px; text-align: left; border: 1px solid #ddd;">${h}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows.map(row => `
+                                <tr style="border-bottom: 1px solid #eee;">
+                                    ${row.map(cell => `<td style="padding: 8px; border: 1px solid #ddd;">${cell}</td>`).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
         }
 
         // Inventory report
@@ -82,10 +97,17 @@
                 'Stok': item.qty,
                 'Spesifikasi': (item.details || []).join('; ')
             }));
-            exportToCSV(data, 'inventory_report');
-            // Preview
+            const headers = ['ID', 'Nama Produk', 'Kos (RM)', 'Harga Jual (RM)', 'Stok', 'Spesifikasi'];
+            const rows = data.map(d => [d.ID, d['Nama Produk'], d['Kos (RM)'], d['Harga Jual (RM)'], d.Stok, d.Spesifikasi]);
+            const html = buildReportHTML('Laporan Inventori', headers, rows);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            document.body.appendChild(tempDiv);
+            exportToPDF(tempDiv, `inventory_report_${new Date().toISOString().slice(0,19)}.pdf`);
+            setTimeout(() => document.body.removeChild(tempDiv), 100);
+            // Update preview
             const previewDiv = document.getElementById('report-preview');
-            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${Object.keys(data[0] || {}).map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></td>`;
         });
 
         // CRM report
@@ -96,9 +118,16 @@
                 'Telefon': c.phone,
                 'Alamat': c.addr
             }));
-            exportToCSV(data, 'crm_report');
+            const headers = ['ID', 'Nama', 'Telefon', 'Alamat'];
+            const rows = data.map(d => [d.ID, d.Nama, d.Telefon, d.Alamat]);
+            const html = buildReportHTML('Laporan Pelanggan (CRM)', headers, rows);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            document.body.appendChild(tempDiv);
+            exportToPDF(tempDiv, `crm_report_${new Date().toISOString().slice(0,19)}.pdf`);
+            setTimeout(() => document.body.removeChild(tempDiv), 100);
             const previewDiv = document.getElementById('report-preview');
-            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${Object.keys(data[0] || {}).map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
         });
 
         // LHDN report
@@ -110,9 +139,16 @@
                 'Jumlah (RM)': t.amt,
                 'Resit': t.img ? 'Ada' : 'Tiada'
             }));
-            exportToCSV(data, 'lhdn_report');
+            const headers = ['Tarikh', 'Kategori', 'Vendor', 'Jumlah (RM)', 'Resit'];
+            const rows = data.map(d => [d.Tarikh, d.Kategori, d.Vendor, d['Jumlah (RM)'], d.Resit]);
+            const html = buildReportHTML('Laporan Cukai (LHDN)', headers, rows);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            document.body.appendChild(tempDiv);
+            exportToPDF(tempDiv, `lhdn_report_${new Date().toISOString().slice(0,19)}.pdf`);
+            setTimeout(() => document.body.removeChild(tempDiv), 100);
             const previewDiv = document.getElementById('report-preview');
-            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${Object.keys(data[0] || {}).map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
         });
     })();
 </script>
