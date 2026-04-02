@@ -51,7 +51,13 @@
 
 <script>
     (function() {
-        // Fungsi eksport ke PDF menggunakan html2pdf
+        // Semak sama ada html2pdf wujud
+        if (typeof html2pdf === 'undefined') {
+            console.error('html2pdf tidak dimuatkan. Sila semak sambungan internet.');
+            showAlert('Pustaka PDF tidak dimuatkan. Sila muat semula halaman.');
+            return;
+        }
+
         function exportToPDF(element, filename) {
             const opt = {
                 margin: 0.5,
@@ -63,7 +69,6 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        // Bina HTML untuk laporan
         function buildReportHTML(title, headers, rows) {
             return `
                 <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px;">
@@ -78,7 +83,7 @@
                         <tbody>
                             ${rows.map(row => `
                                 <tr style="border-bottom: 1px solid #eee;">
-                                    ${row.map(cell => `<td style="padding: 8px; border: 1px solid #ddd;">${cell}</td>`).join('')}
+                                    ${row.map(cell => `<td style="padding: 8px; border: 1px solid #ddd;">${cell === undefined ? '' : cell}<\/td>`).join('')}
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -89,6 +94,10 @@
 
         // Inventory report
         document.getElementById('report-inventory-btn').addEventListener('click', () => {
+            if (!db.inv.length) {
+                showAlert(currentLang === 'BM' ? 'Tiada data inventori untuk dilaporkan.' : 'No inventory data to report.');
+                return;
+            }
             const data = db.inv.map(item => ({
                 'ID': item.id,
                 'Nama Produk': item.name,
@@ -101,17 +110,25 @@
             const rows = data.map(d => [d.ID, d['Nama Produk'], d['Kos (RM)'], d['Harga Jual (RM)'], d.Stok, d.Spesifikasi]);
             const html = buildReportHTML('Laporan Inventori', headers, rows);
             const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
             tempDiv.innerHTML = html;
             document.body.appendChild(tempDiv);
-            exportToPDF(tempDiv, `inventory_report_${new Date().toISOString().slice(0,19)}.pdf`);
-            setTimeout(() => document.body.removeChild(tempDiv), 100);
+            setTimeout(() => {
+                exportToPDF(tempDiv, `inventory_report_${new Date().toISOString().slice(0,19)}.pdf`);
+                setTimeout(() => document.body.removeChild(tempDiv), 500);
+            }, 100);
             // Update preview
             const previewDiv = document.getElementById('report-preview');
-            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></td>`;
+            previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
         });
 
         // CRM report
         document.getElementById('report-crm-btn').addEventListener('click', () => {
+            if (!db.cli.length) {
+                showAlert(currentLang === 'BM' ? 'Tiada data pelanggan untuk dilaporkan.' : 'No customer data to report.');
+                return;
+            }
             const data = db.cli.map(c => ({
                 'ID': c.id,
                 'Nama': c.name,
@@ -122,16 +139,24 @@
             const rows = data.map(d => [d.ID, d.Nama, d.Telefon, d.Alamat]);
             const html = buildReportHTML('Laporan Pelanggan (CRM)', headers, rows);
             const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
             tempDiv.innerHTML = html;
             document.body.appendChild(tempDiv);
-            exportToPDF(tempDiv, `crm_report_${new Date().toISOString().slice(0,19)}.pdf`);
-            setTimeout(() => document.body.removeChild(tempDiv), 100);
+            setTimeout(() => {
+                exportToPDF(tempDiv, `crm_report_${new Date().toISOString().slice(0,19)}.pdf`);
+                setTimeout(() => document.body.removeChild(tempDiv), 500);
+            }, 100);
             const previewDiv = document.getElementById('report-preview');
             previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
         });
 
         // LHDN report
         document.getElementById('report-lhdn-btn').addEventListener('click', () => {
+            if (!db.tax.length) {
+                showAlert(currentLang === 'BM' ? 'Tiada rekod cukai untuk dilaporkan.' : 'No tax records to report.');
+                return;
+            }
             const data = db.tax.map(t => ({
                 'Tarikh': t.date,
                 'Kategori': t.cat,
@@ -143,10 +168,14 @@
             const rows = data.map(d => [d.Tarikh, d.Kategori, d.Vendor, d['Jumlah (RM)'], d.Resit]);
             const html = buildReportHTML('Laporan Cukai (LHDN)', headers, rows);
             const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
             tempDiv.innerHTML = html;
             document.body.appendChild(tempDiv);
-            exportToPDF(tempDiv, `lhdn_report_${new Date().toISOString().slice(0,19)}.pdf`);
-            setTimeout(() => document.body.removeChild(tempDiv), 100);
+            setTimeout(() => {
+                exportToPDF(tempDiv, `lhdn_report_${new Date().toISOString().slice(0,19)}.pdf`);
+                setTimeout(() => document.body.removeChild(tempDiv), 500);
+            }, 100);
             const previewDiv = document.getElementById('report-preview');
             previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${data.slice(0,10).map(row => `<tr>${Object.values(row).map(v => `<td class="p-2 border-b">${v}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
         });
