@@ -1,8 +1,3 @@
-// ================== DEBUG VISUAL (disabled) ==================
-function debugLog(msg) {
-    // Optional: biarkan log di konsol jika masih diperlukan
-    // console.log(msg);
-}
 // ================== DATA & STORAGE ==================
 let db = {
     inv: JSON.parse(localStorage.getItem('f6_inv')) || [],
@@ -19,9 +14,9 @@ let db = {
     lowStockThreshold: parseInt(localStorage.getItem('lowStockThreshold')) || 5
 };
 
-// Jika tiada data contoh, tambah data demo untuk tujuan ujian (anda boleh padam jika tidak mahu)
+// TAMBAH DATA CONTOH JIKA KOSONG (untuk ujian report)
 if (db.inv.length === 0) {
-    db.inv.push({ id: Date.now(), name: 'Produk Demo 1', kos: 10, jual: 20, qty: 100, details: [], img: '', showDetails: true, salesCount: 0 });
+    db.inv.push({ id: Date.now(), name: 'Produk Demo 1', kos: 10, jual: 20, qty: 100, details: ['Spesifikasi A'], img: '', showDetails: true, salesCount: 0 });
     db.inv.push({ id: Date.now()+1, name: 'Produk Demo 2', kos: 15, jual: 30, qty: 50, details: [], img: '', showDetails: true, salesCount: 0 });
     localStorage.setItem('f6_inv', JSON.stringify(db.inv));
 }
@@ -189,7 +184,6 @@ function showActivationModal() {
             input.addEventListener('keypress', (e) => { if (e.key === 'Enter') doActivate(); });
             modal.addEventListener('click', (e) => { if (e.target === modal) cancelBtn.onclick(); });
         } catch (err) {
-            debugLog('Modal error: ' + err);
             alert('Gagal memaparkan modal. Guna prompt asli.');
             const key = prompt('Masukkan kunci aktivasi:');
             if (key) {
@@ -240,39 +234,26 @@ setupHistoryNavigation();
 let currentModule = 'dashboard';
 
 async function loadModule(moduleName) {
-    debugLog('loadModule called: ' + moduleName);
-
     if (!isActivated()) {
-        debugLog('Not activated, showing activation modal first');
         const activated = await showActivationModal();
-        if (!activated) {
-            debugLog('Activation failed or cancelled, abort module load');
-            return;
-        }
-        debugLog('Activation successful, proceeding to load module');
+        if (!activated) return;
     }
 
     document.getElementById('reviewModal')?.classList.add('hidden');
     document.getElementById('tax-modal')?.classList.add('hidden');
 
     const appContent = document.getElementById('app-content');
-    if (!appContent) {
-        debugLog('app-content not found');
-        return;
-    }
+    if (!appContent) return;
 
     try {
         const response = await fetch(`src/modules/${moduleName}/${moduleName}.html`);
         if (!response.ok) {
-            debugLog(`Failed to load module: ${moduleName} (HTTP ${response.status})`);
             alert(`Gagal memuat modul: ${moduleName}. Pastikan fail wujud di src/modules/${moduleName}/${moduleName}.html`);
             return;
         }
         const html = await response.text();
         appContent.innerHTML = html;
-        debugLog('Module loaded: ' + moduleName);
     } catch (err) {
-        debugLog('Fetch error: ' + err);
         alert('Ralat memuat modul: ' + err);
         return;
     }
@@ -295,10 +276,7 @@ async function loadModule(moduleName) {
         'report': () => { initReportModule(); }
     }[moduleName];
 
-    if (renderFunc) {
-        debugLog('Calling render function for ' + moduleName);
-        renderFunc();
-    }
+    if (renderFunc) renderFunc();
 
     logActivity('module_view', { module: moduleName });
 
@@ -313,35 +291,26 @@ async function loadModule(moduleName) {
 }
 
 function enterSystem() {
-    debugLog('enterSystem called');
     document.getElementById('login-overlay').classList.add('hidden');
     setupAdminGesture();
 
     if (!isActivated()) {
-        debugLog('Not activated, show activation');
         const setupBtn = document.getElementById('first-time-setup-btn');
         if (setupBtn) {
-            debugLog('Found first-time-setup-btn');
             setupBtn.classList.remove('hidden');
             setupBtn.onclick = async () => {
-                debugLog('Setup button clicked');
                 const activated = await showActivationModal();
                 if (activated) {
-                    debugLog('Activation success');
                     setupBtn.classList.add('hidden');
                     logActivity('app_open', { deviceId: getDeviceId() });
                     loadModule('dashboard');
                     initAppAfterActivation();
-                } else {
-                    debugLog('Activation failed or cancelled');
                 }
             };
         } else {
-            debugLog('No first-time-setup-btn, show modal directly');
             (async () => {
                 const activated = await showActivationModal();
                 if (activated) {
-                    debugLog('Activation success');
                     logActivity('app_open', { deviceId: getDeviceId() });
                     loadModule('dashboard');
                     initAppAfterActivation();
@@ -350,7 +319,6 @@ function enterSystem() {
         }
         return;
     } else {
-        debugLog('Already activated');
         const setupBtn = document.getElementById('first-time-setup-btn');
         if (setupBtn) setupBtn.classList.add('hidden');
         logActivity('app_open', { deviceId: getDeviceId() });
@@ -360,7 +328,6 @@ function enterSystem() {
 }
 
 function initAppAfterActivation() {
-    debugLog('initAppAfterActivation called');
     const now = new Date();
     const dateDisplay = document.getElementById('current-date-display');
     if (dateDisplay) dateDisplay.innerText = now.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -1209,8 +1176,9 @@ function exportReport(type) {
         return;
     }
 
-    // Jika tiada baris data (contohnya data kosong), keluar
-    if (rows.length === 0) {
+    console.log('Exporting', type, 'rows:', rows); // DEBUG
+
+    if (!rows || rows.length === 0) {
         showAlert('Tiada data untuk dilaporkan.');
         return;
     }
@@ -1237,7 +1205,7 @@ function exportReport(type) {
     // Update preview
     const previewDiv = document.getElementById('report-preview');
     if (previewDiv) {
-        previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}<tr></thead><tbody>${rows.slice(0,10).map(row => `<tr>${row.map(cell => `<td class="p-2 border-b">${cell}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+        previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,10).map(row => `<tr>${row.map(cell => `<td class="p-2 border-b">${cell}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
     }
 }
 
@@ -1269,5 +1237,3 @@ window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); defe
 installBtn.addEventListener('click', async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { installBtn.classList.add('hidden'); } deferredPrompt = null; });
 window.addEventListener('appinstalled', () => { installBtn.classList.add('hidden'); });
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW fail', err)); }
-
-debugLog('App.js loaded and ready');
