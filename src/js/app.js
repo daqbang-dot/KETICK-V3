@@ -19,6 +19,21 @@ let db = {
     lowStockThreshold: parseInt(localStorage.getItem('lowStockThreshold')) || 5
 };
 
+// Jika tiada data contoh, tambah data demo untuk tujuan ujian (anda boleh padam jika tidak mahu)
+if (db.inv.length === 0) {
+    db.inv.push({ id: Date.now(), name: 'Produk Demo 1', kos: 10, jual: 20, qty: 100, details: [], img: '', showDetails: true, salesCount: 0 });
+    db.inv.push({ id: Date.now()+1, name: 'Produk Demo 2', kos: 15, jual: 30, qty: 50, details: [], img: '', showDetails: true, salesCount: 0 });
+    localStorage.setItem('f6_inv', JSON.stringify(db.inv));
+}
+if (db.cli.length === 0) {
+    db.cli.push({ id: Date.now(), name: 'Pelanggan Demo', phone: '60123456789', addr: 'Alamat Demo' });
+    localStorage.setItem('f6_cli', JSON.stringify(db.cli));
+}
+if (db.tax.length === 0) {
+    db.tax.push({ id: Date.now(), date: new Date().toISOString().slice(0,10), amt: 100, cat: 'Sewa', vendor: 'Tuan Rumah', img: '' });
+    localStorage.setItem('f6_tax', JSON.stringify(db.tax));
+}
+
 if (db.coupons && !Array.isArray(db.coupons)) {
     const old = db.coupons;
     db.coupons = Object.entries(old).map(([code, value]) => ({ code, value, quantity: 999 }));
@@ -606,7 +621,7 @@ function calcBilling() {
         if(item) { 
             const line = item.jual * qtys[idx].value; 
             sub += line; 
-            body.innerHTML += `<td>
+            body.innerHTML += `<tr>
                 <td class="p-5 font-bold text-gray-800">${item.name}<\/td>
                 <td class="p-5 text-center font-bold">${qtys[idx].value}<\/td>
                 <td class="p-5 text-right">RM ${item.jual.toFixed(2)}<\/td>
@@ -1194,6 +1209,12 @@ function exportReport(type) {
         return;
     }
 
+    // Jika tiada baris data (contohnya data kosong), keluar
+    if (rows.length === 0) {
+        showAlert('Tiada data untuk dilaporkan.');
+        return;
+    }
+
     const html = `
         <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px;">
             <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;">${title}</h1>
@@ -1216,7 +1237,7 @@ function exportReport(type) {
     // Update preview
     const previewDiv = document.getElementById('report-preview');
     if (previewDiv) {
-        previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,10).map(row => `<tr>${row.map(cell => `<td class="p-2 border-b">${cell}</td>`).join('')}</tr>`).join('')}</tbody><tr>`;
+        previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}<tr></thead><tbody>${rows.slice(0,10).map(row => `<tr>${row.map(cell => `<td class="p-2 border-b">${cell}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
     }
 }
 
