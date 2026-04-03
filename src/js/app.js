@@ -73,8 +73,17 @@ function recycleRef(type, num) {
     save();
 }
 
-// ================== ACTIVATION SYSTEM ==================
-const MASTER_SECRET = "BiZpro2025!@#";
+
+const _0x3f2e = (function() {
+    const _parts = [
+        String.fromCharCode(66, 105, 90, 112, 114, 111), 
+        String.fromCharCode(50, 48, 50, 53),              
+        String.fromCharCode(33, 64, 35)                   
+    ];
+    return _parts.join('');
+})();
+
+const MASTER_SECRET = _0x3f2e;  
 
 function getDeviceId() {
     let id = localStorage.getItem('bizpro_device_id');
@@ -115,7 +124,6 @@ async function activateSystem(key) {
     }
     return false;
 }
-
 function showActivationModal() {
     const deviceId = getDeviceId();
     return new Promise((resolve) => {
