@@ -1,6 +1,6 @@
 // ================================================
 // KETICK BizPro v6 - Flux Edition
-// app.js - LENGKAP dengan Activation System Versi A
+// app.js - Activation System Versi A (Clean)
 // ================================================
 
 // ================== DATA & STORAGE ==================
@@ -78,7 +78,7 @@ function recycleRef(type, num) {
     save();
 }
 
-// ================== ACTIVATION SYSTEM VERSI A (1 Key = 1 Device + Lifetime) ==================
+// ================== ACTIVATION SYSTEM VERSI A ==================
 const MASTER_SECRET = "KETICK_BIZPRO_2026_AZLAN_SECURE_V2_8K3M9P2X";
 
 let activationData = JSON.parse(localStorage.getItem('bizpro_activation')) || {
@@ -1441,7 +1441,7 @@ function exportReport(type) {
     // Update preview
     const previewDiv = document.getElementById('report-preview');
     if (previewDiv) {
-        previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,10).map(row => `<tr>${row.map(cell => `<td class="p-2 border-b">${cell}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+        previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,10).map(row => `<tr>${row.map(cell => `<td class="p-2 border-b">${cell}</tr>`).join('')}</tr>`).join('')}</tbody></table>`;
     }
 }
 
