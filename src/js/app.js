@@ -78,8 +78,8 @@ function recycleRef(type, num) {
     save();
 }
 
-// ================== ACTIVATION SYSTEM VERSI A (1 Key = 1 Device) ==================
-const MASTER_SECRET = "KETICK_BIZPRO_2026_AZLAN_SECURE_V2_8K3M9P2X"; // MESTI SAMA DENGAN keygen.html
+// ================== ACTIVATION SYSTEM VERSI A ==================
+const MASTER_SECRET = "KETICK_BIZPRO_2026_AZLAN_SECURE_V2_8K3M9P2X";
 
 let activationData = JSON.parse(localStorage.getItem('bizpro_activation')) || {
     activated: false,
@@ -378,8 +378,46 @@ let currentLang = localStorage.getItem('f6_lang') || 'BM';
 let isDarkTheme = localStorage.getItem('f6_dark') === 'true';
 
 const i18nDict = {
-    'BM': { /* semua terjemahan BM anda */ },
-    'EN': { /* semua terjemahan EN anda */ }
+    'BM': {
+        'welcome': 'Selamat Datang', 'enter-system': 'Masuk Sistem',
+        'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventori', 'menu-crm': 'Pangkalan Data CRM', 'menu-bill': 'Pengebilan', 'menu-promo': 'Pengurus Kupon', 'menu-social': 'Pemasaran Sosial', 'menu-blast': 'Blast Pintar', 'menu-auto': 'Chatbox WhatsApp', 'menu-tax': 'Rekod Cukai LHDN', 'menu-hist': 'Sejarah',
+        'menu-report': 'Laporan',
+        'btn-export': 'Eksport Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Stok Rendah (Ambang)',
+        'dash-title': 'Ringkasan Niaga', 'dash-subtitle': 'Prestasi semasa anda hari ini.', 'dash-alert-stock': '⚠️ Stok Kritikal (≤ ambang)', 'lbl-rev-title': 'Revenue Terkini (Receipt)', 'btn-tax-record': 'REKOD CUKAI', 'lbl-rev-sub': 'Berdasarkan jualan yang telah dibayar (Receipt)', 'lbl-margin': 'Margin Keuntungan', 'lbl-exp': 'Belanja (Cukai)', 'lbl-stk': 'Jumlah Item Stok', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Jadual Kerja & Temujanji', 'btn-add-job': '+ Tambah Nota',
+        'pos-cust-info': 'Maklumat Pelanggan', 'btn-use': 'GUNA', 'pos-cart': 'Keranjang', 'pos-total': 'Jumlah:', 'pos-discount': 'Diskaun Kupon:', 'pos-after-disc': 'Selepas Diskaun:', 'pos-cash': 'Tunai (RM):', 'pos-change': 'Baki:', 'btn-complete': 'Selesai', 'btn-clear': 'Kosong', 'btn-print': 'Cetak Resit',
+        'inv-title': 'Inventori Stok', 'btn-new-prod': '+ Produk Baru', 'th-image': 'Imej', 'th-info': 'Informasi Produk', 'th-cost': 'Kos (RM)', 'th-sell': 'Jual (RM)', 'th-stock': 'Baki Stok', 'th-action': 'Tindakan',
+        'crm-title': 'Pangkalan Data Pelanggan', 'btn-add-lead': '+ Tambah Lead',
+        'bill-gen-title': 'Penjana Dokumen', 'bill-client': 'Pelanggan', 'bill-coupon': 'Kod Kupon (Diskaun)', 'bill-doc-type': 'Jenis Dokumen', 'btn-add-prod': '+ Tambah Produk', 'btn-save-record': 'SAHKAN & SIMPAN REKOD', 'btn-save-pdf': 'Simpan PDF',
+        'doc-date': 'Tarikh', 'doc-bill-to': 'Kepada / Bill To:', 'doc-payment-info': 'Maklumat Pembayaran:', 'doc-item-desc': 'Perihalan Item', 'doc-unit': 'Unit', 'doc-price': 'Harga (RM)', 'doc-total': 'Jumlah (RM)', 'doc-discount': 'Diskaun Kupon', 'doc-digital': 'Dokumen ini dijana secara digital.', 'doc-grand': 'Jumlah Keseluruhan',
+        'promo-add': 'Tambah Kupon Baru', 'btn-save': 'SIMPAN', 'promo-list': 'Senarai Kupon',
+        'social-plan': 'Rancang Content', 'social-schedule': 'Jadual',
+        'blast-cat': 'KATALOG', 'blast-select': 'Pilih Penerima', 'blast-msg': 'Mesej', 'blast-img': 'Gambar', 'blast-delay': 'Sela (saat)',
+        'auto-save': 'Simpan Template', 'auto-list': 'Senarai Template',
+        'btn-record': '+ Rekod', 'tax-total': 'Total Tuntutan', 'tax-count': 'Bilangan Resit', 'tax-top': 'Kategori Tertinggi', 'tax-status': 'Status Audit', 'tax-ok': 'Tersusun', 'th-date': 'Tarikh', 'th-receipt': 'Resit', 'th-category': 'Kategori', 'th-vendor': 'Vendor', 'th-amount': 'Jumlah',
+        'hist-title': 'Rekod Transaksi', 'th-ref': 'No. Rujukan', 'th-client': 'Pelanggan', 'th-phone': 'Telefon', 'th-type': 'Jenis', 'btn-search': 'Cari', 'btn-wa': 'WhatsApp',
+        'review-title': 'Review Dokumen', 'btn-close': 'Tutup', 'tax-new': 'Rekod Baru', 'tax-upload': 'Muat Naik Resit', 'btn-cancel': 'Batal',
+        'Tiada Kupon.': 'Tiada Kupon.', 'Tiada Jadual.': 'Tiada Jadual.', 'Imej Sedia': 'Imej Sedia', 'Tiada template sapaan.': 'Tiada template sapaan.', 'SALIN': 'SALIN', 'Tiada rekod perbelanjaan.': 'Tiada rekod perbelanjaan.', 'SET PAID': 'SET PAID', 'TAMBAH SPEC': 'TAMBAH SPEC', 'SOROK': 'SOROK', 'LIHAT': 'LIHAT', 'Pergi ke Inventory': 'Pergi ke Inventory', 'Keranjang kosong': 'Keranjang kosong'
+    },
+    'EN': {
+        'welcome': 'Welcome', 'enter-system': 'Enter System',
+        'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventory', 'menu-crm': 'CRM Database', 'menu-bill': 'Billing', 'menu-promo': 'Coupon Manager', 'menu-social': 'Social Marketing', 'menu-blast': 'Smart Blast', 'menu-auto': 'WhatsApp Chatbox', 'menu-tax': 'Tax Records', 'menu-hist': 'History',
+        'menu-report': 'Report',
+        'btn-export': 'Export Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Low Stock Threshold',
+        'dash-title': 'Business Summary', 'dash-subtitle': 'Your current performance today.', 'dash-alert-stock': '⚠️ Critical Stock (≤ threshold)', 'lbl-rev-title': 'Current Revenue (Receipt)', 'btn-tax-record': 'TAX RECORD', 'lbl-rev-sub': 'Based on paid sales (Receipt)', 'lbl-margin': 'Profit Margin', 'lbl-exp': 'Expenses (Tax)', 'lbl-stk': 'Total Stock Items', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Work Schedule & Appointments', 'btn-add-job': '+ Add Note',
+        'pos-cust-info': 'Customer Information', 'btn-use': 'APPLY', 'pos-cart': 'Shopping Cart', 'pos-total': 'Total:', 'pos-discount': 'Coupon Discount:', 'pos-after-disc': 'After Discount:', 'pos-cash': 'Cash (RM):', 'pos-change': 'Change:', 'btn-complete': 'Complete', 'btn-clear': 'Clear', 'btn-print': 'Print Receipt',
+        'inv-title': 'Stock Inventory', 'btn-new-prod': '+ New Product', 'th-image': 'Image', 'th-info': 'Product Info', 'th-cost': 'Cost (RM)', 'th-sell': 'Sell (RM)', 'th-stock': 'Stock Bal', 'th-action': 'Action',
+        'crm-title': 'Customer Database', 'btn-add-lead': '+ Add Lead',
+        'bill-gen-title': 'Document Generator', 'bill-client': 'Customer', 'bill-coupon': 'Coupon Code (Discount)', 'bill-doc-type': 'Document Type', 'btn-add-prod': '+ Add Product', 'btn-save-record': 'CONFIRM & SAVE RECORD', 'btn-save-pdf': 'Save PDF',
+        'doc-date': 'Date', 'doc-bill-to': 'To / Bill To:', 'doc-payment-info': 'Payment Info:', 'doc-item-desc': 'Item Description', 'doc-unit': 'Unit', 'doc-price': 'Price (RM)', 'doc-total': 'Total (RM)', 'doc-discount': 'Coupon Discount', 'doc-digital': 'This document is digitally generated.', 'doc-grand': 'Grand Total',
+        'promo-add': 'Add New Coupon', 'btn-save': 'SAVE', 'promo-list': 'Coupon List',
+        'social-plan': 'Plan Content', 'social-schedule': 'Schedule',
+        'blast-cat': 'CATALOG', 'blast-select': 'Select Recipient', 'blast-msg': 'Message', 'blast-img': 'Image', 'blast-delay': 'Delay (sec)',
+        'auto-save': 'Save Template', 'auto-list': 'Template List',
+        'btn-record': '+ Record', 'tax-total': 'Total Claims', 'tax-count': 'Receipt Count', 'tax-top': 'Top Category', 'tax-status': 'Audit Status', 'tax-ok': 'Organized', 'th-date': 'Date', 'th-receipt': 'Receipt', 'th-category': 'Category', 'th-vendor': 'Vendor', 'th-amount': 'Amount',
+        'hist-title': 'Transaction Records', 'th-ref': 'Ref. No', 'th-client': 'Customer', 'th-phone': 'Phone', 'th-type': 'Type', 'btn-search': 'Search', 'btn-wa': 'WhatsApp',
+        'review-title': 'Review Document', 'btn-close': 'Close', 'tax-new': 'New Record', 'tax-upload': 'Upload Receipt', 'btn-cancel': 'Cancel',
+        'Tiada Kupon.': 'No Coupons.', 'Tiada Jadual.': 'No Schedule.', 'Imej Sedia': 'Image Ready', 'Tiada template sapaan.': 'No greeting templates.', 'SALIN': 'COPY', 'Tiada rekod perbelanjaan.': 'No expense records.', 'SET PAID': 'SET PAID', 'TAMBAH SPEC': 'ADD SPEC', 'SOROK': 'HIDE', 'LIHAT': 'VIEW', 'Pergi ke Inventory': 'Go to Inventory', 'Keranjang kosong': 'Cart is empty'
+    }
 };
 
 function t(key) { return i18nDict[currentLang][key] || key; }
@@ -417,7 +455,6 @@ function applyTheme() {
     }
 }
 
-// ================== CUSTOM MODAL ==================
 function showCustomModal(type, title, msg, defaultValue = '') {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-modal');
@@ -1251,4 +1288,176 @@ async function deleteTax(id) {
     const confirmed = await showConfirm(currentLang==='BM'?"Padam rekod ini?":"Delete this record?"); 
     if(confirmed) { 
         db.tax = db.tax.filter(t => t.id !== id); 
-        save();
+        save(); 
+        renderTax(); 
+    } 
+}
+
+// ================== HISTORY ==================
+function setupHistoryExtra() {
+    const searchInput = document.getElementById('history-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => renderHistory());
+    }
+}
+function renderHistory() {
+    const container = document.getElementById('history-body');
+    if (!container) return;
+    let filtered = [...db.hist];
+    const searchTerm = document.getElementById('history-search')?.value.toLowerCase() || '';
+    if (searchTerm) {
+        filtered = filtered.filter(h => 
+            h.clientName?.toLowerCase().includes(searchTerm) ||
+            h.ref?.toLowerCase().includes(searchTerm) ||
+            h.phone?.toLowerCase().includes(searchTerm)
+        );
+    }
+    container.innerHTML = filtered.map(h => `
+        <tr class="hover:bg-gray-50 transition">
+            <td class="p-6">${h.date}<\/td>
+            <td class="p-6 font-bold text-blue-600">${h.ref}<\/td>
+            <td class="p-6 font-medium">${h.clientName}<\/td>
+            <td class="p-6">${h.phone || '-'}<\/td>
+            <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase \( {h.type === 'REC' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}"> \){h.type}</span><\/td>
+            <td class="p-6 text-right font-black">RM ${h.total.toFixed(2)}<\/td>
+            <td class="p-6 text-center space-x-2">
+                <button onclick="viewDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-blue-500 hover:text-blue-700 text-xs font-bold"><i class="fas fa-eye mr-1"></i> Review</button>
+                <button onclick="downloadDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-download mr-1"></i> Download</button>
+                \( {h.type === 'INV' ? `<button onclick="convertInvToRec( \){h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> ${t('SET PAID')}</button>` : ''}
+                <button onclick="deleteDoc(${h.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
+                \( {h.phone ? `<button onclick="sendReceiptViaWhatsApp( \){h.id})" class="text-green-500 hover:text-green-700 text-xs font-bold"><i class="fab fa-whatsapp mr-1"></i> ${t('btn-wa')}</button>` : ''}
+            <\/td>
+        <\/tr>
+    `).reverse().join('');
+}
+function sendReceiptViaWhatsApp(id) {
+    const trans = db.hist.find(t => t.id === id);
+    if (trans && trans.phone) {
+        const items = trans.items || [];
+        const msg = generateReceiptMessage(trans.total, trans.clientName, items);
+        const encoded = encodeURIComponent(msg);
+        window.open(`https://wa.me/\( {trans.phone}?text= \){encoded}`, '_blank');
+    }
+}
+async function convertInvToRec(id) { const idx = db.hist.findIndex(h => h.id === id); if(idx !== -1 && db.hist[idx].type === 'INV') { const inv = db.hist[idx]; inv.type = 'REC'; const newRefNum = getNextRef('REC'); inv.ref = `REC${newRefNum}`; let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; }); inv.margin = m - (inv.discount || 0); save(); renderHistory(); await showAlert(currentLang==='BM'?"Invoice ditukar kepada Receipt!":"Invoice converted to Receipt!"); } }
+
+// ================== DOCUMENT REVIEW & PDF ==================
+function viewDocument(hist) { 
+    currentReviewDoc = hist; 
+    const type = hist.type; 
+    const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); 
+    const bizName = db.prof.name || "SYARIKAT ANDA"; 
+    const bizAddr = db.prof.addr || "Alamat Perniagaan"; 
+    const bizBank = db.prof.bank || "Bank & No Akaun"; 
+    const clientName = hist.clientName || "Pelanggan"; 
+    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">\( {item.name}<\/td><td style="padding:12px 8px; text-align:center;"> \){item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
+    const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); 
+    const discount = hist.discount || 0; 
+    const grand = subtotal - discount; 
+    const discountRow = discount > 0 ? `<tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}<\/td><\/tr>` : ''; 
+    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">\( {bizName}</h2><p style="font-size:12px; color:#6b7280;"> \){bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:\( {docColor};"> \){type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid \( {docColor};"><p style="font-size:9px; font-weight:bold; color: \){docColor};">Kepada:</p><p style="font-weight:600;">\( {clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;"> \){bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:\( {docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody> \){itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
+    document.getElementById('reviewDocContent').innerHTML = docHtml; 
+    document.getElementById('reviewModal').classList.remove('hidden'); 
+}
+function closeReviewModal() { document.getElementById('reviewModal').classList.add('hidden'); currentReviewDoc = null; }
+async function downloadReviewAsPDF() { if (!currentReviewDoc) return; const element = document.getElementById('reviewDocContent'); const opt = { margin: 0.2, filename: `${currentReviewDoc.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
+async function downloadDocument(hist) { 
+    const type = hist.type; 
+    const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); 
+    const bizName = db.prof.name || "SYARIKAT ANDA"; 
+    const bizAddr = db.prof.addr || "Alamat Perniagaan"; 
+    const bizBank = db.prof.bank || "Bank & No Akaun"; 
+    const clientName = hist.clientName || "Pelanggan"; 
+    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">\( {item.name}<\/td><td style="padding:12px 8px; text-align:center;"> \){item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
+    const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); 
+    const discount = hist.discount || 0; 
+    const grand = subtotal - discount; 
+    const discountRow = discount > 0 ? `<tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}<\/td><\/tr>` : ''; 
+    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto; padding:20px;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">\( {bizName}</h2><p style="font-size:12px; color:#6b7280;"> \){bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:\( {docColor};"> \){type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid \( {docColor};"><p style="font-size:9px; font-weight:bold; color: \){docColor};">Kepada:</p><p style="font-weight:600;">\( {clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;"> \){bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:\( {docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody> \){itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
+    const tempDiv = document.createElement('div'); 
+    tempDiv.innerHTML = docHtml; 
+    document.body.appendChild(tempDiv); 
+    const opt = { margin: 0.2, filename: `${hist.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; 
+    await html2pdf().set(opt).from(tempDiv).save(); 
+    document.body.removeChild(tempDiv); 
+}
+
+// ================== REPORT MODULE ==================
+function exportReport(type) {
+    if (typeof html2pdf === 'undefined') {
+        showAlert('Pustaka PDF tidak dimuatkan. Sila muat semula halaman.');
+        return;
+    }
+    
+    let title, headers, rows;
+    if (type === 'inventory') {
+        if (!db.inv.length) { showAlert('Tiada data inventori.'); return; }
+        title = 'Laporan Inventori';
+        headers = ['ID', 'Nama Produk', 'Kos (RM)', 'Harga Jual (RM)', 'Stok', 'Spesifikasi'];
+        rows = db.inv.map(item => [
+            item.id, item.name, item.kos, item.jual, item.qty,
+            (item.details || []).join('; ')
+        ]);
+    } else if (type === 'crm') {
+        if (!db.cli.length) { showAlert('Tiada data pelanggan.'); return; }
+        title = 'Laporan Pelanggan (CRM)';
+        headers = ['ID', 'Nama', 'Telefon', 'Alamat'];
+        rows = db.cli.map(c => [c.id, c.name, c.phone, c.addr]);
+    } else if (type === 'lhdn') {
+        if (!db.tax.length) { showAlert('Tiada rekod cukai.'); return; }
+        title = 'Laporan Cukai (LHDN)';
+        headers = ['Tarikh', 'Kategori', 'Vendor', 'Jumlah (RM)', 'Resit'];
+        rows = db.tax.map(t => [t.date, t.cat, t.vendor, t.amt, t.img ? 'Ada' : 'Tiada']);
+    } else {
+        return;
+    }
+
+    if (!rows || rows.length === 0) {
+        showAlert('Tiada data untuk dilaporkan.');
+        return;
+    }
+
+    const html = `
+        <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px;">
+            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;">${title}</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">Dijana pada: ${new Date().toLocaleString()}</p>
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                <thead><tr style="background-color: #f3f4f6; border-bottom: 2px solid #ddd;">\( {headers.map(h => `<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"> \){h}</th>`).join('')}<\/tr><\/thead>
+                <tbody>\( {rows.map(row => `<tr style="border-bottom: 1px solid #eee;"> \){row.map(cell => `<td style="padding: 8px; border: 1px solid #ddd;">${cell}<\/td>`).join('')}<\/tr>`).join('')}<\/tbody>
+            <\/table>
+        <\/div>
+    `;
+    const tempDiv = document.createElement('div');
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    tempDiv.innerHTML = html;
+    document.body.appendChild(tempDiv);
+    const opt = { margin: 0.5, filename: `\( {type}_report_ \){new Date().toISOString().slice(0,19)}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+    html2pdf().set(opt).from(tempDiv).save();
+    setTimeout(() => document.body.removeChild(tempDiv), 1000);
+}
+
+function initReportModule() {
+    const invBtn = document.getElementById('report-inventory-btn');
+    if (invBtn) invBtn.onclick = () => exportReport('inventory');
+    const crmBtn = document.getElementById('report-crm-btn');
+    if (crmBtn) crmBtn.onclick = () => exportReport('crm');
+    const lhdnBtn = document.getElementById('report-lhdn-btn');
+    if (lhdnBtn) lhdnBtn.onclick = () => exportReport('lhdn');
+}
+
+// ================== DRAWER & PWA ==================
+function openDrawer() { document.getElementById('drawer').classList.remove('drawer-closed'); document.getElementById('drawer').classList.add('drawer-open'); document.getElementById('drawerOverlay').classList.remove('hidden'); }
+function closeDrawer() { document.getElementById('drawer').classList.add('drawer-closed'); document.getElementById('drawer').classList.remove('drawer-open'); document.getElementById('drawerOverlay').classList.add('hidden'); }
+document.getElementById('menuToggleBtn')?.addEventListener('click', openDrawer);
+document.getElementById('closeDrawerBtn')?.addEventListener('click', closeDrawer);
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
+
+// PWA
+let deferredPrompt; const installBtn = document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });
+installBtn.addEventListener('click', async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { installBtn.classList.add('hidden'); } deferredPrompt = null; });
+window.addEventListener('appinstalled', () => { installBtn.classList.add('hidden'); });
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW fail', err)); }
+
+console.log('✅ KETICK BizPro v6 - app.js loaded successfully with new secure activation system');
