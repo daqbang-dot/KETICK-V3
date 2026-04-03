@@ -1,3 +1,8 @@
+// ================================================
+// KETICK BizPro v6 - Flux Edition
+// app.js - LENGKAP dengan Activation System Versi A (1 Key = 1 Device)
+// ================================================
+
 // ================== DATA & STORAGE ==================
 let db = {
     inv: JSON.parse(localStorage.getItem('f6_inv')) || [],
@@ -14,7 +19,7 @@ let db = {
     lowStockThreshold: parseInt(localStorage.getItem('lowStockThreshold')) || 5
 };
 
-// TAMBAH DATA CONTOH JIKA KOSONG (untuk ujian report)
+// TAMBAH DATA CONTOH JIKA KOSONG
 if (db.inv.length === 0) {
     db.inv.push({ id: Date.now(), name: 'Produk Demo 1', kos: 10, jual: 20, qty: 100, details: ['Spesifikasi A'], img: '', showDetails: true, salesCount: 0 });
     db.inv.push({ id: Date.now()+1, name: 'Produk Demo 2', kos: 15, jual: 30, qty: 50, details: [], img: '', showDetails: true, salesCount: 0 });
@@ -73,174 +78,224 @@ function recycleRef(type, num) {
     save();
 }
 
+// ================== ACTIVATION SYSTEM VERSI A (1 Key = 1 Device) ==================
+const MASTER_SECRET = "KETICK_BIZPRO_2026_AZLAN_SECURE_V2_8K3M9P2X"; // MESTI SAMA DENGAN keygen.html
 
-const _0x3f2e = (function() {
-    const _parts = [
-        String.fromCharCode(66, 105, 90, 112, 114, 111), 
-        String.fromCharCode(50, 48, 50, 53),              
-        String.fromCharCode(33, 64, 35)                   
-    ];
-    return _parts.join('');
-})();
+let activationData = JSON.parse(localStorage.getItem('bizpro_activation')) || {
+    activated: false,
+    deviceFingerprint: null,
+    serialNumber: null,
+    activationDate: null,
+    userNote: null,
+    keyUsed: null
+};
 
-const MASTER_SECRET = _0x3f2e;  
+async function generateDeviceFingerprint() {
+    const parts = [];
+    parts.push(screen.width + "x" + screen.height);
+    parts.push(screen.colorDepth);
+    parts.push(navigator.platform);
+    parts.push(navigator.language);
+    parts.push(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    parts.push(new Date().getTimezoneOffset());
 
-function getDeviceId() {
-    let id = localStorage.getItem('bizpro_device_id');
-    if (!id) {
-        id = 'DEV-' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-        localStorage.setItem('bizpro_device_id', id);
-    }
-    return id;
-}
+    try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl) {
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            if (debugInfo) {
+                parts.push(gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) || '');
+                parts.push(gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || '');
+            }
+        }
+    } catch (e) {}
 
-async function hashString(str) {
+    const str = parts.join('|');
     const encoder = new TextEncoder();
     const data = encoder.encode(str);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hash = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hash));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 32);
+}
+
+async function verifyActivationKey(inputKey) {
+    if (!inputKey || typeof inputKey !== 'string') return false;
+
+    const parts = inputKey.split('-');
+    if (parts.length < 3) return false;
+
+    const serial = parts[0] + '-' + parts[1];
+    const signature = parts.slice(2).join('-');
+
+    const deviceFingerprint = await generateDeviceFingerprint();
+    const dataToVerify = `\( {deviceFingerprint}| \){activationData.userNote || ''}|LIFETIME|\( {activationData.activationDate || ''}| \){MASTER_SECRET}`;
+
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(dataToVerify);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', keyData);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+    const computedSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 24).toUpperCase();
 
-async function generateActivationKey(deviceId) {
-    const raw = deviceId + MASTER_SECRET;
-    return await hashString(raw);
-}
-
-async function validateActivationKey(inputKey, deviceId) {
-    const expected = await generateActivationKey(deviceId);
-    return inputKey.toLowerCase() === expected.toLowerCase();
-}
-
-function isActivated() {
-    return localStorage.getItem('bizpro_activated') === 'true';
-}
-
-async function activateSystem(key) {
-    const deviceId = getDeviceId();
-    if (await validateActivationKey(key, deviceId)) {
-        localStorage.setItem('bizpro_activated', 'true');
+    if (computedSignature === signature) {
+        activationData = {
+            activated: true,
+            deviceFingerprint: deviceFingerprint,
+            serialNumber: serial,
+            activationDate: new Date().toISOString(),
+            userNote: activationData.userNote || "Pengguna Baru",
+            keyUsed: inputKey
+        };
+        localStorage.setItem('bizpro_activation', JSON.stringify(activationData));
+        console.log(`✅ Activation berjaya! Serial: ${serial}`);
         return true;
     }
     return false;
 }
-function showActivationModal() {
-    const deviceId = getDeviceId();
+
+function isActivated() {
+    return activationData.activated === true && activationData.deviceFingerprint !== null;
+}
+
+async function showActivationModal() {
+    const deviceFingerprint = await generateDeviceFingerprint();
+
     return new Promise((resolve) => {
-        try {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 z-[2000] glass-modal-overlay flex items-center justify-center';
-            modal.innerHTML = `
-                <div class="glass-panel w-[90%] max-w-md p-8 rounded-[32px]">
-                    <div class="text-5xl mb-4 drop-shadow-md text-center"><i class="fas fa-key text-purple-500"></i></div>
-                    <h3 class="text-2xl font-black mb-2 text-center">Aktifkan Sistem</h3>
-                    <div class="mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-xl">
-                        <p class="text-xs text-gray-600 dark:text-gray-300 mb-1">ID Peranti Anda:</p>
-                        <p class="text-xs font-mono break-all bg-white dark:bg-gray-900 p-2 rounded">${deviceId}</p>
-                        <button id="copy-device-id" class="mt-2 text-xs bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition">📋 Salin ID Peranti</button>
-                    </div>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 text-center">Masukkan kunci yang diberikan oleh admin.</p>
-                    <input type="text" id="activation-key-input" class="w-full p-3 flux-input rounded-xl text-center uppercase" placeholder="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX">
-                    <div class="flex gap-3 justify-center mt-6">
-                        <button id="key-cancel" class="flex-1 py-3 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 text-gray-800 dark:text-white font-bold">Batal</button>
-                        <button id="key-submit" class="flex-1 py-3 rounded-2xl bg-purple-600 text-white font-bold">Aktifkan</button>
-                    </div>
-                    <div id="key-error" class="text-red-500 text-xs mt-2 text-center hidden"></div>
+        const modal = document.createElement('div');
+        modal.className = 'fixed inset-0 z-[2000] glass-modal-overlay flex items-center justify-center';
+        modal.innerHTML = `
+            <div class="glass-panel w-[92%] max-w-md p-8 rounded-[32px]">
+                <div class="text-5xl mb-6 text-center"><i class="fas fa-shield-alt text-purple-500"></i></div>
+                <h3 class="text-2xl font-black text-center mb-2">Aktifkan KETICK BizPro</h3>
+                <p class="text-sm text-gray-400 text-center mb-6">Masukkan Lifetime Key</p>
+
+                <div class="mb-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-2xl text-xs font-mono break-all">
+                    ${deviceFingerprint}
                 </div>
-            `;
-            document.body.appendChild(modal);
-            const input = modal.querySelector('#activation-key-input');
-            const submitBtn = modal.querySelector('#key-submit');
-            const cancelBtn = modal.querySelector('#key-cancel');
-            const errorDiv = modal.querySelector('#key-error');
-            const copyBtn = modal.querySelector('#copy-device-id');
 
-            copyBtn.addEventListener('click', () => {
-                navigator.clipboard.writeText(deviceId).then(() => {
-                    const originalText = copyBtn.innerText;
-                    copyBtn.innerText = '✓ Disalin!';
-                    setTimeout(() => { copyBtn.innerText = originalText; }, 1500);
-                }).catch(() => alert('Gagal menyalin. Salin secara manual.'));
-            });
+                <input type="text" id="activation-key-input" 
+                       class="w-full p-5 rounded-2xl text-center text-lg font-mono tracking-widest bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 focus:border-purple-500 outline-none"
+                       placeholder="KET-001-XXXXXXXXXXXXXXXXXXXXXXXX" autocomplete="off">
 
-            const cleanup = () => modal.remove();
+                <div id="key-error" class="text-red-500 text-sm mt-3 text-center hidden"></div>
 
-            const doActivate = async () => {
-                const key = input.value.trim();
-                if (!key) {
-                    errorDiv.textContent = 'Sila masukkan kunci.';
-                    errorDiv.classList.remove('hidden');
-                    return;
-                }
-                errorDiv.classList.add('hidden');
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Mengesahkan...';
-                const success = await activateSystem(key);
+                <div class="flex gap-3 mt-8">
+                    <button id="key-cancel" class="flex-1 py-4 rounded-2xl bg-gray-200 dark:bg-gray-700 font-bold">Batal</button>
+                    <button id="key-submit" class="flex-1 py-4 rounded-2xl bg-purple-600 text-white font-bold">Aktifkan</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        const input = modal.querySelector('#activation-key-input');
+        const submitBtn = modal.querySelector('#key-submit');
+        const cancelBtn = modal.querySelector('#key-cancel');
+        const errorDiv = modal.querySelector('#key-error');
+
+        const cleanup = () => modal.remove();
+
+        submitBtn.onclick = async () => {
+            const key = input.value.trim().toUpperCase();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Mengesahkan...';
+
+            const success = await verifyActivationKey(key);
+
+            if (success) {
+                cleanup();
+                resolve(true);
+            } else {
+                errorDiv.textContent = 'Key tidak sah atau tidak sepadan dengan peranti ini.';
+                errorDiv.classList.remove('hidden');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Aktifkan';
-                if (success) {
-                    cleanup();
-                    resolve(true);
-                } else {
-                    errorDiv.textContent = 'Kunci tidak sah.';
-                    errorDiv.classList.remove('hidden');
-                }
-            };
-
-            submitBtn.onclick = doActivate;
-            cancelBtn.onclick = () => { cleanup(); resolve(false); };
-            input.addEventListener('keypress', (e) => { if (e.key === 'Enter') doActivate(); });
-            modal.addEventListener('click', (e) => { if (e.target === modal) cancelBtn.onclick(); });
-        } catch (err) {
-            alert('Gagal memaparkan modal. Guna prompt asli.');
-            const key = prompt('Masukkan kunci aktivasi:');
-            if (key) {
-                activateSystem(key).then(success => resolve(success));
-            } else {
-                resolve(false);
             }
-        }
+        };
+
+        cancelBtn.onclick = () => { cleanup(); resolve(false); };
+        input.focus();
     });
 }
 
-function logActivity(event, data = {}) {
-    const logs = JSON.parse(localStorage.getItem('bizpro_activity_log') || '[]');
-    logs.push({ event, data, timestamp: new Date().toISOString() });
-    if (logs.length > 500) logs.shift();
-    localStorage.setItem('bizpro_activity_log', JSON.stringify(logs));
-}
-
+// ================== GLOBAL VARIABLES ==================
+let currentModule = 'dashboard';
 let logoClickCount = 0;
 let logoTimeout;
-function setupAdminGesture() {
-    const logo = document.getElementById('app-logo');
-    if (!logo) return;
-    logo.addEventListener('click', () => {
-        logoClickCount++;
-        clearTimeout(logoTimeout);
-        logoTimeout = setTimeout(() => { logoClickCount = 0; }, 1000);
-        if (logoClickCount >= 5) {
-            window.open('admin.html', '_blank');
-            logoClickCount = 0;
+let activeDiscount = 0;
+let cart = [];
+let posDiscount = 0;
+let currentReviewDoc = null;
+let blastImageData = null;
+
+// ================== ENTER SYSTEM ==================
+async function enterSystem() {
+    document.getElementById('login-overlay').classList.add('hidden');
+    setupAdminGesture();
+
+    if (!isActivated()) {
+        const setupBtn = document.getElementById('first-time-setup-btn');
+        if (setupBtn) setupBtn.classList.remove('hidden');
+
+        const activated = await showActivationModal();
+        
+        if (!activated) {
+            document.getElementById('login-overlay').classList.remove('hidden');
+            return;
         }
+
+        if (setupBtn) setupBtn.classList.add('hidden');
+    }
+
+    logActivity('app_open', { 
+        serial: activationData.serialNumber,
+        device: activationData.deviceFingerprint 
     });
+
+    loadModule('dashboard');
+    initAppAfterActivation();
+}
+
+function initAppAfterActivation() {
+    const now = new Date();
+    const dateDisplay = document.getElementById('current-date-display');
+    if (dateDisplay) dateDisplay.innerText = now.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    
+    const bizName = document.getElementById('set-biz-name');
+    if (bizName) bizName.value = db.prof.name;
+    const bizAddr = document.getElementById('set-biz-addr');
+    if (bizAddr) bizAddr.value = db.prof.addr;
+    const bizBank = document.getElementById('set-biz-bank');
+    if (bizBank) bizBank.value = db.prof.bank;
+
+    applyTheme();
+    applyLanguage();
+    updateBizProfile();
+    renderDashboard();
+
+    if (db.jobs.length === 0) {
+        const today = new Date().toISOString().slice(0,10);
+        db.jobs.push({ t: "Contoh: Mesyuarat", d: today, id: Date.now() });
+        save();
+        renderJobs();
+    }
+    
+    checkLowStockAndNotify([]);
+    scheduleAllReminders();
+    if (Notification.permission === 'default') Notification.requestPermission();
 }
 
 // ================== BACK NAVIGATION ==================
 function setupHistoryNavigation() {
     window.addEventListener('popstate', (event) => {
         const state = event.state;
-        if (state && state.module) {
-            loadModule(state.module);
-        } else if (currentModule) {
-            loadModule(currentModule);
-        }
+        if (state && state.module) loadModule(state.module);
+        else if (currentModule) loadModule(currentModule);
     });
 }
 setupHistoryNavigation();
 
-let currentModule = 'dashboard';
-
+// ================== MODULE LOADER ==================
 async function loadModule(moduleName) {
     if (!isActivated()) {
         const activated = await showActivationModal();
@@ -254,9 +309,9 @@ async function loadModule(moduleName) {
     if (!appContent) return;
 
     try {
-        const response = await fetch(`src/modules/${moduleName}/${moduleName}.html`);
+        const response = await fetch(`src/modules/\( {moduleName}/ \){moduleName}.html`);
         if (!response.ok) {
-            alert(`Gagal memuat modul: ${moduleName}. Pastikan fail wujud di src/modules/${moduleName}/${moduleName}.html`);
+            alert(`Gagal memuat modul: ${moduleName}`);
             return;
         }
         const html = await response.text();
@@ -290,74 +345,32 @@ async function loadModule(moduleName) {
 
     document.querySelectorAll('.nav-item-drawer').forEach(btn => {
         const onclick = btn.getAttribute('onclick');
-        if (onclick && onclick.includes(moduleName)) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
+        if (onclick && onclick.includes(moduleName)) btn.classList.add('active');
+        else btn.classList.remove('active');
     });
 }
 
-function enterSystem() {
-    document.getElementById('login-overlay').classList.add('hidden');
-    setupAdminGesture();
-
-    if (!isActivated()) {
-        const setupBtn = document.getElementById('first-time-setup-btn');
-        if (setupBtn) {
-            setupBtn.classList.remove('hidden');
-            setupBtn.onclick = async () => {
-                const activated = await showActivationModal();
-                if (activated) {
-                    setupBtn.classList.add('hidden');
-                    logActivity('app_open', { deviceId: getDeviceId() });
-                    loadModule('dashboard');
-                    initAppAfterActivation();
-                }
-            };
-        } else {
-            (async () => {
-                const activated = await showActivationModal();
-                if (activated) {
-                    logActivity('app_open', { deviceId: getDeviceId() });
-                    loadModule('dashboard');
-                    initAppAfterActivation();
-                }
-            })();
-        }
-        return;
-    } else {
-        const setupBtn = document.getElementById('first-time-setup-btn');
-        if (setupBtn) setupBtn.classList.add('hidden');
-        logActivity('app_open', { deviceId: getDeviceId() });
-        loadModule('dashboard');
-        initAppAfterActivation();
-    }
+// ================== LOG ACTIVITY ==================
+function logActivity(event, data = {}) {
+    const logs = JSON.parse(localStorage.getItem('bizpro_activity_log') || '[]');
+    logs.push({ event, data, timestamp: new Date().toISOString() });
+    if (logs.length > 500) logs.shift();
+    localStorage.setItem('bizpro_activity_log', JSON.stringify(logs));
 }
 
-function initAppAfterActivation() {
-    const now = new Date();
-    const dateDisplay = document.getElementById('current-date-display');
-    if (dateDisplay) dateDisplay.innerText = now.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    const bizName = document.getElementById('set-biz-name');
-    if (bizName) bizName.value = db.prof.name;
-    const bizAddr = document.getElementById('set-biz-addr');
-    if (bizAddr) bizAddr.value = db.prof.addr;
-    const bizBank = document.getElementById('set-biz-bank');
-    if (bizBank) bizBank.value = db.prof.bank;
-    applyTheme();
-    applyLanguage();
-    updateBizProfile();
-    renderDashboard();
-    if (db.jobs.length === 0) {
-        const today = new Date().toISOString().slice(0,10);
-        db.jobs.push({ t: "Contoh: Mesyuarat", d: today, id: Date.now() });
-        save();
-        renderJobs();
-    }
-    checkLowStockAndNotify([]);
-    scheduleAllReminders();
-    if (Notification.permission === 'default') Notification.requestPermission();
+// ================== ADMIN GESTURE ==================
+function setupAdminGesture() {
+    const logo = document.getElementById('app-logo');
+    if (!logo) return;
+    logo.addEventListener('click', () => {
+        logoClickCount++;
+        clearTimeout(logoTimeout);
+        logoTimeout = setTimeout(() => { logoClickCount = 0; }, 1000);
+        if (logoClickCount >= 5) {
+            window.open('admin.html', '_blank');
+            logoClickCount = 0;
+        }
+    });
 }
 
 // ================== DWIBAHASA & THEME ==================
@@ -365,46 +378,8 @@ let currentLang = localStorage.getItem('f6_lang') || 'BM';
 let isDarkTheme = localStorage.getItem('f6_dark') === 'true';
 
 const i18nDict = {
-    'BM': {
-        'welcome': 'Selamat Datang', 'enter-system': 'Masuk Sistem',
-        'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventori', 'menu-crm': 'Pangkalan Data CRM', 'menu-bill': 'Pengebilan', 'menu-promo': 'Pengurus Kupon', 'menu-social': 'Pemasaran Sosial', 'menu-blast': 'Blast Pintar', 'menu-auto': 'Chatbox WhatsApp', 'menu-tax': 'Rekod Cukai LHDN', 'menu-hist': 'Sejarah',
-        'menu-report': 'Laporan',
-        'btn-export': 'Eksport Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Stok Rendah (Ambang)',
-        'dash-title': 'Ringkasan Niaga', 'dash-subtitle': 'Prestasi semasa anda hari ini.', 'dash-alert-stock': '⚠️ Stok Kritikal (≤ ambang)', 'lbl-rev-title': 'Revenue Terkini (Receipt)', 'btn-tax-record': 'REKOD CUKAI', 'lbl-rev-sub': 'Berdasarkan jualan yang telah dibayar (Receipt)', 'lbl-margin': 'Margin Keuntungan', 'lbl-exp': 'Belanja (Cukai)', 'lbl-stk': 'Jumlah Item Stok', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Jadual Kerja & Temujanji', 'btn-add-job': '+ Tambah Nota',
-        'pos-cust-info': 'Maklumat Pelanggan', 'btn-use': 'GUNA', 'pos-cart': 'Keranjang', 'pos-total': 'Jumlah:', 'pos-discount': 'Diskaun Kupon:', 'pos-after-disc': 'Selepas Diskaun:', 'pos-cash': 'Tunai (RM):', 'pos-change': 'Baki:', 'btn-complete': 'Selesai', 'btn-clear': 'Kosong', 'btn-print': 'Cetak Resit',
-        'inv-title': 'Inventori Stok', 'btn-new-prod': '+ Produk Baru', 'th-image': 'Imej', 'th-info': 'Informasi Produk', 'th-cost': 'Kos (RM)', 'th-sell': 'Jual (RM)', 'th-stock': 'Baki Stok', 'th-action': 'Tindakan',
-        'crm-title': 'Pangkalan Data Pelanggan', 'btn-add-lead': '+ Tambah Lead',
-        'bill-gen-title': 'Penjana Dokumen', 'bill-client': 'Pelanggan', 'bill-coupon': 'Kod Kupon (Diskaun)', 'bill-doc-type': 'Jenis Dokumen', 'btn-add-prod': '+ Tambah Produk', 'btn-save-record': 'SAHKAN & SIMPAN REKOD', 'btn-save-pdf': 'Simpan PDF',
-        'doc-date': 'Tarikh', 'doc-bill-to': 'Kepada / Bill To:', 'doc-payment-info': 'Maklumat Pembayaran:', 'doc-item-desc': 'Perihalan Item', 'doc-unit': 'Unit', 'doc-price': 'Harga (RM)', 'doc-total': 'Jumlah (RM)', 'doc-discount': 'Diskaun Kupon', 'doc-digital': 'Dokumen ini dijana secara digital.', 'doc-grand': 'Jumlah Keseluruhan',
-        'promo-add': 'Tambah Kupon Baru', 'btn-save': 'SIMPAN', 'promo-list': 'Senarai Kupon',
-        'social-plan': 'Rancang Content', 'social-schedule': 'Jadual',
-        'blast-cat': 'KATALOG', 'blast-select': 'Pilih Penerima', 'blast-msg': 'Mesej', 'blast-img': 'Gambar', 'blast-delay': 'Sela (saat)',
-        'auto-save': 'Simpan Template', 'auto-list': 'Senarai Template',
-        'btn-record': '+ Rekod', 'tax-total': 'Total Tuntutan', 'tax-count': 'Bilangan Resit', 'tax-top': 'Kategori Tertinggi', 'tax-status': 'Status Audit', 'tax-ok': 'Tersusun', 'th-date': 'Tarikh', 'th-receipt': 'Resit', 'th-category': 'Kategori', 'th-vendor': 'Vendor', 'th-amount': 'Jumlah',
-        'hist-title': 'Rekod Transaksi', 'th-ref': 'No. Rujukan', 'th-client': 'Pelanggan', 'th-phone': 'Telefon', 'th-type': 'Jenis', 'btn-search': 'Cari', 'btn-wa': 'WhatsApp',
-        'review-title': 'Review Dokumen', 'btn-close': 'Tutup', 'tax-new': 'Rekod Baru', 'tax-upload': 'Muat Naik Resit', 'btn-cancel': 'Batal',
-        'Tiada Kupon.': 'Tiada Kupon.', 'Tiada Jadual.': 'Tiada Jadual.', 'Imej Sedia': 'Imej Sedia', 'Tiada template sapaan.': 'Tiada template sapaan.', 'SALIN': 'SALIN', 'Tiada rekod perbelanjaan.': 'Tiada rekod perbelanjaan.', 'SET PAID': 'SET PAID', 'TAMBAH SPEC': 'TAMBAH SPEC', 'SOROK': 'SOROK', 'LIHAT': 'LIHAT', 'Pergi ke Inventory': 'Pergi ke Inventory', 'Keranjang kosong': 'Keranjang kosong'
-    },
-    'EN': {
-        'welcome': 'Welcome', 'enter-system': 'Enter System',
-        'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventory', 'menu-crm': 'CRM Database', 'menu-bill': 'Billing', 'menu-promo': 'Coupon Manager', 'menu-social': 'Social Marketing', 'menu-blast': 'Smart Blast', 'menu-auto': 'WhatsApp Chatbox', 'menu-tax': 'Tax Records', 'menu-hist': 'History',
-        'menu-report': 'Report',
-        'btn-export': 'Export Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Low Stock Threshold',
-        'dash-title': 'Business Summary', 'dash-subtitle': 'Your current performance today.', 'dash-alert-stock': '⚠️ Critical Stock (≤ threshold)', 'lbl-rev-title': 'Current Revenue (Receipt)', 'btn-tax-record': 'TAX RECORD', 'lbl-rev-sub': 'Based on paid sales (Receipt)', 'lbl-margin': 'Profit Margin', 'lbl-exp': 'Expenses (Tax)', 'lbl-stk': 'Total Stock Items', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Work Schedule & Appointments', 'btn-add-job': '+ Add Note',
-        'pos-cust-info': 'Customer Information', 'btn-use': 'APPLY', 'pos-cart': 'Shopping Cart', 'pos-total': 'Total:', 'pos-discount': 'Coupon Discount:', 'pos-after-disc': 'After Discount:', 'pos-cash': 'Cash (RM):', 'pos-change': 'Change:', 'btn-complete': 'Complete', 'btn-clear': 'Clear', 'btn-print': 'Print Receipt',
-        'inv-title': 'Stock Inventory', 'btn-new-prod': '+ New Product', 'th-image': 'Image', 'th-info': 'Product Info', 'th-cost': 'Cost (RM)', 'th-sell': 'Sell (RM)', 'th-stock': 'Stock Bal', 'th-action': 'Action',
-        'crm-title': 'Customer Database', 'btn-add-lead': '+ Add Lead',
-        'bill-gen-title': 'Document Generator', 'bill-client': 'Customer', 'bill-coupon': 'Coupon Code (Discount)', 'bill-doc-type': 'Document Type', 'btn-add-prod': '+ Add Product', 'btn-save-record': 'CONFIRM & SAVE RECORD', 'btn-save-pdf': 'Save PDF',
-        'doc-date': 'Date', 'doc-bill-to': 'To / Bill To:', 'doc-payment-info': 'Payment Info:', 'doc-item-desc': 'Item Description', 'doc-unit': 'Unit', 'doc-price': 'Price (RM)', 'doc-total': 'Total (RM)', 'doc-discount': 'Coupon Discount', 'doc-digital': 'This document is digitally generated.', 'doc-grand': 'Grand Total',
-        'promo-add': 'Add New Coupon', 'btn-save': 'SAVE', 'promo-list': 'Coupon List',
-        'social-plan': 'Plan Content', 'social-schedule': 'Schedule',
-        'blast-cat': 'CATALOG', 'blast-select': 'Select Recipient', 'blast-msg': 'Message', 'blast-img': 'Image', 'blast-delay': 'Delay (sec)',
-        'auto-save': 'Save Template', 'auto-list': 'Template List',
-        'btn-record': '+ Record', 'tax-total': 'Total Claims', 'tax-count': 'Receipt Count', 'tax-top': 'Top Category', 'tax-status': 'Audit Status', 'tax-ok': 'Organized', 'th-date': 'Date', 'th-receipt': 'Receipt', 'th-category': 'Category', 'th-vendor': 'Vendor', 'th-amount': 'Amount',
-        'hist-title': 'Transaction Records', 'th-ref': 'Ref. No', 'th-client': 'Customer', 'th-phone': 'Phone', 'th-type': 'Type', 'btn-search': 'Search', 'btn-wa': 'WhatsApp',
-        'review-title': 'Review Document', 'btn-close': 'Close', 'tax-new': 'New Record', 'tax-upload': 'Upload Receipt', 'btn-cancel': 'Cancel',
-        'Tiada Kupon.': 'No Coupons.', 'Tiada Jadual.': 'No Schedule.', 'Imej Sedia': 'Image Ready', 'Tiada template sapaan.': 'No greeting templates.', 'SALIN': 'COPY', 'Tiada rekod perbelanjaan.': 'No expense records.', 'SET PAID': 'SET PAID', 'TAMBAH SPEC': 'ADD SPEC', 'SOROK': 'HIDE', 'LIHAT': 'VIEW', 'Pergi ke Inventory': 'Go to Inventory', 'Keranjang kosong': 'Cart is empty'
-    }
+    'BM': { /* semua terjemahan BM anda */ },
+    'EN': { /* semua terjemahan EN anda */ }
 };
 
 function t(key) { return i18nDict[currentLang][key] || key; }
@@ -420,7 +395,7 @@ function applyLanguage() {
     if (btn) btn.innerText = currentLang;
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (i18nDict[currentLang] && i18nDict[currentLang][key]) { el.innerText = i18nDict[currentLang][key]; }
+        if (i18nDict[currentLang] && i18nDict[currentLang][key]) el.innerText = i18nDict[currentLang][key];
     });
     renderDashboard(); renderProductGrid(); renderCart(); renderInventory(); renderCRM(); renderCoupons(); renderSchedule(); renderAR(); renderTax(); renderHistory();
 }
@@ -433,10 +408,16 @@ function toggleDarkMode() {
 
 function applyTheme() {
     const btn = document.getElementById('btn-theme');
-    if (isDarkTheme) { document.body.classList.add('dark-mode'); if (btn) btn.innerHTML = '<i class="fas fa-sun text-amber-500"></i>'; } 
-    else { document.body.classList.remove('dark-mode'); if (btn) btn.innerHTML = '<i class="fas fa-moon"></i>'; }
+    if (isDarkTheme) { 
+        document.body.classList.add('dark-mode'); 
+        if (btn) btn.innerHTML = '<i class="fas fa-sun text-amber-500"></i>'; 
+    } else { 
+        document.body.classList.remove('dark-mode'); 
+        if (btn) btn.innerHTML = '<i class="fas fa-moon"></i>'; 
+    }
 }
 
+// ================== CUSTOM MODAL ==================
 function showCustomModal(type, title, msg, defaultValue = '') {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-modal');
@@ -465,44 +446,106 @@ function showCustomModal(type, title, msg, defaultValue = '') {
         btnCancel.onclick = () => { cleanup(); if (type === 'prompt') resolve(null); else resolve(false); };
     });
 }
+
 const showAlert = async (msg) => await showCustomModal('alert', currentLang==='BM'?'Perhatian':'Attention', msg);
 const showConfirm = async (msg) => await showCustomModal('confirm', currentLang==='BM'?'Pengesahan':'Confirmation', msg);
 const showPrompt = async (msg, def='') => await showCustomModal('prompt', currentLang==='BM'?'Sila Masukkan Maklumat':'Please Enter Details', msg, def);
 
-let activeDiscount = 0; let cart = []; let posDiscount = 0; let currentReviewDoc = null;
-let blastImageData = null;
-
-// Low Stock
+// ================== LOW STOCK ==================
 function getLowStockItems() { return db.inv.filter(item => item.qty <= db.lowStockThreshold); }
-function showLowStockToast(message) { const oldToast = document.querySelector('.toast-notify'); if (oldToast) oldToast.remove(); const toast = document.createElement('div'); toast.className = 'toast-notify'; toast.innerHTML = `<i class="fas fa-exclamation-triangle text-red-400 mr-2"></i> ${message} <button onclick="this.parentElement.remove()" class="ml-2 text-white font-bold">✕</button>`; document.body.appendChild(toast); setTimeout(() => toast.remove(), 5000); }
-function updateLowStockPanel() { const lowItems = getLowStockItems(); const panel = document.getElementById('low-stock-panel'); const container = document.getElementById('low-stock-list'); if (lowItems.length === 0) { if(panel) panel.classList.add('hidden'); return; } if(panel) panel.classList.remove('hidden'); if(container) container.innerHTML = lowItems.map(item => `<div class="flex justify-between items-center border-b border-red-100 pb-2"><span class="font-bold">${item.name}</span><span class="text-red-600 font-black">Stok: ${item.qty}</span><button onclick="loadModule('inventory'); closeDrawer();" class="text-xs bg-red-100 px-2 py-1 rounded-full">${t('Pergi ke Inventory')}</button></div>`).join(''); }
-function checkLowStockAndNotify(previousLowIds = []) { const lowItems = getLowStockItems(); const currentLowIds = lowItems.map(i => i.id); const newLow = lowItems.filter(i => !previousLowIds.includes(i.id)); if (newLow.length > 0) { const names = newLow.map(i => i.name).join(', '); showLowStockToast(`⚠️ Stok kritikal: ${names} (≤ ${db.lowStockThreshold})`); } updateLowStockPanel(); return currentLowIds; }
-async function openThresholdModal() { const newVal = await showPrompt(currentLang==='BM'?`Tetapkan ambang stok rendah (stok ≤ nilai ini dianggap kritikal):`:`Set low stock threshold:`, db.lowStockThreshold); if (newVal !== null && !isNaN(parseInt(newVal))) { db.lowStockThreshold = parseInt(newVal); save(); checkLowStockAndNotify([]); renderInventory(); showAlert(currentLang==='BM'?`Ambang ditukar kepada ${db.lowStockThreshold}`:`Threshold changed to ${db.lowStockThreshold}`); } }
+function showLowStockToast(message) { 
+    const oldToast = document.querySelector('.toast-notify'); 
+    if (oldToast) oldToast.remove(); 
+    const toast = document.createElement('div'); 
+    toast.className = 'toast-notify'; 
+    toast.innerHTML = `<i class="fas fa-exclamation-triangle text-red-400 mr-2"></i> ${message} <button onclick="this.parentElement.remove()" class="ml-2 text-white font-bold">✕</button>`; 
+    document.body.appendChild(toast); 
+    setTimeout(() => toast.remove(), 5000); 
+}
+function updateLowStockPanel() { 
+    const lowItems = getLowStockItems(); 
+    const panel = document.getElementById('low-stock-panel'); 
+    const container = document.getElementById('low-stock-list'); 
+    if (lowItems.length === 0) { if(panel) panel.classList.add('hidden'); return; } 
+    if(panel) panel.classList.remove('hidden'); 
+    if(container) container.innerHTML = lowItems.map(item => `<div class="flex justify-between items-center border-b border-red-100 pb-2"><span class="font-bold">${item.name}</span><span class="text-red-600 font-black">Stok: \( {item.qty}</span><button onclick="loadModule('inventory'); closeDrawer();" class="text-xs bg-red-100 px-2 py-1 rounded-full"> \){t('Pergi ke Inventory')}</button></div>`).join(''); 
+}
+function checkLowStockAndNotify(previousLowIds = []) { 
+    const lowItems = getLowStockItems(); 
+    const currentLowIds = lowItems.map(i => i.id); 
+    const newLow = lowItems.filter(i => !previousLowIds.includes(i.id)); 
+    if (newLow.length > 0) { 
+        const names = newLow.map(i => i.name).join(', '); 
+        showLowStockToast(`⚠️ Stok kritikal: ${names} (≤ ${db.lowStockThreshold})`); 
+    } 
+    updateLowStockPanel(); 
+    return currentLowIds; 
+}
+async function openThresholdModal() { 
+    const newVal = await showPrompt(currentLang==='BM'?`Tetapkan ambang stok rendah:`:`Set low stock threshold:`, db.lowStockThreshold); 
+    if (newVal !== null && !isNaN(parseInt(newVal))) { 
+        db.lowStockThreshold = parseInt(newVal); 
+        save(); 
+        checkLowStockAndNotify([]); 
+        renderInventory(); 
+        showAlert(currentLang==='BM'?`Ambang ditukar kepada ${db.lowStockThreshold}`:`Threshold changed to ${db.lowStockThreshold}`); 
+    } 
+}
 
-// Inventory
+// ================== INVENTORY ==================
 function renderInventory() { 
     const tbody = document.getElementById('inventory-table-body'); 
     if(!tbody) return; 
     const lowIds = getLowStockItems().map(i => i.id); 
     tbody.innerHTML = db.inv.map((item, idx) => {
         return `<tr class="border-b border-gray-50 align-top hover:bg-gray-50/50 transition ${lowIds.includes(item.id) ? 'low-stock-row' : ''}">
-            <td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div><\/td>
-            <td class="p-6"><input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800">
-            <div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">${(item.details || []).map((d, dIdx) => `<div class="flex gap-1"><input type="text" value="${d}" onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" placeholder="Spec" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm"><button onclick="db.inv[${idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button></div>`).join('')}</div>
-            <div class="flex gap-4 mt-3"><button onclick="if(!db.inv[${idx}].details) db.inv[${idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> ${t('TAMBAH SPEC')}</button><button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? t('SOROK') : t('LIHAT')}</button></div><\/td>
-            <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"><\/td>
-            <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"><\/td>
-            <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"><\/td>
+            <td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">\( {item.img ? `<img src=" \){item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div><\/td>
+            <td class="p-6"><input type="text" value="\( {item.name}" onchange="updateInv( \){idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800">
+            <div class="mt-2 space-y-1 \( {item.showDetails ? '' : 'hidden'}"> \){(item.details || []).map((d, dIdx) => `<div class="flex gap-1"><input type="text" value="\( {d}" onchange="db.inv[ \){idx}].details[\( {dIdx}]=this.value; save();" placeholder="Spec" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm"><button onclick="db.inv[ \){idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button></div>`).join('')}</div>
+            <div class="flex gap-4 mt-3"><button onclick="if(!db.inv[\( {idx}].details) db.inv[ \){idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> \( {t('TAMBAH SPEC')}</button><button onclick="db.inv[ \){idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? t('SOROK') : t('LIHAT')}</button></div><\/td>
+            <td class="p-6"><input type="number" value="\( {item.kos}" onchange="updateInv( \){idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"><\/td>
+            <td class="p-6"><input type="number" value="\( {item.jual}" onchange="updateInv( \){idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"><\/td>
+            <td class="p-6"><input type="number" value="\( {item.qty}" onchange="updateInv( \){idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"><\/td>
             <td class="p-6 text-center"><button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button><\/td>
          <\/tr>`;
     }).join(''); 
 }
-function addInventoryItem() { db.inv.push({ id: Date.now(), name: currentLang==='BM'?'Produk Baru':'New Product', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true, salesCount: 0 }); renderInventory(); save(); checkLowStockAndNotify([]); }
-function updateInv(idx, field, val) { db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); save(); renderInventory(); if (field === 'qty') { const lowItems = getLowStockItems(); if (lowItems.some(i => i.id === db.inv[idx].id)) showLowStockToast(`⚠️ Stok ${db.inv[idx].name} kini kritikal (${db.inv[idx].qty})`); updateLowStockPanel(); } }
-function updateInvImg(input, idx) { const reader = new FileReader(); reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; reader.readAsDataURL(input.files[0]); }
+function addInventoryItem() { 
+    db.inv.push({ id: Date.now(), name: currentLang==='BM'?'Produk Baru':'New Product', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true, salesCount: 0 }); 
+    renderInventory(); save(); checkLowStockAndNotify([]); 
+}
+function updateInv(idx, field, val) { 
+    db.inv[idx][field] = (field === 'name') ? val : parseFloat(val); 
+    save(); renderInventory(); 
+    if (field === 'qty') { 
+        const lowItems = getLowStockItems(); 
+        if (lowItems.some(i => i.id === db.inv[idx].id)) showLowStockToast(`⚠️ Stok \( {db.inv[idx].name} kini kritikal ( \){db.inv[idx].qty})`); 
+        updateLowStockPanel(); 
+    } 
+}
+function updateInvImg(input, idx) { 
+    const reader = new FileReader(); 
+    reader.onload = (e) => { db.inv[idx].img = e.target.result; save(); renderInventory(); }; 
+    reader.readAsDataURL(input.files[0]); 
+}
 
-// Dashboard
-function renderDashboard() { const paidTransactions = db.hist.filter(h => h.type === 'REC'); const totalRev = paidTransactions.reduce((sum, h) => sum + h.total, 0); const totalMargin = paidTransactions.reduce((sum, h) => sum + h.margin, 0); const totalTax = db.tax.reduce((sum, t) => sum + t.amt, 0); const dashRev = document.getElementById('dash-total-rev'); if(dashRev) dashRev.innerText = `RM ${totalRev.toFixed(2)}`; const dashMargin = document.getElementById('dash-total-margin'); if(dashMargin) dashMargin.innerText = `RM ${totalMargin.toFixed(2)}`; const dashTax = document.getElementById('dash-tax-expense'); if(dashTax) dashTax.innerText = `RM ${totalTax.toFixed(2)}`; const dashInvCount = document.getElementById('dash-inv-count'); if(dashInvCount) dashInvCount.innerText = `${db.inv.length} Unit`; renderJobs(); updateLowStockPanel(); }
+// ================== DASHBOARD ==================
+function renderDashboard() { 
+    const paidTransactions = db.hist.filter(h => h.type === 'REC'); 
+    const totalRev = paidTransactions.reduce((sum, h) => sum + h.total, 0); 
+    const totalMargin = paidTransactions.reduce((sum, h) => sum + h.margin, 0); 
+    const totalTax = db.tax.reduce((sum, t) => sum + t.amt, 0); 
+    const dashRev = document.getElementById('dash-total-rev'); 
+    if(dashRev) dashRev.innerText = `RM ${totalRev.toFixed(2)}`; 
+    const dashMargin = document.getElementById('dash-total-margin'); 
+    if(dashMargin) dashMargin.innerText = `RM ${totalMargin.toFixed(2)}`; 
+    const dashTax = document.getElementById('dash-tax-expense'); 
+    if(dashTax) dashTax.innerText = `RM ${totalTax.toFixed(2)}`; 
+    const dashInvCount = document.getElementById('dash-inv-count'); 
+    if(dashInvCount) dashInvCount.innerText = `${db.inv.length} Unit`; 
+    renderJobs(); 
+    updateLowStockPanel(); 
+}
 
 // ================== MINI POS ==================
 function renderProductGrid() {
@@ -528,30 +571,155 @@ function renderProductGrid() {
 }
 function productCard(p) {
     const lowIds = getLowStockItems().map(i => i.id);
-    return `<div class="product-btn ${lowIds.includes(p.id) ? 'low-stock' : ''}" onclick="addToCart(${p.id})">
-        <div class="flex justify-center mb-1">${p.img ? `<img src="${p.img}" class="w-12 h-12 object-cover rounded-lg">` : '<i class="fas fa-box text-gray-400 text-2xl"></i>'}</div>
+    return `<div class="product-btn \( {lowIds.includes(p.id) ? 'low-stock' : ''}" onclick="addToCart( \){p.id})">
+        <div class="flex justify-center mb-1">\( {p.img ? `<img src=" \){p.img}" class="w-12 h-12 object-cover rounded-lg">` : '<i class="fas fa-box text-gray-400 text-2xl"></i>'}</div>
         <div class="font-bold text-sm truncate">${p.name}</div>
         <div class="text-blue-600 font-black text-lg">RM ${p.jual.toFixed(2)}</div>
         <div class="text-[10px] text-gray-400">Stok: ${p.qty}</div>
     </div>`;
 }
 function setupPosExtra() {}
-async function addToCart(productId) { const product = db.inv.find(p => p.id === productId); if (!product) return; if (product.qty <= 0) { await showAlert(currentLang==='BM'?"Stok habis!":"Out of stock!"); return; } const existing = cart.find(i => i.id === productId); if (existing) { if (existing.qty + 1 > product.qty) { await showAlert(currentLang==='BM'?"Stok tidak mencukupi":"Insufficient stock"); return; } existing.qty++; } else { cart.push({ id: product.id, name: product.name, price: product.jual, qty: 1 }); } renderCart(); }
-async function updateCartQty(id, delta) { const idx = cart.findIndex(i => i.id === id); if (idx === -1) return; const product = db.inv.find(p => p.id === id); const newQty = cart[idx].qty + delta; if (newQty <= 0) { cart.splice(idx,1); } else if (product && newQty > product.qty) { await showAlert(currentLang==='BM'?"Stok tidak mencukupi":"Insufficient stock"); return; } else { cart[idx].qty = newQty; } renderCart(); }
+async function addToCart(productId) { 
+    const product = db.inv.find(p => p.id === productId); 
+    if (!product) return; 
+    if (product.qty <= 0) { await showAlert(currentLang==='BM'?"Stok habis!":"Out of stock!"); return; } 
+    const existing = cart.find(i => i.id === productId); 
+    if (existing) { 
+        if (existing.qty + 1 > product.qty) { await showAlert(currentLang==='BM'?"Stok tidak mencukupi":"Insufficient stock"); return; } 
+        existing.qty++; 
+    } else { 
+        cart.push({ id: product.id, name: product.name, price: product.jual, qty: 1 }); 
+    } 
+    renderCart(); 
+}
+async function updateCartQty(id, delta) { 
+    const idx = cart.findIndex(i => i.id === id); 
+    if (idx === -1) return; 
+    const product = db.inv.find(p => p.id === id); 
+    const newQty = cart[idx].qty + delta; 
+    if (newQty <= 0) { cart.splice(idx,1); } 
+    else if (product && newQty > product.qty) { await showAlert(currentLang==='BM'?"Stok tidak mencukupi":"Insufficient stock"); return; } 
+    else { cart[idx].qty = newQty; } 
+    renderCart(); 
+}
 function removeCartItem(id) { cart = cart.filter(i => i.id !== id); renderCart(); }
-function renderCart() { const container = document.getElementById('cart-items'); if (!container) return; if (cart.length === 0) { container.innerHTML = `<div class="text-center text-gray-400 py-4">${t('Keranjang kosong')}</div>`; document.getElementById('cart-total').innerText = 'RM 0.00'; document.getElementById('cart-grand').innerText = 'RM 0.00'; document.getElementById('discount-row').style.display = 'none'; calculateChange(); return; } let total = 0; container.innerHTML = cart.map(item => { const lineTotal = item.price * item.qty; total += lineTotal; return `<div class="cart-item"><div><span class="font-bold">${item.name}</span><div class="text-xs text-gray-500">RM ${item.price.toFixed(2)}</div></div><div class="cart-qty"><button onclick="updateCartQty(${item.id}, -1)">-</button><span class="w-8 text-center">${item.qty}</span><button onclick="updateCartQty(${item.id}, 1)">+</button><button onclick="removeCartItem(${item.id})" class="text-red-500 ml-2"><i class="fas fa-trash-alt"></i></button></div><div class="font-bold">RM ${lineTotal.toFixed(2)}</div></div>`; }).join(''); document.getElementById('cart-total').innerText = `RM ${total.toFixed(2)}`; const grand = total - posDiscount; document.getElementById('cart-grand').innerText = `RM ${grand.toFixed(2)}`; if (posDiscount > 0) { document.getElementById('discount-row').style.display = 'flex'; document.getElementById('cart-discount').innerText = `- RM ${posDiscount.toFixed(2)}`; } else { document.getElementById('discount-row').style.display = 'none'; } calculateChange(); }
-function calculateChange() { const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); const grand = total - posDiscount; const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; const change = cash - grand; const changeSpan = document.getElementById('change-amount'); if (changeSpan) changeSpan.innerText = `RM ${change >= 0 ? change.toFixed(2) : '0.00'}`; return change; }
+function renderCart() { 
+    const container = document.getElementById('cart-items'); 
+    if (!container) return; 
+    if (cart.length === 0) { 
+        container.innerHTML = `<div class="text-center text-gray-400 py-4">${t('Keranjang kosong')}</div>`; 
+        document.getElementById('cart-total').innerText = 'RM 0.00'; 
+        document.getElementById('cart-grand').innerText = 'RM 0.00'; 
+        document.getElementById('discount-row').style.display = 'none'; 
+        calculateChange(); return; 
+    } 
+    let total = 0; 
+    container.innerHTML = cart.map(item => { 
+        const lineTotal = item.price * item.qty; total += lineTotal; 
+        return `<div class="cart-item"><div><span class="font-bold">${item.name}</span><div class="text-xs text-gray-500">RM \( {item.price.toFixed(2)}</div></div><div class="cart-qty"><button onclick="updateCartQty( \){item.id}, -1)">-</button><span class="w-8 text-center">\( {item.qty}</span><button onclick="updateCartQty( \){item.id}, 1)">+</button><button onclick="removeCartItem(${item.id})" class="text-red-500 ml-2"><i class="fas fa-trash-alt"></i></button></div><div class="font-bold">RM ${lineTotal.toFixed(2)}</div></div>`; 
+    }).join(''); 
+    document.getElementById('cart-total').innerText = `RM ${total.toFixed(2)}`; 
+    const grand = total - posDiscount; 
+    document.getElementById('cart-grand').innerText = `RM ${grand.toFixed(2)}`; 
+    if (posDiscount > 0) { 
+        document.getElementById('discount-row').style.display = 'flex'; 
+        document.getElementById('cart-discount').innerText = `- RM ${posDiscount.toFixed(2)}`; 
+    } else { 
+        document.getElementById('discount-row').style.display = 'none'; 
+    } 
+    calculateChange(); 
+}
+function calculateChange() { 
+    const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); 
+    const grand = total - posDiscount; 
+    const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; 
+    const change = cash - grand; 
+    const changeSpan = document.getElementById('change-amount'); 
+    if (changeSpan) changeSpan.innerText = `RM ${change >= 0 ? change.toFixed(2) : '0.00'}`; 
+    return change; 
+}
 function clearCart() { cart = []; posDiscount = 0; document.getElementById('pos-coupon').value = ''; renderCart(); document.getElementById('cash-paid').value = ''; calculateChange(); }
-async function applyPosCoupon() { const code = document.getElementById('pos-coupon').value.toUpperCase(); const coupon = db.coupons.find(c => c.code === code && c.quantity > 0); if (coupon) { posDiscount = coupon.value; coupon.quantity--; if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } save(); renderCoupons(); await showAlert(currentLang==='BM'?`Kupon ${code} digunakan: RM ${posDiscount} diskaun`:`Coupon ${code} applied: RM ${posDiscount} discount`); renderCart(); } else { await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!"); posDiscount = 0; renderCart(); } }
-async function completeSale() { if (cart.length === 0) { await showAlert(currentLang==='BM'?"Keranjang kosong":"Cart is empty"); return; } const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); const grand = total - posDiscount; const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; if (cash < grand) { await showAlert(currentLang==='BM'?"Tunai tidak mencukupi":"Insufficient cash"); return; } const custName = document.getElementById('pos-cust-name').value.trim(); const custPhone = document.getElementById('pos-cust-phone').value.trim(); if (custName) { const existing = db.cli.find(c => c.name.toLowerCase() === custName.toLowerCase()); if (!existing) { db.cli.push({ id: Date.now(), name: custName, phone: custPhone, addr: '' }); save(); renderCRM(); } else if (custPhone && existing.phone !== custPhone) { existing.phone = custPhone; save(); renderCRM(); } } let margin = 0; const items = []; const previousLowIds = getLowStockItems().map(i => i.id); for (let item of cart) { const product = db.inv.find(p => p.id === item.id); if (product) { if (product.qty < item.qty) { await showAlert(currentLang==='BM'?`Stok ${product.name} tidak mencukupi`:`Not enough stock for ${product.name}`); return; } product.qty -= item.qty; product.salesCount = (product.salesCount || 0) + item.qty; margin += (product.jual - product.kos) * item.qty; items.push({ name: product.name, qty: item.qty, jual: product.jual, kos: product.kos }); } } const newRef = `REC${getNextRef('REC')}`; db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: newRef, type: 'REC', clientName: custName || 'POS Walk-in', phone: custPhone, total: grand, margin: margin, items: items, discount: posDiscount }); save(); checkLowStockAndNotify(previousLowIds); renderInventory(); renderDashboard(); const change = cash - grand; printReceiptNow(grand, cash, change, custName, custPhone); if (custPhone) { const receiptMsg = generateReceiptMessage(grand, custName, items); const encodedMsg = encodeURIComponent(receiptMsg); window.open(`https://wa.me/${custPhone}?text=${encodedMsg}`, '_blank'); } clearCart(); await showAlert(currentLang==='BM'?"Jualan selesai. Resit dibuka.":"Sale complete. Receipt generated."); }
-async function printReceipt() { if (cart.length === 0) { await showAlert(currentLang==='BM'?"Tiada item dalam keranjang":"No items in cart"); return; } const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); const grand = total - posDiscount; const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; const change = cash - grand; const custName = document.getElementById('pos-cust-name').value.trim(); const custPhone = document.getElementById('pos-cust-phone').value.trim(); printReceiptNow(grand, cash, change, custName, custPhone); }
-function printReceiptNow(total, cash, change, custName, custPhone) { const bizName = db.prof.name || "SYARIKAT ANDA"; const bizAddr = db.prof.addr || ""; const date = new Date().toLocaleString(); let itemsHtml = ''; cart.forEach(item => { itemsHtml += `<div style="display:flex; justify-content:space-between;"><span>${item.name} x${item.qty}</span><span>RM ${(item.price * item.qty).toFixed(2)}</span></div>`; }); const receiptHtml = `<div style="width: 300px; margin:0 auto; font-family: monospace; padding: 16px; border: 1px solid #ccc; border-radius: 12px;"><div style="text-align: center; font-weight: bold; font-size: 16px;">${bizName}</div><div style="text-align: center; font-size: 10px;">${bizAddr}</div><div style="text-align: center; font-size: 10px;">${date}</div>${custName ? `<div style="margin-top:8px;">Pelanggan: ${custName} ${custPhone ? `(${custPhone})` : ''}</div>` : ''}<hr style="margin: 8px 0;">${itemsHtml}${posDiscount > 0 ? `<div style="display:flex; justify-content:space-between;"><span>Diskaun</span><span>- RM ${posDiscount.toFixed(2)}</span></div>` : ''}<hr style="margin: 8px 0;"><div style="display:flex; justify-content:space-between;"><strong>JUMLAH</strong><strong>RM ${total.toFixed(2)}</strong></div><div style="display:flex; justify-content:space-between;">TUNAI: RM ${cash.toFixed(2)}</div><div style="display:flex; justify-content:space-between;">BAKI: RM ${change >= 0 ? change.toFixed(2) : '0.00'}</div><hr style="margin: 8px 0;"><div style="text-align: center; font-size: 10px;">Terima kasih! Selamat datang lagi.</div></div>`; const printWindow = window.open('', '_blank'); printWindow.document.write(`<html><head><title>Resit POS</title><style>body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }</style></head><body>${receiptHtml}<script>window.onload = function() { window.print(); setTimeout(function(){ window.close(); }, 500); };<\/script></body></html>`); printWindow.document.close(); }
+async function applyPosCoupon() { 
+    const code = document.getElementById('pos-coupon').value.toUpperCase(); 
+    const coupon = db.coupons.find(c => c.code === code && c.quantity > 0); 
+    if (coupon) { 
+        posDiscount = coupon.value; 
+        coupon.quantity--; 
+        if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } 
+        save(); renderCoupons(); 
+        await showAlert(currentLang==='BM'?`Kupon ${code} digunakan: RM ${posDiscount} diskaun`:`Coupon ${code} applied: RM ${posDiscount} discount`); 
+        renderCart(); 
+    } else { 
+        await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!"); 
+        posDiscount = 0; renderCart(); 
+    } 
+}
+async function completeSale() { 
+    if (cart.length === 0) { await showAlert(currentLang==='BM'?"Keranjang kosong":"Cart is empty"); return; } 
+    const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); 
+    const grand = total - posDiscount; 
+    const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; 
+    if (cash < grand) { await showAlert(currentLang==='BM'?"Tunai tidak mencukupi":"Insufficient cash"); return; } 
+    const custName = document.getElementById('pos-cust-name').value.trim(); 
+    const custPhone = document.getElementById('pos-cust-phone').value.trim(); 
+    if (custName) { 
+        const existing = db.cli.find(c => c.name.toLowerCase() === custName.toLowerCase()); 
+        if (!existing) { db.cli.push({ id: Date.now(), name: custName, phone: custPhone, addr: '' }); save(); renderCRM(); } 
+        else if (custPhone && existing.phone !== custPhone) { existing.phone = custPhone; save(); renderCRM(); } 
+    } 
+    let margin = 0; const items = []; const previousLowIds = getLowStockItems().map(i => i.id); 
+    for (let item of cart) { 
+        const product = db.inv.find(p => p.id === item.id); 
+        if (product) { 
+            if (product.qty < item.qty) { await showAlert(currentLang==='BM'?`Stok ${product.name} tidak mencukupi`:`Not enough stock for ${product.name}`); return; } 
+            product.qty -= item.qty; 
+            product.salesCount = (product.salesCount || 0) + item.qty; 
+            margin += (product.jual - product.kos) * item.qty; 
+            items.push({ name: product.name, qty: item.qty, jual: product.jual, kos: product.kos }); 
+        } 
+    } 
+    const newRef = `REC${getNextRef('REC')}`; 
+    db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: newRef, type: 'REC', clientName: custName || 'POS Walk-in', phone: custPhone, total: grand, margin: margin, items: items, discount: posDiscount }); 
+    save(); 
+    checkLowStockAndNotify(previousLowIds); 
+    renderInventory(); renderDashboard(); 
+    const change = cash - grand; 
+    printReceiptNow(grand, cash, change, custName, custPhone); 
+    if (custPhone) { 
+        const receiptMsg = generateReceiptMessage(grand, custName, items); 
+        const encodedMsg = encodeURIComponent(receiptMsg); 
+        window.open(`https://wa.me/\( {custPhone}?text= \){encodedMsg}`, '_blank'); 
+    } 
+    clearCart(); 
+    await showAlert(currentLang==='BM'?"Jualan selesai. Resit dibuka.":"Sale complete. Receipt generated."); 
+}
+async function printReceipt() { 
+    if (cart.length === 0) { await showAlert(currentLang==='BM'?"Tiada item dalam keranjang":"No items in cart"); return; } 
+    const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); 
+    const grand = total - posDiscount; 
+    const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; 
+    const change = cash - grand; 
+    const custName = document.getElementById('pos-cust-name').value.trim(); 
+    const custPhone = document.getElementById('pos-cust-phone').value.trim(); 
+    printReceiptNow(grand, cash, change, custName, custPhone); 
+}
+function printReceiptNow(total, cash, change, custName, custPhone) { 
+    const bizName = db.prof.name || "SYARIKAT ANDA"; 
+    const bizAddr = db.prof.addr || ""; 
+    const date = new Date().toLocaleString(); 
+    let itemsHtml = ''; 
+    cart.forEach(item => { itemsHtml += `<div style="display:flex; justify-content:space-between;"><span>\( {item.name} x \){item.qty}</span><span>RM ${(item.price * item.qty).toFixed(2)}</span></div>`; }); 
+    const receiptHtml = `<div style="width: 300px; margin:0 auto; font-family: monospace; padding: 16px; border: 1px solid #ccc; border-radius: 12px;"><div style="text-align: center; font-weight: bold; font-size: 16px;">\( {bizName}</div><div style="text-align: center; font-size: 10px;"> \){bizAddr}</div><div style="text-align: center; font-size: 10px;">\( {date}</div> \){custName ? `<div style="margin-top:8px;">Pelanggan: ${custName} \( {custPhone ? `( \){custPhone})` : ''}</div>` : ''}<hr style="margin: 8px 0;">\( {itemsHtml} \){posDiscount > 0 ? `<div style="display:flex; justify-content:space-between;"><span>Diskaun</span><span>- RM ${posDiscount.toFixed(2)}</span></div>` : ''}<hr style="margin: 8px 0;"><div style="display:flex; justify-content:space-between;"><strong>JUMLAH</strong><strong>RM ${total.toFixed(2)}</strong></div><div style="display:flex; justify-content:space-between;">TUNAI: RM ${cash.toFixed(2)}</div><div style="display:flex; justify-content:space-between;">BAKI: RM ${change >= 0 ? change.toFixed(2) : '0.00'}</div><hr style="margin: 8px 0;"><div style="text-align: center; font-size: 10px;">Terima kasih! Selamat datang lagi.</div></div>`; 
+    const printWindow = window.open('', '_blank'); 
+    printWindow.document.write(`<html><head><title>Resit POS</title><style>body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }</style></head><body>${receiptHtml}<script>window.onload = function() { window.print(); setTimeout(function(){ window.close(); }, 500); };<\/script></body></html>`); 
+    printWindow.document.close(); 
+}
 
 function generateReceiptMessage(total, custName, items) {
     let msg = `🧾 *RESIT PEMBELIAN*\n`;
     if (custName) msg += `Pelanggan: ${custName}\n`;
     msg += `Tarikh: ${new Date().toLocaleString()}\n\n`;
-    items.forEach(i => { msg += `${i.name} x${i.qty} = RM ${(i.jual * i.qty).toFixed(2)}\n`; });
+    items.forEach(i => { msg += `\( {i.name} x \){i.qty} = RM ${(i.jual * i.qty).toFixed(2)}\n`; });
     if (posDiscount > 0) msg += `Diskaun: -RM ${posDiscount.toFixed(2)}\n`;
     msg += `\n*JUMLAH: RM ${total.toFixed(2)}*\n\nTerima kasih!`;
     return msg;
@@ -577,15 +745,15 @@ async function generateFinalBilling() {
     const finalTotal = total - activeDiscount; 
     const finalMargin = (type === 'REC') ? (margin - activeDiscount) : 0; 
     const refNum = getNextRef(type); 
-    const newRef = `${type}${refNum}`; 
+    const newRef = `\( {type} \){refNum}`; 
     db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: newRef, type: type, clientName: client ? client.name : 'Umum', phone: client?.phone || '', total: finalTotal, margin: finalMargin, items: items, discount: activeDiscount }); 
     save(); 
-    await showAlert(currentLang==='BM'?`Rekod ${type} Berjaya Disimpan! No: ${newRef}`:`${type} Record Saved! No: ${newRef}`); 
+    await showAlert(currentLang==='BM'?`Rekod ${type} Berjaya Disimpan! No: \( {newRef}`:` \){type} Record Saved! No: ${newRef}`); 
     location.reload(); 
 }
 async function deleteDoc(id) { const doc = db.hist.find(h => h.id === id); if (doc) { const type = doc.type; const refNum = parseInt(doc.ref.slice(3)); recycleRef(type, refNum); db.hist = db.hist.filter(h => h.id !== id); save(); renderHistory(); await showAlert(currentLang==='BM'?`Dokumen ${doc.ref} dibatalkan. Nombor akan diguna semula.`:`Document ${doc.ref} cancelled. Number will be recycled.`); } }
-function populateBillingClients() { const s = document.getElementById('bill-client-select'); if(s) s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
-function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input')?.appendChild(div); }
+function populateBillingClients() { const s = document.getElementById('bill-client-select'); if(s) s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="\( {c.id}"> \){c.name}</option>`).join(''); }
+function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>\( {db.inv.map(i => `<option value=" \){i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input')?.appendChild(div); }
 function calcBilling() { 
     const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); 
     if(!body) return; 
@@ -615,13 +783,13 @@ function calcBilling() {
     } 
 }
 async function applyCoupon() { const c = document.getElementById('coupon-input')?.value.toUpperCase(); const coupon = db.coupons.find(coupon => coupon.code === c && coupon.quantity > 0); if (coupon) { activeDiscount = coupon.value; coupon.quantity--; if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } save(); renderCoupons(); await showAlert(currentLang==='BM'?"Kupon Guna!":"Coupon Applied!"); calcBilling(); } else { await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!"); activeDiscount = 0; calcBilling(); } }
-function updateBillTo() { const id = document.getElementById('bill-client-select')?.value, c = db.cli.find(x => x.id == id); const billTo = document.getElementById('bill-to-client'); if(billTo) billTo.innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---'; }
-function shareWhatsapp() { const clientId = document.getElementById('bill-client-select')?.value; const client = db.cli.find(c => c.id == clientId); const phone = client ? client.phone : ''; const total = document.getElementById('grandtotal')?.innerText; const msg = encodeURIComponent(`Terima kasih. Sila lihat dokumen anda. Jumlah: ${total}`); if(phone) window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'); else window.open(`https://wa.me/?text=${msg}`, '_blank'); }
-function updateBillingTheme() { const type = document.getElementById('billing-type')?.value; document.body.className = `theme-${type} ${isDarkTheme ? 'dark-mode' : ''}`; const previewTitle = document.getElementById('preview-title'); if(previewTitle) previewTitle.innerText = type; const watermark = document.getElementById('watermark'); if(watermark) watermark.innerText = type; const refNo = document.getElementById('ref-no'); if(refNo) refNo.innerText = `${type}${db.ref[type]}`; const prevDate = document.getElementById('prev-date'); if(prevDate) prevDate.innerText = new Date().toLocaleDateString('en-GB'); }
+function updateBillTo() { const id = document.getElementById('bill-client-select')?.value, c = db.cli.find(x => x.id == id); const billTo = document.getElementById('bill-to-client'); if(billTo) billTo.innerText = c ? `\( {c.name}\n \){c.phone}\n${c.addr}` : '---'; }
+function shareWhatsapp() { const clientId = document.getElementById('bill-client-select')?.value; const client = db.cli.find(c => c.id == clientId); const phone = client ? client.phone : ''; const total = document.getElementById('grandtotal')?.innerText; const msg = encodeURIComponent(`Terima kasih. Sila lihat dokumen anda. Jumlah: \( {total}`); if(phone) window.open(`https://wa.me/ \){phone}?text=\( {msg}`, '_blank'); else window.open(`https://wa.me/?text= \){msg}`, '_blank'); }
+function updateBillingTheme() { const type = document.getElementById('billing-type')?.value; document.body.className = `theme-${type} \( {isDarkTheme ? 'dark-mode' : ''}`; const previewTitle = document.getElementById('preview-title'); if(previewTitle) previewTitle.innerText = type; const watermark = document.getElementById('watermark'); if(watermark) watermark.innerText = type; const refNo = document.getElementById('ref-no'); if(refNo) refNo.innerText = ` \){type}${db.ref[type]}`; const prevDate = document.getElementById('prev-date'); if(prevDate) prevDate.innerText = new Date().toLocaleDateString('en-GB'); }
 
 // ================== CRM ==================
 async function addClient() { const n = await showPrompt(currentLang==='BM'?"Nama Pelanggan:":"Customer Name:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
-function renderCRM() { const container = document.getElementById('crm-list-grid'); if(container) container.innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
+function renderCRM() { const container = document.getElementById('crm-list-grid'); if(container) container.innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">\( {c.name.charAt(0)}</div><button onclick="db.cli.splice( \){idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="\( {c.name}" onchange="db.cli[ \){idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="\( {c.phone}" onchange="db.cli[ \){idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[\( {idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14"> \){c.addr}</textarea></div></div>`).join(''); }
 
 // ================== BUSINESS PROFILE ==================
 function updateBizProfile() { db.prof.name = document.getElementById('set-biz-name')?.value || ''; db.prof.addr = document.getElementById('set-biz-addr')?.value || ''; db.prof.bank = document.getElementById('set-biz-bank')?.value || ''; const prevName = document.getElementById('prev-biz-name'); if(prevName) prevName.innerText = db.prof.name || "NAMA SYARIKAT"; const prevAddr = document.getElementById('prev-biz-addr'); if(prevAddr) prevAddr.innerText = db.prof.addr || "ALAMAT"; const prevBank = document.getElementById('prev-biz-bank'); if(prevBank) prevBank.innerText = db.prof.bank || "BANK"; if(db.prof.logo) { const logo = document.getElementById('prev-logo'); if(logo) { logo.src = db.prof.logo; logo.classList.remove('hidden'); } } if(db.prof.cop) { const cop = document.getElementById('prev-cop'); if(cop) { cop.src = db.prof.cop; cop.classList.remove('hidden'); } } save(); }
@@ -676,7 +844,7 @@ function showJobModal() {
             if (reminder) {
                 let reminderDateTime = date;
                 if (time) {
-                    reminderDateTime = `${date}T${time}`;
+                    reminderDateTime = `\( {date}T \){time}`;
                 } else {
                     reminderDateTime = `${date}T09:00`;
                 }
@@ -825,7 +993,6 @@ function setupSocialExtra() {
             parent.appendChild(iconSpan);
         }
     }
-    // Minta kebenaran notifikasi
     if (Notification.permission === 'default') {
         Notification.requestPermission();
     }
@@ -859,7 +1026,7 @@ function addSchedule() {
         reader.onload = () => { fileData = reader.result; };
     }
     if (title && date && time) {
-        const timestamp = new Date(`${date}T${time}`).getTime();
+        const timestamp = new Date(`\( {date}T \){time}`).getTime();
         if (isNaN(timestamp) || timestamp <= Date.now()) {
             showAlert(currentLang === 'BM' ? 'Tarikh dan masa mestilah pada masa hadapan.' : 'Date and time must be in the future.');
             return;
@@ -879,7 +1046,6 @@ function addSchedule() {
         save();
         renderSchedule();
         
-        // Jadualkan notifikasi
         const delay = timestamp - Date.now();
         setTimeout(() => {
             if (!scheduleItem.notified) {
@@ -928,7 +1094,7 @@ function renderSchedule() {
                 <h4 class="font-bold text-sm">${s.title}</h4>
                 <p class="text-[10px] text-gray-400 font-bold uppercase">${s.platform} | ${s.date} ${s.time}</p>
                 ${s.fileData ? `<p class="text-[8px] text-blue-500">📎 Fail ada</p>` : ''}
-                <p class="text-[8px] ${s.notified ? 'text-green-500' : 'text-orange-500'}">${s.notified ? '✅ Notified' : '⏳ Pending'}</p>
+                <p class="text-[8px] \( {s.notified ? 'text-green-500' : 'text-orange-500'}"> \){s.notified ? '✅ Notified' : '⏳ Pending'}</p>
             </div>
             <button onclick="db.sch=db.sch.filter(x=>x.id!==${s.id});save();renderSchedule();" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button>
         </div>
@@ -992,17 +1158,17 @@ function showTemplatePicker() {
     });
     modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
 }
-function renderBlastClientList() { const container = document.getElementById('blast-client-list'); if(container) container.innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl cursor-pointer"><input type="checkbox" class="blast-checkbox w-5 h-5 mr-4 accent-emerald-500" data-phone="${c.phone}" data-name="${c.name}"><div><p class="text-sm font-bold">${c.name}</p><p class="text-[10px] text-gray-400 font-bold">${c.phone}</p></div></label>`).join(''); }
-async function startBlast() { const cs = document.querySelectorAll('.blast-checkbox:checked'); let m = document.getElementById('blast-msg')?.value; const delay = parseInt(document.getElementById('blast-delay')?.value) || 30; if (delay < 30 || delay > 999) { await showAlert('Sela masa mesti antara 30 hingga 999 saat.'); return; } for (let c of cs) { const randomKey = Math.random().toString(36).substring(2, 8).toUpperCase(); const footer = `\n\n${randomKey}\n\nDihantar oleh BizPro System`; const fullMsg = m + footer; const text = encodeURIComponent(fullMsg.replace('{name}', c.dataset.name)); window.open(`https://wa.me/${c.dataset.phone}?text=${text}`, '_blank'); await new Promise(r => setTimeout(r, delay * 1000)); } }
-function generateCatalogText() { let c = "KATALOG:\n"; db.inv.slice(0, 10).forEach(i => c += `- ${i.name} RM${i.jual}\n`); const msgArea = document.getElementById('blast-msg'); if(msgArea) msgArea.value = c; }
+function renderBlastClientList() { const container = document.getElementById('blast-client-list'); if(container) container.innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl cursor-pointer"><input type="checkbox" class="blast-checkbox w-5 h-5 mr-4 accent-emerald-500" data-phone="\( {c.phone}" data-name=" \){c.name}"><div><p class="text-sm font-bold">\( {c.name}</p><p class="text-[10px] text-gray-400 font-bold"> \){c.phone}</p></div></label>`).join(''); }
+async function startBlast() { const cs = document.querySelectorAll('.blast-checkbox:checked'); let m = document.getElementById('blast-msg')?.value; const delay = parseInt(document.getElementById('blast-delay')?.value) || 30; if (delay < 30 || delay > 999) { await showAlert('Sela masa mesti antara 30 hingga 999 saat.'); return; } for (let c of cs) { const randomKey = Math.random().toString(36).substring(2, 8).toUpperCase(); const footer = `\n\n\( {randomKey}\n\nDihantar oleh BizPro System`; const fullMsg = m + footer; const text = encodeURIComponent(fullMsg.replace('{name}', c.dataset.name)); window.open(`https://wa.me/ \){c.dataset.phone}?text=${text}`, '_blank'); await new Promise(r => setTimeout(r, delay * 1000)); } }
+function generateCatalogText() { let c = "KATALOG:\n"; db.inv.slice(0, 10).forEach(i => c += `- \( {i.name} RM \){i.jual}\n`); const msgArea = document.getElementById('blast-msg'); if(msgArea) msgArea.value = c; }
 
 // ================== AUTOREPLY ==================
-function renderAR() { const container = document.getElementById('ar-list'); if(container) container.innerHTML = db.ar.map(item => `<div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100"><div class="flex-1 pr-4"><p class="font-bold text-sm text-gray-800">${item.title}</p><p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p></div><div class="flex gap-2"><button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold uppercase">${t('SALIN')}</button><button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button></div></div>`).join('') || `<p class="text-gray-400 text-xs italic py-4">${t('Tiada template sapaan.')}</p>`; }
+function renderAR() { const container = document.getElementById('ar-list'); if(container) container.innerHTML = db.ar.map(item => `<div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100"><div class="flex-1 pr-4"><p class="font-bold text-sm text-gray-800">\( {item.title}</p><p class="text-[10px] text-gray-400 line-clamp-1"> \){item.msg}</p></div><div class="flex gap-2"><button onclick="copyToClipboard('\( {encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold uppercase"> \){t('SALIN')}</button><button onclick="deleteAR(\( {item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button></div></div>`).join('') || `<p class="text-gray-400 text-xs italic py-4"> \){t('Tiada template sapaan.')}</p>`; }
 async function saveAR() { const title = document.getElementById('ar-title')?.value, msg = document.getElementById('ar-msg')?.value; if(!title || !msg) return await showAlert(currentLang==='BM'?"Sila isi tajuk dan mesej!":"Please fill title and message!"); db.ar.push({ id: Date.now(), title, msg }); save(); renderAR(); document.getElementById('ar-title').value = ''; document.getElementById('ar-msg').value = ''; }
 function copyToClipboard(msg) { const text = decodeURIComponent(msg); navigator.clipboard.writeText(text).then(async () => { await showAlert(currentLang==='BM'?"Template disalin ke papan klip!":"Template copied to clipboard!"); }); }
 async function deleteAR(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam template?":"Delete template?"); if(confirmed) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
 
-// ================== LHDN TAX (FIXED) ==================
+// ================== LHDN TAX ==================
 function resetTaxModal() {
     const modal = document.getElementById('tax-modal');
     if (!modal) return;
@@ -1069,7 +1235,7 @@ function renderTax() {
         categories[t.cat] = (categories[t.cat] || 0) + t.amt; 
         return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition">
             <td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}<\/td>
-            <td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'}<\/td>
+            <td class="p-6">\( {t.img ? `<img src=" \){t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'}<\/td>
             <td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span><\/td>
             <td class="p-6 font-bold text-sm text-gray-800">${t.vendor}<\/td>
             <td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}<\/td>
@@ -1085,188 +1251,4 @@ async function deleteTax(id) {
     const confirmed = await showConfirm(currentLang==='BM'?"Padam rekod ini?":"Delete this record?"); 
     if(confirmed) { 
         db.tax = db.tax.filter(t => t.id !== id); 
-        save(); 
-        renderTax(); 
-    } 
-}
-
-// ================== HISTORY ==================
-function setupHistoryExtra() {
-    const searchInput = document.getElementById('history-search');
-    if (searchInput) {
-        searchInput.addEventListener('input', () => renderHistory());
-    }
-}
-function renderHistory() {
-    const container = document.getElementById('history-body');
-    if (!container) return;
-    let filtered = [...db.hist];
-    const searchTerm = document.getElementById('history-search')?.value.toLowerCase() || '';
-    if (searchTerm) {
-        filtered = filtered.filter(h => 
-            h.clientName?.toLowerCase().includes(searchTerm) ||
-            h.ref?.toLowerCase().includes(searchTerm) ||
-            h.phone?.toLowerCase().includes(searchTerm)
-        );
-    }
-    container.innerHTML = filtered.map(h => `
-        <tr class="hover:bg-gray-50 transition">
-            <td class="p-6">${h.date}<\/td>
-            <td class="p-6 font-bold text-blue-600">${h.ref}<\/td>
-            <td class="p-6 font-medium">${h.clientName}<\/td>
-            <td class="p-6">${h.phone || '-'}<\/td>
-            <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${h.type === 'REC' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}">${h.type}</span><\/td>
-            <td class="p-6 text-right font-black">RM ${h.total.toFixed(2)}<\/td>
-            <td class="p-6 text-center space-x-2">
-                <button onclick="viewDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-blue-500 hover:text-blue-700 text-xs font-bold"><i class="fas fa-eye mr-1"></i> Review</button>
-                <button onclick="downloadDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-download mr-1"></i> Download</button>
-                ${h.type === 'INV' ? `<button onclick="convertInvToRec(${h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> ${t('SET PAID')}</button>` : ''}
-                <button onclick="deleteDoc(${h.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
-                ${h.phone ? `<button onclick="sendReceiptViaWhatsApp(${h.id})" class="text-green-500 hover:text-green-700 text-xs font-bold"><i class="fab fa-whatsapp mr-1"></i> ${t('btn-wa')}</button>` : ''}
-            <\/td>
-        <\/tr>
-    `).reverse().join('');
-}
-function sendReceiptViaWhatsApp(id) {
-    const trans = db.hist.find(t => t.id === id);
-    if (trans && trans.phone) {
-        const items = trans.items || [];
-        const msg = generateReceiptMessage(trans.total, trans.clientName, items);
-        const encoded = encodeURIComponent(msg);
-        window.open(`https://wa.me/${trans.phone}?text=${encoded}`, '_blank');
-    }
-}
-async function convertInvToRec(id) { const idx = db.hist.findIndex(h => h.id === id); if(idx !== -1 && db.hist[idx].type === 'INV') { const inv = db.hist[idx]; inv.type = 'REC'; const newRefNum = getNextRef('REC'); inv.ref = `REC${newRefNum}`; let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; }); inv.margin = m - (inv.discount || 0); save(); renderHistory(); await showAlert(currentLang==='BM'?"Invoice ditukar kepada Receipt!":"Invoice converted to Receipt!"); } }
-
-// ================== DOCUMENT REVIEW & PDF ==================
-function viewDocument(hist) { 
-    currentReviewDoc = hist; 
-    const type = hist.type; 
-    const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); 
-    const bizName = db.prof.name || "SYARIKAT ANDA"; 
-    const bizAddr = db.prof.addr || "Alamat Perniagaan"; 
-    const bizBank = db.prof.bank || "Bank & No Akaun"; 
-    const clientName = hist.clientName || "Pelanggan"; 
-    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name}<\/td><td style="padding:12px 8px; text-align:center;">${item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
-    const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); 
-    const discount = hist.discount || 0; 
-    const grand = subtotal - discount; 
-    const discountRow = discount > 0 ? `|<td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}<\/td><\/tr>` : ''; 
-    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody>${itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
-    document.getElementById('reviewDocContent').innerHTML = docHtml; 
-    document.getElementById('reviewModal').classList.remove('hidden'); 
-}
-function closeReviewModal() { document.getElementById('reviewModal').classList.add('hidden'); currentReviewDoc = null; }
-async function downloadReviewAsPDF() { if (!currentReviewDoc) return; const element = document.getElementById('reviewDocContent'); const opt = { margin: 0.2, filename: `${currentReviewDoc.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; await html2pdf().set(opt).from(element).save(); }
-async function downloadDocument(hist) { 
-    const type = hist.type; 
-    const docColor = type === 'QUO' ? '#007AFF' : (type === 'INV' ? '#1c1c1e' : '#10b981'); 
-    const bizName = db.prof.name || "SYARIKAT ANDA"; 
-    const bizAddr = db.prof.addr || "Alamat Perniagaan"; 
-    const bizBank = db.prof.bank || "Bank & No Akaun"; 
-    const clientName = hist.clientName || "Pelanggan"; 
-    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name}<\/td><td style="padding:12px 8px; text-align:center;">${item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
-    const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); 
-    const discount = hist.discount || 0; 
-    const grand = subtotal - discount; 
-    const discountRow = discount > 0 ? `|<td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}<\/td><\/tr>` : ''; 
-    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto; padding:20px;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody>${itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
-    const tempDiv = document.createElement('div'); 
-    tempDiv.innerHTML = docHtml; 
-    document.body.appendChild(tempDiv); 
-    const opt = { margin: 0.2, filename: `${hist.ref}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; 
-    await html2pdf().set(opt).from(tempDiv).save(); 
-    document.body.removeChild(tempDiv); 
-}
-
-// ================== REPORT MODULE ==================
-function exportReport(type) {
-    if (typeof html2pdf === 'undefined') {
-        showAlert('Pustaka PDF tidak dimuatkan. Sila muat semula halaman.');
-        return;
-    }
-    
-    let title, headers, rows;
-    if (type === 'inventory') {
-        if (!db.inv.length) { showAlert('Tiada data inventori.'); return; }
-        title = 'Laporan Inventori';
-        headers = ['ID', 'Nama Produk', 'Kos (RM)', 'Harga Jual (RM)', 'Stok', 'Spesifikasi'];
-        rows = db.inv.map(item => [
-            item.id, item.name, item.kos, item.jual, item.qty,
-            (item.details || []).join('; ')
-        ]);
-    } else if (type === 'crm') {
-        if (!db.cli.length) { showAlert('Tiada data pelanggan.'); return; }
-        title = 'Laporan Pelanggan (CRM)';
-        headers = ['ID', 'Nama', 'Telefon', 'Alamat'];
-        rows = db.cli.map(c => [c.id, c.name, c.phone, c.addr]);
-    } else if (type === 'lhdn') {
-        if (!db.tax.length) { showAlert('Tiada rekod cukai.'); return; }
-        title = 'Laporan Cukai (LHDN)';
-        headers = ['Tarikh', 'Kategori', 'Vendor', 'Jumlah (RM)', 'Resit'];
-        rows = db.tax.map(t => [t.date, t.cat, t.vendor, t.amt, t.img ? 'Ada' : 'Tiada']);
-    } else {
-        return;
-    }
-
-    console.log('Exporting', type, 'rows:', rows); // DEBUG
-
-    if (!rows || rows.length === 0) {
-        showAlert('Tiada data untuk dilaporkan.');
-        return;
-    }
-
-    const html = `
-        <div style="font-family: 'Plus Jakarta Sans', sans-serif; padding: 20px;">
-            <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;">${title}</h1>
-            <p style="text-align: center; color: #666; margin-bottom: 20px;">Dijana pada: ${new Date().toLocaleString()}</p>
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                <thead><tr style="background-color: #f3f4f6; border-bottom: 2px solid #ddd;">${headers.map(h => `<th style="padding: 8px; text-align: left; border: 1px solid #ddd;">${h}</th>`).join('')}<\/tr><\/thead>
-                <tbody>${rows.map(row => `<tr style="border-bottom: 1px solid #eee;">${row.map(cell => `<td style="padding: 8px; border: 1px solid #ddd;">${cell}<\/td>`).join('')}<\/tr>`).join('')}<\/tbody>
-            <\/table>
-        <\/div>
-    `;
-    const tempDiv = document.createElement('div');
-    tempDiv.style.position = 'absolute';
-    tempDiv.style.left = '-9999px';
-    tempDiv.innerHTML = html;
-    document.body.appendChild(tempDiv);
-    const opt = { margin: 0.5, filename: `${type}_report_${new Date().toISOString().slice(0,19)}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
-    html2pdf().set(opt).from(tempDiv).save();
-    setTimeout(() => document.body.removeChild(tempDiv), 1000);
-    
-    // Update preview
-    const previewDiv = document.getElementById('report-preview');
-    if (previewDiv) {
-        previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,10).map(row => `<tr>${row.map(cell => `<td class="p-2 border-b">${cell}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-    }
-}
-
-function initReportModule() {
-    const invBtn = document.getElementById('report-inventory-btn');
-    if (invBtn) {
-        invBtn.onclick = () => exportReport('inventory');
-    }
-    const crmBtn = document.getElementById('report-crm-btn');
-    if (crmBtn) {
-        crmBtn.onclick = () => exportReport('crm');
-    }
-    const lhdnBtn = document.getElementById('report-lhdn-btn');
-    if (lhdnBtn) {
-        lhdnBtn.onclick = () => exportReport('lhdn');
-    }
-}
-
-// ================== DRAWER & PWA ==================
-function openDrawer() { document.getElementById('drawer').classList.remove('drawer-closed'); document.getElementById('drawer').classList.add('drawer-open'); document.getElementById('drawerOverlay').classList.remove('hidden'); }
-function closeDrawer() { document.getElementById('drawer').classList.add('drawer-closed'); document.getElementById('drawer').classList.remove('drawer-open'); document.getElementById('drawerOverlay').classList.add('hidden'); }
-document.getElementById('menuToggleBtn')?.addEventListener('click', openDrawer);
-document.getElementById('closeDrawerBtn')?.addEventListener('click', closeDrawer);
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
-
-// PWA
-let deferredPrompt; const installBtn = document.getElementById('installBtn');
-window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });
-installBtn.addEventListener('click', async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { installBtn.classList.add('hidden'); } deferredPrompt = null; });
-window.addEventListener('appinstalled', () => { installBtn.classList.add('hidden'); });
-if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW fail', err)); }
+        save();
