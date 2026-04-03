@@ -122,20 +122,26 @@ async function generateDeviceFingerprint() {
 async function verifyActivationKey(inputKey) {
     if (!inputKey || typeof inputKey !== 'string') return false;
 
-    const parts = inputKey.split('-');
-    if (parts.length < 3) return false;
+    // Bersihkan input: buang kurungan, ruang, dan tukar ke uppercase
+    let cleanKey = inputKey.replace(/[()\s]/g, '').toUpperCase();
+    const parts = cleanKey.split('-');
+    if (parts.length < 3) return false;  // Format mesti: SERIAL-XXXX-... (sekurang2nya 3 bahagian)
 
+    // Serial adalah dua bahagian pertama: contoh KET-001
     const serial = parts[0] + '-' + parts[1];
+    // Signature adalah baki selepas dua bahagian pertama
     const signature = parts.slice(2).join('-');
 
     const deviceFingerprint = await generateDeviceFingerprint();
-    const dataToVerify = `${deviceFingerprint}|${activationData.userNote || ''}|LIFETIME|${activationData.activationDate || ''}|${MASTER_SECRET}`;
+    
+    // Hanya gunakan device fingerprint + master secret (tanpa userNote/tarikh)
+    const dataToVerify = `${deviceFingerprint}|${MASTER_SECRET}`;
 
     const encoder = new TextEncoder();
     const keyData = encoder.encode(dataToVerify);
     const hashBuffer = await crypto.subtle.digest('SHA-256', keyData);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const computedSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 24).toUpperCase();
+    const computedSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase().substring(0, 24);
 
     if (computedSignature === signature) {
         activationData = {
@@ -143,7 +149,7 @@ async function verifyActivationKey(inputKey) {
             deviceFingerprint: deviceFingerprint,
             serialNumber: serial,
             activationDate: new Date().toISOString(),
-            userNote: activationData.userNote || "Pengguna Baru",
+            userNote: "Pengguna Sah",
             keyUsed: inputKey
         };
         localStorage.setItem('bizpro_activation', JSON.stringify(activationData));
@@ -170,7 +176,7 @@ async function showActivationModal() {
                 <p class="text-sm text-gray-400 text-center mb-6">Masukkan Lifetime Key</p>
 
                 <div class="mb-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-2xl text-xs font-mono break-all">
-                    ${deviceFingerprint}
+                    <strong>Device ID:</strong><br>${deviceFingerprint}
                 </div>
 
                 <input type="text" id="activation-key-input" 
@@ -206,7 +212,7 @@ async function showActivationModal() {
                 cleanup();
                 resolve(true);
             } else {
-                errorDiv.textContent = 'Key tidak sah atau tidak sepadan dengan peranti ini.';
+                errorDiv.textContent = 'Key tidak sah atau tidak sepadan dengan peranti ini. Pastikan Device ID tepat dan key dijana dengan Device ID yang sama.';
                 errorDiv.classList.remove('hidden');
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Aktifkan';
@@ -218,6 +224,33 @@ async function showActivationModal() {
     });
 }
 
+// ================== ENTER SYSTEM (dengan semakan activation) ==================
+async function enterSystem() {
+    document.getElementById('login-overlay').classList.add('hidden');
+    setupAdminGesture();
+
+    if (!isActivated()) {
+        const setupBtn = document.getElementById('first-time-setup-btn');
+        if (setupBtn) setupBtn.classList.remove('hidden');
+
+        const activated = await showActivationModal();
+        
+        if (!activated) {
+            document.getElementById('login-overlay').classList.remove('hidden');
+            return;
+        }
+
+        if (setupBtn) setupBtn.classList.add('hidden');
+    }
+
+    logActivity('app_open', { 
+        serial: activationData.serialNumber,
+        device: activationData.deviceFingerprint 
+    });
+
+    loadModule('dashboard');
+    initAppAfterActivation();
+}
 // ================== GLOBAL VARIABLES ==================
 let currentModule = 'dashboard';
 let logoClickCount = 0;
