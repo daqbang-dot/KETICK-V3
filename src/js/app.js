@@ -1,6 +1,6 @@
 // ================================================
 // KETICK BizPro v6 - Flux Edition
-// app.js - LENGKAP dengan Activation System Versi A (1 Key = 1 Device)
+// app.js - LENGKAP dengan Activation System Versi A
 // ================================================
 
 // ================== DATA & STORAGE ==================
@@ -78,7 +78,7 @@ function recycleRef(type, num) {
     save();
 }
 
-// ================== ACTIVATION SYSTEM VERSI A ==================
+// ================== ACTIVATION SYSTEM VERSI A (1 Key = 1 Device + Lifetime) ==================
 const MASTER_SECRET = "KETICK_BIZPRO_2026_AZLAN_SECURE_V2_8K3M9P2X";
 
 let activationData = JSON.parse(localStorage.getItem('bizpro_activation')) || {
@@ -129,7 +129,7 @@ async function verifyActivationKey(inputKey) {
     const signature = parts.slice(2).join('-');
 
     const deviceFingerprint = await generateDeviceFingerprint();
-    const dataToVerify = `\( {deviceFingerprint}| \){activationData.userNote || ''}|LIFETIME|\( {activationData.activationDate || ''}| \){MASTER_SECRET}`;
+    const dataToVerify = `${deviceFingerprint}|${activationData.userNote || ''}|LIFETIME|${activationData.activationDate || ''}|${MASTER_SECRET}`;
 
     const encoder = new TextEncoder();
     const keyData = encoder.encode(dataToVerify);
@@ -309,7 +309,7 @@ async function loadModule(moduleName) {
     if (!appContent) return;
 
     try {
-        const response = await fetch(`src/modules/\( {moduleName}/ \){moduleName}.html`);
+        const response = await fetch(`src/modules/${moduleName}/${moduleName}.html`);
         if (!response.ok) {
             alert(`Gagal memuat modul: ${moduleName}`);
             return;
@@ -488,7 +488,7 @@ const showAlert = async (msg) => await showCustomModal('alert', currentLang==='B
 const showConfirm = async (msg) => await showCustomModal('confirm', currentLang==='BM'?'Pengesahan':'Confirmation', msg);
 const showPrompt = async (msg, def='') => await showCustomModal('prompt', currentLang==='BM'?'Sila Masukkan Maklumat':'Please Enter Details', msg, def);
 
-// ================== LOW STOCK ==================
+// ================== LOW STOCK & UTILS ==================
 function getLowStockItems() { return db.inv.filter(item => item.qty <= db.lowStockThreshold); }
 function showLowStockToast(message) { 
     const oldToast = document.querySelector('.toast-notify'); 
@@ -505,7 +505,7 @@ function updateLowStockPanel() {
     const container = document.getElementById('low-stock-list'); 
     if (lowItems.length === 0) { if(panel) panel.classList.add('hidden'); return; } 
     if(panel) panel.classList.remove('hidden'); 
-    if(container) container.innerHTML = lowItems.map(item => `<div class="flex justify-between items-center border-b border-red-100 pb-2"><span class="font-bold">${item.name}</span><span class="text-red-600 font-black">Stok: \( {item.qty}</span><button onclick="loadModule('inventory'); closeDrawer();" class="text-xs bg-red-100 px-2 py-1 rounded-full"> \){t('Pergi ke Inventory')}</button></div>`).join(''); 
+    if(container) container.innerHTML = lowItems.map(item => `<div class="flex justify-between items-center border-b border-red-100 pb-2"><span class="font-bold">${item.name}</span><span class="text-red-600 font-black">Stok: ${item.qty}</span><button onclick="loadModule('inventory'); closeDrawer();" class="text-xs bg-red-100 px-2 py-1 rounded-full">${t('Pergi ke Inventory')}</button></div>`).join(''); 
 }
 function checkLowStockAndNotify(previousLowIds = []) { 
     const lowItems = getLowStockItems(); 
@@ -519,7 +519,7 @@ function checkLowStockAndNotify(previousLowIds = []) {
     return currentLowIds; 
 }
 async function openThresholdModal() { 
-    const newVal = await showPrompt(currentLang==='BM'?`Tetapkan ambang stok rendah:`:`Set low stock threshold:`, db.lowStockThreshold); 
+    const newVal = await showPrompt(currentLang==='BM'?`Tetapkan ambang stok rendah (stok ≤ nilai ini dianggap kritikal):`:`Set low stock threshold:`, db.lowStockThreshold); 
     if (newVal !== null && !isNaN(parseInt(newVal))) { 
         db.lowStockThreshold = parseInt(newVal); 
         save(); 
@@ -536,13 +536,13 @@ function renderInventory() {
     const lowIds = getLowStockItems().map(i => i.id); 
     tbody.innerHTML = db.inv.map((item, idx) => {
         return `<tr class="border-b border-gray-50 align-top hover:bg-gray-50/50 transition ${lowIds.includes(item.id) ? 'low-stock-row' : ''}">
-            <td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">\( {item.img ? `<img src=" \){item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div><\/td>
-            <td class="p-6"><input type="text" value="\( {item.name}" onchange="updateInv( \){idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800">
-            <div class="mt-2 space-y-1 \( {item.showDetails ? '' : 'hidden'}"> \){(item.details || []).map((d, dIdx) => `<div class="flex gap-1"><input type="text" value="\( {d}" onchange="db.inv[ \){idx}].details[\( {dIdx}]=this.value; save();" placeholder="Spec" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm"><button onclick="db.inv[ \){idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button></div>`).join('')}</div>
-            <div class="flex gap-4 mt-3"><button onclick="if(!db.inv[\( {idx}].details) db.inv[ \){idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> \( {t('TAMBAH SPEC')}</button><button onclick="db.inv[ \){idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? t('SOROK') : t('LIHAT')}</button></div><\/td>
-            <td class="p-6"><input type="number" value="\( {item.kos}" onchange="updateInv( \){idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"><\/td>
-            <td class="p-6"><input type="number" value="\( {item.jual}" onchange="updateInv( \){idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"><\/td>
-            <td class="p-6"><input type="number" value="\( {item.qty}" onchange="updateInv( \){idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"><\/td>
+            <td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div><\/td>
+            <td class="p-6"><input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800">
+            <div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">${(item.details || []).map((d, dIdx) => `<div class="flex gap-1"><input type="text" value="${d}" onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" placeholder="Spec" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm"><button onclick="db.inv[${idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button></div>`).join('')}</div>
+            <div class="flex gap-4 mt-3"><button onclick="if(!db.inv[${idx}].details) db.inv[${idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> ${t('TAMBAH SPEC')}</button><button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? t('SOROK') : t('LIHAT')}</button></div><\/td>
+            <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"><\/td>
+            <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"><\/td>
+            <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"><\/td>
             <td class="p-6 text-center"><button onclick="db.inv.splice(${idx},1); save(); renderInventory();" class="text-gray-300 hover:text-red-500 text-xs"><i class="fas fa-trash-alt"></i></button><\/td>
          <\/tr>`;
     }).join(''); 
@@ -556,7 +556,7 @@ function updateInv(idx, field, val) {
     save(); renderInventory(); 
     if (field === 'qty') { 
         const lowItems = getLowStockItems(); 
-        if (lowItems.some(i => i.id === db.inv[idx].id)) showLowStockToast(`⚠️ Stok \( {db.inv[idx].name} kini kritikal ( \){db.inv[idx].qty})`); 
+        if (lowItems.some(i => i.id === db.inv[idx].id)) showLowStockToast(`⚠️ Stok ${db.inv[idx].name} kini kritikal (${db.inv[idx].qty})`); 
         updateLowStockPanel(); 
     } 
 }
@@ -608,8 +608,8 @@ function renderProductGrid() {
 }
 function productCard(p) {
     const lowIds = getLowStockItems().map(i => i.id);
-    return `<div class="product-btn \( {lowIds.includes(p.id) ? 'low-stock' : ''}" onclick="addToCart( \){p.id})">
-        <div class="flex justify-center mb-1">\( {p.img ? `<img src=" \){p.img}" class="w-12 h-12 object-cover rounded-lg">` : '<i class="fas fa-box text-gray-400 text-2xl"></i>'}</div>
+    return `<div class="product-btn ${lowIds.includes(p.id) ? 'low-stock' : ''}" onclick="addToCart(${p.id})">
+        <div class="flex justify-center mb-1">${p.img ? `<img src="${p.img}" class="w-12 h-12 object-cover rounded-lg">` : '<i class="fas fa-box text-gray-400 text-2xl"></i>'}</div>
         <div class="font-bold text-sm truncate">${p.name}</div>
         <div class="text-blue-600 font-black text-lg">RM ${p.jual.toFixed(2)}</div>
         <div class="text-[10px] text-gray-400">Stok: ${p.qty}</div>
@@ -653,7 +653,7 @@ function renderCart() {
     let total = 0; 
     container.innerHTML = cart.map(item => { 
         const lineTotal = item.price * item.qty; total += lineTotal; 
-        return `<div class="cart-item"><div><span class="font-bold">${item.name}</span><div class="text-xs text-gray-500">RM \( {item.price.toFixed(2)}</div></div><div class="cart-qty"><button onclick="updateCartQty( \){item.id}, -1)">-</button><span class="w-8 text-center">\( {item.qty}</span><button onclick="updateCartQty( \){item.id}, 1)">+</button><button onclick="removeCartItem(${item.id})" class="text-red-500 ml-2"><i class="fas fa-trash-alt"></i></button></div><div class="font-bold">RM ${lineTotal.toFixed(2)}</div></div>`; 
+        return `<div class="cart-item"><div><span class="font-bold">${item.name}</span><div class="text-xs text-gray-500">RM ${item.price.toFixed(2)}</div></div><div class="cart-qty"><button onclick="updateCartQty(${item.id}, -1)">-</button><span class="w-8 text-center">${item.qty}</span><button onclick="updateCartQty(${item.id}, 1)">+</button><button onclick="removeCartItem(${item.id})" class="text-red-500 ml-2"><i class="fas fa-trash-alt"></i></button></div><div class="font-bold">RM ${lineTotal.toFixed(2)}</div></div>`; 
     }).join(''); 
     document.getElementById('cart-total').innerText = `RM ${total.toFixed(2)}`; 
     const grand = total - posDiscount; 
@@ -725,7 +725,7 @@ async function completeSale() {
     if (custPhone) { 
         const receiptMsg = generateReceiptMessage(grand, custName, items); 
         const encodedMsg = encodeURIComponent(receiptMsg); 
-        window.open(`https://wa.me/\( {custPhone}?text= \){encodedMsg}`, '_blank'); 
+        window.open(`https://wa.me/${custPhone}?text=${encodedMsg}`, '_blank'); 
     } 
     clearCart(); 
     await showAlert(currentLang==='BM'?"Jualan selesai. Resit dibuka.":"Sale complete. Receipt generated."); 
@@ -745,8 +745,8 @@ function printReceiptNow(total, cash, change, custName, custPhone) {
     const bizAddr = db.prof.addr || ""; 
     const date = new Date().toLocaleString(); 
     let itemsHtml = ''; 
-    cart.forEach(item => { itemsHtml += `<div style="display:flex; justify-content:space-between;"><span>\( {item.name} x \){item.qty}</span><span>RM ${(item.price * item.qty).toFixed(2)}</span></div>`; }); 
-    const receiptHtml = `<div style="width: 300px; margin:0 auto; font-family: monospace; padding: 16px; border: 1px solid #ccc; border-radius: 12px;"><div style="text-align: center; font-weight: bold; font-size: 16px;">\( {bizName}</div><div style="text-align: center; font-size: 10px;"> \){bizAddr}</div><div style="text-align: center; font-size: 10px;">\( {date}</div> \){custName ? `<div style="margin-top:8px;">Pelanggan: ${custName} \( {custPhone ? `( \){custPhone})` : ''}</div>` : ''}<hr style="margin: 8px 0;">\( {itemsHtml} \){posDiscount > 0 ? `<div style="display:flex; justify-content:space-between;"><span>Diskaun</span><span>- RM ${posDiscount.toFixed(2)}</span></div>` : ''}<hr style="margin: 8px 0;"><div style="display:flex; justify-content:space-between;"><strong>JUMLAH</strong><strong>RM ${total.toFixed(2)}</strong></div><div style="display:flex; justify-content:space-between;">TUNAI: RM ${cash.toFixed(2)}</div><div style="display:flex; justify-content:space-between;">BAKI: RM ${change >= 0 ? change.toFixed(2) : '0.00'}</div><hr style="margin: 8px 0;"><div style="text-align: center; font-size: 10px;">Terima kasih! Selamat datang lagi.</div></div>`; 
+    cart.forEach(item => { itemsHtml += `<div style="display:flex; justify-content:space-between;"><span>${item.name} x${item.qty}</span><span>RM ${(item.price * item.qty).toFixed(2)}</span></div>`; }); 
+    const receiptHtml = `<div style="width: 300px; margin:0 auto; font-family: monospace; padding: 16px; border: 1px solid #ccc; border-radius: 12px;"><div style="text-align: center; font-weight: bold; font-size: 16px;">${bizName}</div><div style="text-align: center; font-size: 10px;">${bizAddr}</div><div style="text-align: center; font-size: 10px;">${date}</div>${custName ? `<div style="margin-top:8px;">Pelanggan: ${custName} ${custPhone ? `(${custPhone})` : ''}</div>` : ''}<hr style="margin: 8px 0;">${itemsHtml}${posDiscount > 0 ? `<div style="display:flex; justify-content:space-between;"><span>Diskaun</span><span>- RM ${posDiscount.toFixed(2)}</span></div>` : ''}<hr style="margin: 8px 0;"><div style="display:flex; justify-content:space-between;"><strong>JUMLAH</strong><strong>RM ${total.toFixed(2)}</strong></div><div style="display:flex; justify-content:space-between;">TUNAI: RM ${cash.toFixed(2)}</div><div style="display:flex; justify-content:space-between;">BAKI: RM ${change >= 0 ? change.toFixed(2) : '0.00'}</div><hr style="margin: 8px 0;"><div style="text-align: center; font-size: 10px;">Terima kasih! Selamat datang lagi.</div></div>`; 
     const printWindow = window.open('', '_blank'); 
     printWindow.document.write(`<html><head><title>Resit POS</title><style>body { display: flex; justify-content: center; align-items: center; min-height: 100vh; }</style></head><body>${receiptHtml}<script>window.onload = function() { window.print(); setTimeout(function(){ window.close(); }, 500); };<\/script></body></html>`); 
     printWindow.document.close(); 
@@ -756,7 +756,7 @@ function generateReceiptMessage(total, custName, items) {
     let msg = `🧾 *RESIT PEMBELIAN*\n`;
     if (custName) msg += `Pelanggan: ${custName}\n`;
     msg += `Tarikh: ${new Date().toLocaleString()}\n\n`;
-    items.forEach(i => { msg += `\( {i.name} x \){i.qty} = RM ${(i.jual * i.qty).toFixed(2)}\n`; });
+    items.forEach(i => { msg += `${i.name} x${i.qty} = RM ${(i.jual * i.qty).toFixed(2)}\n`; });
     if (posDiscount > 0) msg += `Diskaun: -RM ${posDiscount.toFixed(2)}\n`;
     msg += `\n*JUMLAH: RM ${total.toFixed(2)}*\n\nTerima kasih!`;
     return msg;
@@ -782,15 +782,15 @@ async function generateFinalBilling() {
     const finalTotal = total - activeDiscount; 
     const finalMargin = (type === 'REC') ? (margin - activeDiscount) : 0; 
     const refNum = getNextRef(type); 
-    const newRef = `\( {type} \){refNum}`; 
+    const newRef = `${type}${refNum}`; 
     db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: newRef, type: type, clientName: client ? client.name : 'Umum', phone: client?.phone || '', total: finalTotal, margin: finalMargin, items: items, discount: activeDiscount }); 
     save(); 
-    await showAlert(currentLang==='BM'?`Rekod ${type} Berjaya Disimpan! No: \( {newRef}`:` \){type} Record Saved! No: ${newRef}`); 
+    await showAlert(currentLang==='BM'?`Rekod ${type} Berjaya Disimpan! No: ${newRef}`:`${type} Record Saved! No: ${newRef}`); 
     location.reload(); 
 }
 async function deleteDoc(id) { const doc = db.hist.find(h => h.id === id); if (doc) { const type = doc.type; const refNum = parseInt(doc.ref.slice(3)); recycleRef(type, refNum); db.hist = db.hist.filter(h => h.id !== id); save(); renderHistory(); await showAlert(currentLang==='BM'?`Dokumen ${doc.ref} dibatalkan. Nombor akan diguna semula.`:`Document ${doc.ref} cancelled. Number will be recycled.`); } }
-function populateBillingClients() { const s = document.getElementById('bill-client-select'); if(s) s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="\( {c.id}"> \){c.name}</option>`).join(''); }
-function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>\( {db.inv.map(i => `<option value=" \){i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input')?.appendChild(div); }
+function populateBillingClients() { const s = document.getElementById('bill-client-select'); if(s) s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
+function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input')?.appendChild(div); }
 function calcBilling() { 
     const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); 
     if(!body) return; 
@@ -820,13 +820,13 @@ function calcBilling() {
     } 
 }
 async function applyCoupon() { const c = document.getElementById('coupon-input')?.value.toUpperCase(); const coupon = db.coupons.find(coupon => coupon.code === c && coupon.quantity > 0); if (coupon) { activeDiscount = coupon.value; coupon.quantity--; if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } save(); renderCoupons(); await showAlert(currentLang==='BM'?"Kupon Guna!":"Coupon Applied!"); calcBilling(); } else { await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!"); activeDiscount = 0; calcBilling(); } }
-function updateBillTo() { const id = document.getElementById('bill-client-select')?.value, c = db.cli.find(x => x.id == id); const billTo = document.getElementById('bill-to-client'); if(billTo) billTo.innerText = c ? `\( {c.name}\n \){c.phone}\n${c.addr}` : '---'; }
-function shareWhatsapp() { const clientId = document.getElementById('bill-client-select')?.value; const client = db.cli.find(c => c.id == clientId); const phone = client ? client.phone : ''; const total = document.getElementById('grandtotal')?.innerText; const msg = encodeURIComponent(`Terima kasih. Sila lihat dokumen anda. Jumlah: \( {total}`); if(phone) window.open(`https://wa.me/ \){phone}?text=\( {msg}`, '_blank'); else window.open(`https://wa.me/?text= \){msg}`, '_blank'); }
-function updateBillingTheme() { const type = document.getElementById('billing-type')?.value; document.body.className = `theme-${type} \( {isDarkTheme ? 'dark-mode' : ''}`; const previewTitle = document.getElementById('preview-title'); if(previewTitle) previewTitle.innerText = type; const watermark = document.getElementById('watermark'); if(watermark) watermark.innerText = type; const refNo = document.getElementById('ref-no'); if(refNo) refNo.innerText = ` \){type}${db.ref[type]}`; const prevDate = document.getElementById('prev-date'); if(prevDate) prevDate.innerText = new Date().toLocaleDateString('en-GB'); }
+function updateBillTo() { const id = document.getElementById('bill-client-select')?.value, c = db.cli.find(x => x.id == id); const billTo = document.getElementById('bill-to-client'); if(billTo) billTo.innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---'; }
+function shareWhatsapp() { const clientId = document.getElementById('bill-client-select')?.value; const client = db.cli.find(c => c.id == clientId); const phone = client ? client.phone : ''; const total = document.getElementById('grandtotal')?.innerText; const msg = encodeURIComponent(`Terima kasih. Sila lihat dokumen anda. Jumlah: ${total}`); if(phone) window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'); else window.open(`https://wa.me/?text=${msg}`, '_blank'); }
+function updateBillingTheme() { const type = document.getElementById('billing-type')?.value; document.body.className = `theme-${type} ${isDarkTheme ? 'dark-mode' : ''}`; const previewTitle = document.getElementById('preview-title'); if(previewTitle) previewTitle.innerText = type; const watermark = document.getElementById('watermark'); if(watermark) watermark.innerText = type; const refNo = document.getElementById('ref-no'); if(refNo) refNo.innerText = `${type}${db.ref[type]}`; const prevDate = document.getElementById('prev-date'); if(prevDate) prevDate.innerText = new Date().toLocaleDateString('en-GB'); }
 
 // ================== CRM ==================
 async function addClient() { const n = await showPrompt(currentLang==='BM'?"Nama Pelanggan:":"Customer Name:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
-function renderCRM() { const container = document.getElementById('crm-list-grid'); if(container) container.innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">\( {c.name.charAt(0)}</div><button onclick="db.cli.splice( \){idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="\( {c.name}" onchange="db.cli[ \){idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="\( {c.phone}" onchange="db.cli[ \){idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[\( {idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14"> \){c.addr}</textarea></div></div>`).join(''); }
+function renderCRM() { const container = document.getElementById('crm-list-grid'); if(container) container.innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
 
 // ================== BUSINESS PROFILE ==================
 function updateBizProfile() { db.prof.name = document.getElementById('set-biz-name')?.value || ''; db.prof.addr = document.getElementById('set-biz-addr')?.value || ''; db.prof.bank = document.getElementById('set-biz-bank')?.value || ''; const prevName = document.getElementById('prev-biz-name'); if(prevName) prevName.innerText = db.prof.name || "NAMA SYARIKAT"; const prevAddr = document.getElementById('prev-biz-addr'); if(prevAddr) prevAddr.innerText = db.prof.addr || "ALAMAT"; const prevBank = document.getElementById('prev-biz-bank'); if(prevBank) prevBank.innerText = db.prof.bank || "BANK"; if(db.prof.logo) { const logo = document.getElementById('prev-logo'); if(logo) { logo.src = db.prof.logo; logo.classList.remove('hidden'); } } if(db.prof.cop) { const cop = document.getElementById('prev-cop'); if(cop) { cop.src = db.prof.cop; cop.classList.remove('hidden'); } } save(); }
@@ -881,7 +881,7 @@ function showJobModal() {
             if (reminder) {
                 let reminderDateTime = date;
                 if (time) {
-                    reminderDateTime = `\( {date}T \){time}`;
+                    reminderDateTime = `${date}T${time}`;
                 } else {
                     reminderDateTime = `${date}T09:00`;
                 }
@@ -1030,6 +1030,7 @@ function setupSocialExtra() {
             parent.appendChild(iconSpan);
         }
     }
+    // Minta kebenaran notifikasi
     if (Notification.permission === 'default') {
         Notification.requestPermission();
     }
@@ -1063,7 +1064,7 @@ function addSchedule() {
         reader.onload = () => { fileData = reader.result; };
     }
     if (title && date && time) {
-        const timestamp = new Date(`\( {date}T \){time}`).getTime();
+        const timestamp = new Date(`${date}T${time}`).getTime();
         if (isNaN(timestamp) || timestamp <= Date.now()) {
             showAlert(currentLang === 'BM' ? 'Tarikh dan masa mestilah pada masa hadapan.' : 'Date and time must be in the future.');
             return;
@@ -1083,6 +1084,7 @@ function addSchedule() {
         save();
         renderSchedule();
         
+        // Jadualkan notifikasi
         const delay = timestamp - Date.now();
         setTimeout(() => {
             if (!scheduleItem.notified) {
@@ -1131,7 +1133,7 @@ function renderSchedule() {
                 <h4 class="font-bold text-sm">${s.title}</h4>
                 <p class="text-[10px] text-gray-400 font-bold uppercase">${s.platform} | ${s.date} ${s.time}</p>
                 ${s.fileData ? `<p class="text-[8px] text-blue-500">📎 Fail ada</p>` : ''}
-                <p class="text-[8px] \( {s.notified ? 'text-green-500' : 'text-orange-500'}"> \){s.notified ? '✅ Notified' : '⏳ Pending'}</p>
+                <p class="text-[8px] ${s.notified ? 'text-green-500' : 'text-orange-500'}">${s.notified ? '✅ Notified' : '⏳ Pending'}</p>
             </div>
             <button onclick="db.sch=db.sch.filter(x=>x.id!==${s.id});save();renderSchedule();" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button>
         </div>
@@ -1195,17 +1197,17 @@ function showTemplatePicker() {
     });
     modal.querySelector('.close-modal').addEventListener('click', () => modal.remove());
 }
-function renderBlastClientList() { const container = document.getElementById('blast-client-list'); if(container) container.innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl cursor-pointer"><input type="checkbox" class="blast-checkbox w-5 h-5 mr-4 accent-emerald-500" data-phone="\( {c.phone}" data-name=" \){c.name}"><div><p class="text-sm font-bold">\( {c.name}</p><p class="text-[10px] text-gray-400 font-bold"> \){c.phone}</p></div></label>`).join(''); }
-async function startBlast() { const cs = document.querySelectorAll('.blast-checkbox:checked'); let m = document.getElementById('blast-msg')?.value; const delay = parseInt(document.getElementById('blast-delay')?.value) || 30; if (delay < 30 || delay > 999) { await showAlert('Sela masa mesti antara 30 hingga 999 saat.'); return; } for (let c of cs) { const randomKey = Math.random().toString(36).substring(2, 8).toUpperCase(); const footer = `\n\n\( {randomKey}\n\nDihantar oleh BizPro System`; const fullMsg = m + footer; const text = encodeURIComponent(fullMsg.replace('{name}', c.dataset.name)); window.open(`https://wa.me/ \){c.dataset.phone}?text=${text}`, '_blank'); await new Promise(r => setTimeout(r, delay * 1000)); } }
-function generateCatalogText() { let c = "KATALOG:\n"; db.inv.slice(0, 10).forEach(i => c += `- \( {i.name} RM \){i.jual}\n`); const msgArea = document.getElementById('blast-msg'); if(msgArea) msgArea.value = c; }
+function renderBlastClientList() { const container = document.getElementById('blast-client-list'); if(container) container.innerHTML = db.cli.map(c => `<label class="flex items-center p-3 hover:bg-emerald-50 rounded-2xl cursor-pointer"><input type="checkbox" class="blast-checkbox w-5 h-5 mr-4 accent-emerald-500" data-phone="${c.phone}" data-name="${c.name}"><div><p class="text-sm font-bold">${c.name}</p><p class="text-[10px] text-gray-400 font-bold">${c.phone}</p></div></label>`).join(''); }
+async function startBlast() { const cs = document.querySelectorAll('.blast-checkbox:checked'); let m = document.getElementById('blast-msg')?.value; const delay = parseInt(document.getElementById('blast-delay')?.value) || 30; if (delay < 30 || delay > 999) { await showAlert('Sela masa mesti antara 30 hingga 999 saat.'); return; } for (let c of cs) { const randomKey = Math.random().toString(36).substring(2, 8).toUpperCase(); const footer = `\n\n${randomKey}\n\nDihantar oleh BizPro System`; const fullMsg = m + footer; const text = encodeURIComponent(fullMsg.replace('{name}', c.dataset.name)); window.open(`https://wa.me/${c.dataset.phone}?text=${text}`, '_blank'); await new Promise(r => setTimeout(r, delay * 1000)); } }
+function generateCatalogText() { let c = "KATALOG:\n"; db.inv.slice(0, 10).forEach(i => c += `- ${i.name} RM${i.jual}\n`); const msgArea = document.getElementById('blast-msg'); if(msgArea) msgArea.value = c; }
 
 // ================== AUTOREPLY ==================
-function renderAR() { const container = document.getElementById('ar-list'); if(container) container.innerHTML = db.ar.map(item => `<div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100"><div class="flex-1 pr-4"><p class="font-bold text-sm text-gray-800">\( {item.title}</p><p class="text-[10px] text-gray-400 line-clamp-1"> \){item.msg}</p></div><div class="flex gap-2"><button onclick="copyToClipboard('\( {encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold uppercase"> \){t('SALIN')}</button><button onclick="deleteAR(\( {item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button></div></div>`).join('') || `<p class="text-gray-400 text-xs italic py-4"> \){t('Tiada template sapaan.')}</p>`; }
+function renderAR() { const container = document.getElementById('ar-list'); if(container) container.innerHTML = db.ar.map(item => `<div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100"><div class="flex-1 pr-4"><p class="font-bold text-sm text-gray-800">${item.title}</p><p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p></div><div class="flex gap-2"><button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold uppercase">${t('SALIN')}</button><button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button></div></div>`).join('') || `<p class="text-gray-400 text-xs italic py-4">${t('Tiada template sapaan.')}</p>`; }
 async function saveAR() { const title = document.getElementById('ar-title')?.value, msg = document.getElementById('ar-msg')?.value; if(!title || !msg) return await showAlert(currentLang==='BM'?"Sila isi tajuk dan mesej!":"Please fill title and message!"); db.ar.push({ id: Date.now(), title, msg }); save(); renderAR(); document.getElementById('ar-title').value = ''; document.getElementById('ar-msg').value = ''; }
 function copyToClipboard(msg) { const text = decodeURIComponent(msg); navigator.clipboard.writeText(text).then(async () => { await showAlert(currentLang==='BM'?"Template disalin ke papan klip!":"Template copied to clipboard!"); }); }
 async function deleteAR(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam template?":"Delete template?"); if(confirmed) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
 
-// ================== LHDN TAX ==================
+// ================== LHDN TAX (FIXED) ==================
 function resetTaxModal() {
     const modal = document.getElementById('tax-modal');
     if (!modal) return;
@@ -1272,7 +1274,7 @@ function renderTax() {
         categories[t.cat] = (categories[t.cat] || 0) + t.amt; 
         return `<tr class="border-b border-gray-50 hover:bg-gray-50/50 transition">
             <td class="p-6 text-xs font-bold text-gray-500 uppercase">${t.date}<\/td>
-            <td class="p-6">\( {t.img ? `<img src=" \){t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'}<\/td>
+            <td class="p-6">${t.img ? `<img src="${t.img}" class="w-10 h-10 rounded object-cover cursor-pointer" onclick="window.open('${t.img}')">` : '<i class="fas fa-file-excel text-gray-200"></i>'}<\/td>
             <td class="p-6"><span class="bg-gray-100 px-3 py-1 rounded-full text-[10px] font-bold uppercase">${t.cat}</span><\/td>
             <td class="p-6 font-bold text-sm text-gray-800">${t.vendor}<\/td>
             <td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}<\/td>
@@ -1318,14 +1320,14 @@ function renderHistory() {
             <td class="p-6 font-bold text-blue-600">${h.ref}<\/td>
             <td class="p-6 font-medium">${h.clientName}<\/td>
             <td class="p-6">${h.phone || '-'}<\/td>
-            <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase \( {h.type === 'REC' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}"> \){h.type}</span><\/td>
+            <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${h.type === 'REC' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}">${h.type}</span><\/td>
             <td class="p-6 text-right font-black">RM ${h.total.toFixed(2)}<\/td>
             <td class="p-6 text-center space-x-2">
                 <button onclick="viewDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-blue-500 hover:text-blue-700 text-xs font-bold"><i class="fas fa-eye mr-1"></i> Review</button>
                 <button onclick="downloadDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-download mr-1"></i> Download</button>
-                \( {h.type === 'INV' ? `<button onclick="convertInvToRec( \){h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> ${t('SET PAID')}</button>` : ''}
+                ${h.type === 'INV' ? `<button onclick="convertInvToRec(${h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> ${t('SET PAID')}</button>` : ''}
                 <button onclick="deleteDoc(${h.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
-                \( {h.phone ? `<button onclick="sendReceiptViaWhatsApp( \){h.id})" class="text-green-500 hover:text-green-700 text-xs font-bold"><i class="fab fa-whatsapp mr-1"></i> ${t('btn-wa')}</button>` : ''}
+                ${h.phone ? `<button onclick="sendReceiptViaWhatsApp(${h.id})" class="text-green-500 hover:text-green-700 text-xs font-bold"><i class="fab fa-whatsapp mr-1"></i> ${t('btn-wa')}</button>` : ''}
             <\/td>
         <\/tr>
     `).reverse().join('');
@@ -1336,7 +1338,7 @@ function sendReceiptViaWhatsApp(id) {
         const items = trans.items || [];
         const msg = generateReceiptMessage(trans.total, trans.clientName, items);
         const encoded = encodeURIComponent(msg);
-        window.open(`https://wa.me/\( {trans.phone}?text= \){encoded}`, '_blank');
+        window.open(`https://wa.me/${trans.phone}?text=${encoded}`, '_blank');
     }
 }
 async function convertInvToRec(id) { const idx = db.hist.findIndex(h => h.id === id); if(idx !== -1 && db.hist[idx].type === 'INV') { const inv = db.hist[idx]; inv.type = 'REC'; const newRefNum = getNextRef('REC'); inv.ref = `REC${newRefNum}`; let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; }); inv.margin = m - (inv.discount || 0); save(); renderHistory(); await showAlert(currentLang==='BM'?"Invoice ditukar kepada Receipt!":"Invoice converted to Receipt!"); } }
@@ -1350,12 +1352,12 @@ function viewDocument(hist) {
     const bizAddr = db.prof.addr || "Alamat Perniagaan"; 
     const bizBank = db.prof.bank || "Bank & No Akaun"; 
     const clientName = hist.clientName || "Pelanggan"; 
-    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">\( {item.name}<\/td><td style="padding:12px 8px; text-align:center;"> \){item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
+    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name}<\/td><td style="padding:12px 8px; text-align:center;">${item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
     const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); 
     const discount = hist.discount || 0; 
     const grand = subtotal - discount; 
     const discountRow = discount > 0 ? `<tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}<\/td><\/tr>` : ''; 
-    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">\( {bizName}</h2><p style="font-size:12px; color:#6b7280;"> \){bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:\( {docColor};"> \){type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid \( {docColor};"><p style="font-size:9px; font-weight:bold; color: \){docColor};">Kepada:</p><p style="font-weight:600;">\( {clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;"> \){bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:\( {docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody> \){itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
+    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody>${itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
     document.getElementById('reviewDocContent').innerHTML = docHtml; 
     document.getElementById('reviewModal').classList.remove('hidden'); 
 }
@@ -1368,12 +1370,12 @@ async function downloadDocument(hist) {
     const bizAddr = db.prof.addr || "Alamat Perniagaan"; 
     const bizBank = db.prof.bank || "Bank & No Akaun"; 
     const clientName = hist.clientName || "Pelanggan"; 
-    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">\( {item.name}<\/td><td style="padding:12px 8px; text-align:center;"> \){item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
+    const itemsHtml = hist.items.map(item => `<tr style="border-bottom:1px solid #e5e7eb;"><td style="padding:12px 8px; font-weight:600;">${item.name}<\/td><td style="padding:12px 8px; text-align:center;">${item.qty}<\/td><td style="padding:12px 8px; text-align:right;">RM ${item.jual.toFixed(2)}<\/td><td style="padding:12px 8px; text-align:right;">RM ${(item.jual * item.qty).toFixed(2)}<\/td><\/tr>`).join(''); 
     const subtotal = hist.items.reduce((sum, i) => sum + (i.jual * i.qty), 0); 
     const discount = hist.discount || 0; 
     const grand = subtotal - discount; 
     const discountRow = discount > 0 ? `<tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">Diskaun Kupon<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; color:red;">- RM ${discount.toFixed(2)}<\/td><\/tr>` : ''; 
-    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto; padding:20px;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">\( {bizName}</h2><p style="font-size:12px; color:#6b7280;"> \){bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:\( {docColor};"> \){type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid \( {docColor};"><p style="font-size:9px; font-weight:bold; color: \){docColor};">Kepada:</p><p style="font-weight:600;">\( {clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;"> \){bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:\( {docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody> \){itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
+    const docHtml = `<div style="font-family: 'Plus Jakarta Sans', sans-serif; max-width: 800px; margin:0 auto; padding:20px;"><div style="display:flex; justify-content:space-between; margin-bottom:30px;"><div><h2 style="font-size:24px; font-weight:900; text-transform:uppercase;">${bizName}</h2><p style="font-size:12px; color:#6b7280;">${bizAddr}</p></div><div style="text-align:right;"><h1 style="font-size:48px; font-weight:900; font-style:italic; color:${docColor};">${type}</h1><p style="font-weight:900; font-size:20px;">${hist.ref}</p><p style="font-size:10px;">Tarikh: ${hist.date}</p></div></div><div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:30px;"><div style="background:#f9fafb; padding:16px; border-radius:16px; border-left:4px solid ${docColor};"><p style="font-size:9px; font-weight:bold; color:${docColor};">Kepada:</p><p style="font-weight:600;">${clientName}</p></div><div style="padding:16px; text-align:right;"><p style="font-size:9px; font-weight:bold;">Maklumat Pembayaran:</p><p style="font-size:12px;">${bizBank}</p></div></div><table style="width:100%; border-collapse:collapse; margin-bottom:30px;"><thead><tr style="background:${docColor}; color:white;"><th style="padding:12px 8px; text-align:left;">Perihalan</th><th style="padding:12px 8px; text-align:center;">Unit</th><th style="padding:12px 8px; text-align:right;">Harga (RM)</th><th style="padding:12px 8px; text-align:right;">Jumlah (RM)</th><\/tr><\/thead><tbody>${itemsHtml}${discountRow}<\/tbody><tfoot><tr><td colspan="3" style="padding:12px 8px; text-align:right; font-weight:bold;">JUMLAH KESELURUHAN<\/td><td style="padding:12px 8px; text-align:right; font-weight:bold; font-size:20px;">RM ${grand.toFixed(2)}<\/td><\/tr><\/tfoot><\/table><div style="text-align:center; font-size:10px; color:#9ca3af;">Dokumen ini dijana secara digital.</div></div>`; 
     const tempDiv = document.createElement('div'); 
     tempDiv.innerHTML = docHtml; 
     document.body.appendChild(tempDiv); 
@@ -1422,8 +1424,8 @@ function exportReport(type) {
             <h1 style="text-align: center; font-size: 24px; font-weight: bold; margin-bottom: 10px;">${title}</h1>
             <p style="text-align: center; color: #666; margin-bottom: 20px;">Dijana pada: ${new Date().toLocaleString()}</p>
             <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                <thead><tr style="background-color: #f3f4f6; border-bottom: 2px solid #ddd;">\( {headers.map(h => `<th style="padding: 8px; text-align: left; border: 1px solid #ddd;"> \){h}</th>`).join('')}<\/tr><\/thead>
-                <tbody>\( {rows.map(row => `<tr style="border-bottom: 1px solid #eee;"> \){row.map(cell => `<td style="padding: 8px; border: 1px solid #ddd;">${cell}<\/td>`).join('')}<\/tr>`).join('')}<\/tbody>
+                <thead><tr style="background-color: #f3f4f6; border-bottom: 2px solid #ddd;">${headers.map(h => `<th style="padding: 8px; text-align: left; border: 1px solid #ddd;">${h}</th>`).join('')}<\/tr><\/thead>
+                <tbody>${rows.map(row => `<tr style="border-bottom: 1px solid #eee;">${row.map(cell => `<td style="padding: 8px; border: 1px solid #ddd;">${cell}<\/td>`).join('')}<\/tr>`).join('')}<\/tbody>
             <\/table>
         <\/div>
     `;
@@ -1432,18 +1434,30 @@ function exportReport(type) {
     tempDiv.style.left = '-9999px';
     tempDiv.innerHTML = html;
     document.body.appendChild(tempDiv);
-    const opt = { margin: 0.5, filename: `\( {type}_report_ \){new Date().toISOString().slice(0,19)}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+    const opt = { margin: 0.5, filename: `${type}_report_${new Date().toISOString().slice(0,19)}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
     html2pdf().set(opt).from(tempDiv).save();
     setTimeout(() => document.body.removeChild(tempDiv), 1000);
+    
+    // Update preview
+    const previewDiv = document.getElementById('report-preview');
+    if (previewDiv) {
+        previewDiv.innerHTML = `<table class="w-full text-sm"><thead class="bg-gray-100"><tr>${headers.map(h => `<th class="p-2 text-left">${h}</th>`).join('')}</tr></thead><tbody>${rows.slice(0,10).map(row => `<tr>${row.map(cell => `<td class="p-2 border-b">${cell}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+    }
 }
 
 function initReportModule() {
     const invBtn = document.getElementById('report-inventory-btn');
-    if (invBtn) invBtn.onclick = () => exportReport('inventory');
+    if (invBtn) {
+        invBtn.onclick = () => exportReport('inventory');
+    }
     const crmBtn = document.getElementById('report-crm-btn');
-    if (crmBtn) crmBtn.onclick = () => exportReport('crm');
+    if (crmBtn) {
+        crmBtn.onclick = () => exportReport('crm');
+    }
     const lhdnBtn = document.getElementById('report-lhdn-btn');
-    if (lhdnBtn) lhdnBtn.onclick = () => exportReport('lhdn');
+    if (lhdnBtn) {
+        lhdnBtn.onclick = () => exportReport('lhdn');
+    }
 }
 
 // ================== DRAWER & PWA ==================
