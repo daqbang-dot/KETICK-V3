@@ -2,203 +2,341 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>KETICkbiz v6 | Flux Edition OS + Billing + CRM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>BizPro v6 | Sistem POS, Billing & CRM – RM69 Seumur Hidup</title>
+    
+    <meta name="description" content="BizPro v6 – Sistem POS, Billing, Inventory, CRM & WhatsApp Marketing. Promosi 100 user pertama: RM69 Lifetime Access. Urus bisnes dari smartphone anda!">
+    <meta name="keywords" content="POS Malaysia, sistem billing, inventori, CRM, WhatsApp marketing, LHDN, Ketick Hub">
+    <meta name="author" content="Ketick Hub">
+    <meta property="og:title" content="BizPro v6 – RM69 Lifetime Access">
+    <meta property="og:description" content="Sistem POS lengkap tanpa bayaran bulanan. Khas untuk usahawan Malaysia.">
+    <meta property="og:image" content="https://placehold.co/1200x630/6366f1/white?text=BizPro+v6+Ketick">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "SoftwareApplication",
+      "name": "BizPro v6",
+      "applicationCategory": "BusinessApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "69.00",
+        "priceCurrency": "MYR"
+      }
+    }
+    </script>
 
-    <!-- PWA meta -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007AFF">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BizPro">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-
-    <!-- External libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="src/css/style.css">
-
     <style>
-        /* Additional inline styles for glassmorphism and critical layout */
-        .toast-notify { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.85); color: white; padding: 14px 20px; border-radius: 28px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(8px); animation: slideUp 0.3s ease; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
-        .doc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .doc-modal-content { max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; background: white; border-radius: 32px; padding: 20px; position: relative; }
-        .glass-modal-overlay { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        
+        :root {
+            --bg-deep: #0f172a;
+            --primary-glow: #6366f1;
+            --text-main: #f1f5f9;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        /* Subtle Nebula Background */
+        .nebula-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.1) 0%, transparent 40%);
+            z-index: -1;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            background: rgba(30, 41, 59, 0.6);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        #setupSection { display: none; }
+        .show-setup #setupSection { display: block; }
+        .show-setup #landingContent { display: none; }
+        .show-setup #sticky-promo { display: none; }
+
+        .price-strike { text-decoration: line-through; color: #64748b; }
+        .device-id-box { background: #020617; color: #818cf8; font-family: monospace; }
     </style>
 </head>
-<body class="theme-QUO">
+<body id="appBody">
 
-    <!-- Login Overlay -->
-    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
-        <div class="text-center p-8 max-w-sm w-full">
-            <div class="w-24 h-24 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-[30px] mx-auto mb-8 flex items-center justify-center shadow-2xl rotate-3">
-                <i class="fas fa-rocket text-white text-4xl"></i>
-            </div>
-            <h2 class="text-4xl font-black mb-2 tracking-tighter" data-i18n="welcome">Selamat Datang</h2>
-            <p class="text-gray-400 text-sm mb-10 font-medium tracking-wide">KETICK • BizPro V6</p>
-            <button onclick="enterSystem()" class="group relative w-full bg-black text-white py-5 rounded-[24px] font-bold text-lg overflow-hidden transition-all active:scale-95">
-                <span class="relative z-10 uppercase tracking-widest"><span data-i18n="enter-system">Masuk Sistem</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></span>
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            </button>
-            <p class="mt-6 text-[10px] text-gray-300 font-bold uppercase tracking-widest">Hak Cipta by AzlanMymo</p>
-        </div>
+    <div class="nebula-canvas"></div>
+
+    <div id="sticky-promo" class="bg-indigo-600 text-white py-2 px-4 text-center text-[10px] md:text-xs font-bold tracking-widest uppercase sticky top-0 z-[60]">
+        <i class="fas fa-bolt mr-2 animate-pulse"></i> Promosi RM69 Seumur Hidup: Tinggal <span id="slots-left">14</span> Slot Sahaja!
     </div>
 
-    <!-- Header & Drawer -->
-    <nav class="bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 py-2 sticky top-0 z-50 no-print flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md" id="app-logo">
-                <i class="fas fa-bolt text-white text-sm"></i>
+    <nav class="sticky top-[32px] md:top-[36px] z-50 border-b border-white/5 bg-slate-900/60 backdrop-blur-xl">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <img src="icon/icon-512.png" alt="BizPro" class="w-5 h-5 object-contain invert">
+                </div>
+                <div>
+                    <span class="block font-extrabold text-xl tracking-tighter leading-none">KETICK <span class="text-indigo-400">BIZPro</span></span>
+                </div>
             </div>
-            <h1 class="font-extrabold text-xl tracking-tighter">KETICK</h1>
-            <span class="text-[8px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold ml-1">BIZPro</span>
-        </div>
-        <div class="flex items-center gap-2">
-            <button onclick="loadModule('dashboard')" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
-                <i class="fas fa-home text-lg"></i>
-            </button>
-            <button id="menuToggleBtn" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
-                <i class="fas fa-bars text-lg"></i>
+            <div class="hidden md:flex gap-6 text-sm font-semibold text-slate-400">
+                <a href="#features" class="hover:text-white">Ciri</a>
+                <a href="#pricing" class="hover:text-white">Promosi</a>
+                <a href="#testimoni" class="hover:text-white">Testimoni</a>
+            </div>
+            <button onclick="showSetup()" class="btn-premium px-5 py-2 rounded-full font-bold text-xs flex items-center gap-2">
+                <i class="fas fa-rocket text-[10px]"></i> Launch App
             </button>
         </div>
     </nav>
 
-    <!-- Drawer -->
-    <div id="drawerOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-all overlay" onclick="closeDrawer()"></div>
-    <div id="drawer" class="fixed top-0 left-0 bottom-0 w-80 bg-white/95 backdrop-blur-xl shadow-2xl z-50 flex flex-col drawer-transition drawer-closed border-r border-gray-100">
-        <div class="flex justify-between items-center p-5 border-b border-gray-100">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
-                    <i class="fas fa-bolt text-white text-sm"></i>
+    <div id="landingContent">
+        <section class="pt-16 pb-20 px-6 text-center">
+            <div class="container mx-auto max-w-4xl">
+                <div class="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-4 py-1.5 rounded-full text-[10px] font-bold text-indigo-300 mb-8 uppercase tracking-widest">
+                    🎉 Tawaran 100 User Pertama
                 </div>
-                <span class="font-extrabold text-xl tracking-tighter">BIZPRO</span>
+                <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+                    Urus Bisnes Laju <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Tanpa Komitmen.</span>
+                </h1>
+                <p class="text-slate-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-light">
+                    Sistem POS, Billing, & WhatsApp Marketing premium. Bayar RM69 sekali, guna seumur hidup. Direka khas untuk usahawan Malaysia.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <button onclick="showSetup()" class="btn-premium px-10 py-5 rounded-2xl font-bold text-xl shadow-2xl">
+                        Dapatkan RM69 Lifetime
+                    </button>
+                    <a href="#features" class="glass-panel px-10 py-5 rounded-2xl font-bold text-xl border border-white/10 hover:bg-white/5 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-play-circle text-indigo-400"></i> Tonton Demo
+                    </a>
+                </div>
+                <div class="mt-16 relative">
+                    <img src="https://picsum.photos/id/20/1100/600" alt="Dashboard BizPro" class="rounded-3xl border border-white/10 shadow-2xl opacity-80">
+                </div>
             </div>
-            <button id="closeDrawerBtn" class="p-2 rounded-full hover:bg-gray-100 transition">
-                <i class="fas fa-times text-gray-500"></i>
-            </button>
-        </div>
-        <div class="flex-1 overflow-y-auto py-4 custom-scroll">
-            <div class="px-3 space-y-1">
-                <button onclick="loadModule('dashboard'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-home text-blue-500 w-6"></i> <span data-i18n="menu-dash">Dashboard</span></button>
-                <button onclick="loadModule('pos'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-cash-register text-emerald-600 w-6"></i> <span data-i18n="menu-pos">Mini POS</span></button>
-                <button onclick="loadModule('inventory'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-boxes text-amber-600 w-6"></i> <span data-i18n="menu-inv">Inventory</span></button>
-                <button onclick="loadModule('crm'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-user-friends text-indigo-500 w-6"></i> <span data-i18n="menu-crm">CRM Database</span></button>
-                <button onclick="loadModule('billing'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-receipt text-blue-600 w-6"></i> <span data-i18n="menu-bill">Billing</span></button>
-                <button onclick="loadModule('promo'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-tags text-purple-500 w-6"></i> <span data-i18n="menu-promo">Coupon Manager</span></button>
-                <button onclick="loadModule('social'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-share-nodes text-pink-500 w-6"></i> <span data-i18n="menu-social">Social Marketing</span></button>
-                <button onclick="loadModule('blast'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fab fa-whatsapp text-emerald-500 w-6"></i> <span data-i18n="menu-blast">Smart Blast</span></button>
-                <button onclick="loadModule('autoreply'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-comments text-sky-500 w-6"></i> <span data-i18n="menu-auto">WhatsApp Chatbox</span></button>
-                <button onclick="loadModule('lhdn'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-file-invoice-dollar text-orange-500 w-6"></i> <span data-i18n="menu-tax">LHDN Tax Records</span></button>
-                <button onclick="loadModule('history'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-history text-gray-500 w-6"></i> <span data-i18n="menu-hist">History</span></button>
-                <!-- TAMBAH BUTANG LAPORAN -->
-                <button onclick="loadModule('report'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-chart-bar text-green-500 w-6"></i> <span data-i18n="menu-report">Laporan</span></button>
+        </section>
+
+        <section class="py-10 px-6">
+            <div class="container mx-auto max-w-2xl">
+                <div class="glass-panel p-6 border-indigo-500/20">
+                    <div class="flex justify-between text-xs font-bold mb-3 uppercase tracking-widest">
+                        <span class="text-indigo-400">Permintaan Tinggi</span>
+                        <span>86/100 Slot Terisi</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                        <div class="bg-indigo-500 h-full w-[86%] shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="p-5 border-t border-gray-100 space-y-3">
-            <button id="installBtn" class="w-full bg-blue-600 text-white p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hidden">
-                <i class="fas fa-download"></i> Install App
-            </button>
-            <button onclick="exportData(); closeDrawer();" class="w-full flux-input p-3 text-xs font-bold flex items-center justify-center gap-2 uppercase">
-                <i class="fas fa-download"></i> <span data-i18n="btn-export">Export Backup</span>
-            </button>
-            <button onclick="document.getElementById('import-file').click(); closeDrawer();" class="w-full bg-blue-50 text-blue-600 p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 uppercase">
-                <i class="fas fa-upload"></i> <span data-i18n="btn-import">Import Data</span>
-            </button>
-            <input type="file" id="import-file" class="hidden" onchange="importData(event)">
-            <button onclick="openThresholdModal()" class="w-full bg-amber-50 text-amber-600 p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
-                <i class="fas fa-exclamation-triangle"></i> <span data-i18n="btn-threshold">Set Stok Rendah (Ambang)</span>
-            </button>
-            <!-- NEW: First Time Setup Button -->
-            <button id="first-time-setup-btn" class="w-full bg-purple-600 text-white p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hidden">
-                <i class="fas fa-key"></i> First Time Setup
-            </button>
-            <p class="text-[9px] text-center text-gray-300 font-bold mt-2">System by AzlanMymo</p>
+        </section>
+
+        <section id="features" class="py-24 px-6 bg-slate-900/40">
+            <div class="container mx-auto max-w-6xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Semua Modul Dalam Satu Hub</h2>
+                    <p class="text-slate-500">Tak perlu lagi pening guna banyak software berasingan.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-cash-register text-3xl text-indigo-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">Mini POS</h3>
+                        <p class="text-slate-500 text-sm">Jualan pantas, cetak resit Bluetooth, & auto-update stok serta-merta.</p>
+                    </div>
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-receipt text-3xl text-purple-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">Billing & Invois</h3>
+                        <p class="text-slate-500 text-sm">Quotation, Invoice, & Receipt dengan cop digital. Eksport ke PDF dalam sesaat.</p>
+                    </div>
+                    <div class="glass-panel p-8 group border-indigo-500/20">
+                        <i class="fab fa-whatsapp text-3xl text-emerald-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2 text-indigo-300">WhatsApp Blast</h3>
+                        <p class="text-slate-400 text-sm">Hantar promosi beramai-ramai ke database pelanggan tanpa perlu save nombor.</p>
+                    </div>
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-boxes text-3xl text-orange-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">Inventori Pintar</h3>
+                        <p class="text-slate-500 text-sm">Amaran stok rendah (Low Stock Alert) supaya anda tak terlepas jualan.</p>
+                    </div>
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-file-invoice-dollar text-3xl text-cyan-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">Rekod Cukai LHDN</h3>
+                        <p class="text-slate-500 text-sm">Kategorikan resit perbelanjaan. Laporan siap sedia untuk audit & cukai.</p>
+                    </div>
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-user-friends text-3xl text-pink-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">CRM Pelanggan</h3>
+                        <p class="text-slate-500 text-sm">Simpan sejarah transaksi pelanggan untuk strategi 'retargeting' yang berkesan.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="py-24 px-6">
+            <div class="container mx-auto max-w-4xl text-center">
+                <h2 class="text-4xl font-extrabold mb-12">Pilih Pelan Masa Depan</h2>
+                <div class="glass-panel p-1 border-indigo-500/30 overflow-hidden relative shadow-2xl">
+                    <div class="absolute top-6 right-[-35px] bg-red-600 text-white px-10 py-1 rotate-45 text-[10px] font-bold">TERLARIS</div>
+                    <div class="bg-slate-900/80 rounded-[1.4rem] p-10 md:p-16">
+                        <h3 class="text-2xl font-bold mb-6 italic text-indigo-400">UNLIMITED PRO EDITION</h3>
+                        <div class="flex justify-center items-baseline gap-4 mb-8">
+                            <span class="price-strike text-2xl">RM399</span>
+                            <span class="text-7xl font-black text-white tracking-tighter">RM69</span>
+                        </div>
+                        <p class="text-emerald-400 font-bold mb-10 tracking-widest text-sm uppercase">Bayar Sekali • Guna Selamanya</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 text-left max-w-2xl mx-auto mb-12 text-slate-300">
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-indigo-500"></i> Semua Ciri POS & Billing</div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-indigo-500"></i> WhatsApp Marketing (Blast)</div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-indigo-500"></i> Unlimited Produk & User</div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-indigo-500"></i> Laporan LHDN & Audit</div>
+                        </div>
+
+                        <button onclick="showSetup()" class="btn-premium w-full py-5 rounded-2xl text-2xl font-extrabold uppercase tracking-widest">
+                            Aktifkan RM69 Sekarang
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimoni" class="py-24 px-6 bg-slate-900/40 text-center">
+            <div class="container mx-auto max-w-4xl">
+                <h2 class="text-3xl font-bold mb-16">Apa Kata Pengguna Kami?</h2>
+                <div class="glass-panel p-10 italic">
+                    <i class="fas fa-quote-left text-4xl text-indigo-500/30 mb-6 block"></i>
+                    <p class="text-xl text-slate-300 mb-6 leading-relaxed">
+                        "Dulu saya pening nak rekod stok manual. Sejak guna BizPro v6, semuanya jadi auto. Paling best sebab boleh guna kat smartphone Realme saya je. Harga RM69 seumur hidup memang tak masuk akal murahnya!"
+                    </p>
+                    <div class="font-bold text-indigo-400">— Azlan, Pengasas Ketick Hub</div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="py-16 border-t border-white/5 text-center px-6">
+            <div class="flex justify-center gap-6 mb-8 text-slate-500">
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-facebook-f text-xl"></i></a>
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-tiktok text-xl"></i></a>
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-instagram text-xl"></i></a>
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-telegram-plane text-xl"></i></a>
+            </div>
+            <p class="text-slate-600 text-xs tracking-widest uppercase">Ketick Hub &copy; 2026 • BizPro v6 Andromeda Edition</p>
+            <p class="text-[10px] text-slate-700 mt-4 max-w-md mx-auto">Dibangunkan oleh AzlanMymo. Sistem ini tertakluk kepada Terma & Syarat Ketick Hub.</p>
+        </footer>
+    </div>
+
+    <div id="setupSection" class="min-h-screen py-20 px-6">
+        <div class="container mx-auto max-w-xl">
+            <div class="glass-panel overflow-hidden border-indigo-500/30">
+                <div class="p-8 text-center bg-indigo-600/10 border-b border-white/5">
+                    <button onclick="showLanding()" class="float-left text-slate-500 hover:text-white transition"><i class="fas fa-arrow-left"></i></button>
+                    <h2 class="text-xl font-extrabold uppercase">Aktivasi Andromeda</h2>
+                </div>
+                <div class="p-10 space-y-10">
+                    <div>
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">1. Identiti Peranti</label>
+                        <button id="setupBtn" class="w-full py-4 glass-panel border-indigo-500/20 font-bold hover:bg-indigo-500/10 transition">
+                            GENERATE DEVICE ID
+                        </button>
+                        <div id="deviceIdDisplay" class="mt-4 p-4 bg-black/40 rounded-xl text-center font-mono text-indigo-400 border border-white/5 text-xs break-all">
+                            MENUNGGU ARAHAN...
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">2. Verifikasi Pembayaran</label>
+                        <a href="#" id="whatsappLink" target="_blank" class="flex items-center justify-center gap-3 w-full bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 py-4 rounded-xl font-bold hover:bg-emerald-600 hover:text-white transition">
+                            <i class="fab fa-whatsapp"></i> Hantar ID via WhatsApp
+                        </a>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">3. Masukkan Kunci Produk</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="productKey" placeholder="BIZPRO-XXXX-XXXX" class="flex-1 bg-slate-800 border border-white/5 p-4 rounded-xl focus:border-indigo-500 outline-none text-center font-bold tracking-widest uppercase text-sm">
+                            <button id="activateBtn" class="btn-premium px-8 rounded-xl font-bold">LINK</button>
+                        </div>
+                        <div id="activationMessage" class="mt-4 text-center font-bold text-xs uppercase tracking-tighter"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Main content: modules will be loaded into this container -->
-    <main id="app-content">
-        <!-- Dashboard will be loaded here on init -->
-    </main>
-
-    <!-- Global Modals -->
-    <div id="reviewModal" class="doc-modal hidden" onclick="if(event.target===this) closeReviewModal()">
-        <div class="doc-modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-black" data-i18n="review-title">Review Dokumen</h3>
-                <button onclick="closeReviewModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-            </div>
-            <div id="reviewDocContent" class="bg-white p-6 rounded-2xl border"></div>
-            <div class="mt-4 flex justify-end gap-3">
-                <button onclick="downloadReviewAsPDF()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fas fa-download mr-1"></i> Download PDF</button>
-                <button onclick="closeReviewModal()" class="bg-gray-200 px-4 py-2 rounded-xl text-sm font-bold" data-i18n="btn-close">Tutup</button>
-            </div>
-        </div>
+    <div id="launchSystemContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden w-full max-w-xs px-6">
+        <button onclick="launchApp()" class="btn-premium w-full py-4 rounded-full font-black shadow-2xl text-white tracking-widest uppercase text-sm border-2 border-white/20">
+            Masuk Ke Sistem <i class="fas fa-chevron-right ml-2"></i>
+        </button>
     </div>
 
-    <div id="tax-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-center justify-center hidden">
-        <div class="bg-white w-full max-w-md rounded-[40px] p-8">
-            <div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-black" data-i18n="tax-new">Rekod Baru</h3><button onclick="document.getElementById('tax-modal').classList.add('hidden')" class="text-gray-400"><i class="fas fa-times"></i></button></div>
-            <div class="space-y-4">
-                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer"><i class="fas fa-camera text-2xl text-gray-300 mb-2"></i><span id="tax-img-status" class="text-[10px] text-gray-400" data-i18n="tax-upload">Muat Naik Resit</span><input type="file" id="tax-img-input" class="hidden" onchange="document.getElementById('tax-img-status').innerText = t('Imej Sedia')"></label>
-                <div class="grid grid-cols-2 gap-4"><input type="date" id="tax-date" class="p-3 flux-input"><input type="number" id="tax-amount" class="p-3 flux-input" placeholder="Jumlah (RM)"></div>
-                <select id="tax-category" class="w-full p-3 flux-input"><option value="Utiliti">Utiliti</option><option value="Sewa">Sewa</option><option value="Gaji">Gaji</option><option value="Stok">Stok</option><option value="Pemasaran">Pemasaran</option><option value="Logistik">Logistik</option><option value="Alatan">Alatan</option><option value="Lain-lain">Lain-lain</option></select>
-                <input type="text" id="tax-vendor" class="w-full p-3 flux-input" placeholder="Vendor">
-                <button onclick="saveTaxRecord()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold" data-i18n="btn-save">SIMPAN</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        const PROVIDER_WHATSAPP = '601123266755';
+        const SYSTEM_URL = 'index.html';
 
-    <div id="custom-modal" class="fixed inset-0 z-[999] glass-modal-overlay flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="glass-panel w-[90%] max-w-sm p-8 text-center rounded-[32px] transform scale-95 transition-transform duration-300">
-            <div id="modal-icon" class="text-5xl mb-4 drop-shadow-md"></div>
-            <h3 id="modal-title" class="text-2xl font-black mb-2 tracking-tight"></h3>
-            <p id="modal-msg" class="text-sm font-medium text-gray-700 dark:text-gray-200 mb-6 whitespace-pre-line"></p>
-            <input type="text" id="modal-input" class="w-full p-4 flux-input mb-6 hidden text-center font-bold text-lg rounded-2xl" />
-            <div class="flex gap-3 justify-center">
-                <button id="modal-cancel" class="hidden flex-1 py-4 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 dark:border-gray-600 text-gray-800 dark:text-white font-bold hover:bg-white/80 transition shadow-sm backdrop-blur-sm" data-i18n="btn-cancel">Batal</button>
-                <button id="modal-ok" class="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">OK</button>
-            </div>
-        </div>
-    </div>
+        function showSetup() { document.getElementById('appBody').classList.add('show-setup'); window.scrollTo(0,0); }
+        function showLanding() { document.getElementById('appBody').classList.remove('show-setup'); window.scrollTo(0,0); }
+        function launchApp() { window.location.href = SYSTEM_URL; }
 
-    <!-- Modal for Job/Note -->
-    <div id="job-modal" class="fixed inset-0 z-[1000] glass-modal-overlay flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="glass-panel w-[90%] max-w-md p-8 rounded-[32px] transform scale-95 transition-transform duration-300">
-            <div class="text-5xl mb-4 drop-shadow-md text-center"><i class="fas fa-calendar-plus text-blue-500"></i></div>
-            <h3 id="job-modal-title" class="text-2xl font-black mb-4 text-center tracking-tight">Tambah Nota</h3>
-            <div class="space-y-4 text-left">
-                <div>
-                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Perkara / Subject</label>
-                    <input type="text" id="job-subject" class="w-full p-3 flux-input rounded-xl" placeholder="Contoh: Mesyuarat">
-                </div>
-                <div>
-                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Tarikh / Date</label>
-                    <input type="date" id="job-date" class="w-full p-3 flux-input rounded-xl">
-                </div>
-                <div>
-                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Masa / Time (optional)</label>
-                    <input type="time" id="job-time" class="w-full p-3 flux-input rounded-xl">
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="job-reminder" class="w-5 h-5 accent-blue-600">
-                    <label for="job-reminder" class="text-sm font-medium text-gray-700 dark:text-gray-300">Ingatkan saya / Remind me</label>
-                </div>
-            </div>
-            <div class="flex gap-3 justify-center mt-6">
-                <button id="job-modal-cancel" class="flex-1 py-3 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 dark:border-gray-600 text-gray-800 dark:text-white font-bold hover:bg-white/80 transition shadow-sm backdrop-blur-sm">Batal</button>
-                <button id="job-modal-ok" class="flex-1 py-3 rounded-2xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">Simpan</button>
-            </div>
-        </div>
-    </div>
+        let deviceId = localStorage.getItem('bizpro_device_id');
 
-    <!-- JavaScript -->
-    <script src="src/js/app.js"></script>
+        function updateUI() {
+            if (deviceId) {
+                document.getElementById('deviceIdDisplay').innerText = deviceId;
+                document.getElementById('whatsappLink').href = `https://wa.me/${PROVIDER_WHATSAPP}?text=Salam%20Admin%2C%20mohon%20aktifkan%20BizPro%20v6%20ID%3A%20${deviceId}`;
+            }
+            if (localStorage.getItem('bizpro_activated') === 'true') {
+                document.getElementById('launchSystemContainer').classList.remove('hidden');
+                document.getElementById('activationMessage').innerHTML = '<span class="text-indigo-400">SISTEM TELAH DIAKTIFKAN. TERIMA KASIH!</span>';
+            }
+        }
+
+        document.getElementById('setupBtn').addEventListener('click', () => {
+            if (!deviceId) {
+                deviceId = 'ANDROMEDA-' + Math.random().toString(36).substring(2, 11).toUpperCase() + '-' + Date.now().toString().slice(-4);
+                localStorage.setItem('bizpro_device_id', deviceId);
+                updateUI();
+            }
+        });
+
+        document.getElementById('activateBtn').addEventListener('click', () => {
+            const key = document.getElementById('productKey').value.trim();
+            if (key.toUpperCase().startsWith('BIZPRO-') || key.toUpperCase().startsWith('KEY-')) {
+                localStorage.setItem('bizpro_activated', 'true');
+                updateUI();
+                alert('Tahniah! BizPro v6 kini aktif.');
+            } else {
+                document.getElementById('activationMessage').innerHTML = '<span class="text-red-500">Kunci Produk Tidak Sah.</span>';
+            }
+        });
+
+        updateUI();
+    </script>
 </body>
 </html>
