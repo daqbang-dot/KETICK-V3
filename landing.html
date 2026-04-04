@@ -3,389 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>BizPro v6 | Sistem POS & CRM Malaysia – RM69 Seumur Hidup</title>
+    <title>BizPro v6 | Ketick Hub - Nebula Edition</title>
     
-    <meta name="description" content="Urus stok, invois, LHDN & WhatsApp Marketing dengan BizPro v6 oleh Ketick Hub. Tawaran RM69 seumur hidup untuk 100 user pertama. Tiada yuran bulanan!">
-    <meta name="keywords" content="POS Malaysia, sistem billing murah, software perniagaan, WhatsApp Marketing Malaysia, Ketick Hub, BizPro v6">
+    <meta name="description" content="Sistem POS & CRM BizPro v6 Edisi Nebula. Urus perniagaan sepantas cahaya dengan Ketick Hub. RM69 Lifetime Access.">
     <meta name="author" content="Ketick Hub">
-    <meta name="robots" content="index, follow">
-    <meta name="geo.region" content="MY" />
     
-    <meta property="og:title" content="BizPro v6 – RM69 Lifetime Access (Terhad 100 User)">
-    <meta property="og:description" content="Sistem POS & Inventory lengkap dengan WhatsApp Blast. Bayar sekali, guna selamanya.">
-    <meta property="og:image" content="https://placehold.co/1200x630/007AFF/white?text=BizPro+v6+Ketick">
-    <meta property="og:url" content="https://ketick.my">
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org/",
-      "@type": "SoftwareApplication",
-      "name": "BizPro v6",
-      "operatingSystem": "Android, iOS, Windows, Web",
-      "applicationCategory": "BusinessApplication",
-      "offers": {
-        "@type": "Offer",
-        "price": "69.00",
-        "priceCurrency": "MYR",
-        "description": "Lifetime Access Promotion"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "ratingCount": "150"
-      }
-    }
-    </script>
-
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
         
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        :root {
+            --nebula-deep: #020617;
+            --nebula-purple: #4c1d95;
+            --nebula-magenta: #701a75;
+            --nebula-cyan: #06b6d4;
+        }
 
+        body { 
+            font-family: 'Space Grotesk', sans-serif; 
+            background-color: var(--nebula-deep);
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Animated Nebula Background */
+        .nebula-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, var(--nebula-purple) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, var(--nebula-magenta) 0%, transparent 40%);
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: -1;
+            animation: drift 20s infinite alternate;
+        }
+
+        @keyframes drift {
+            from { transform: scale(1) translate(0, 0); }
+            to { transform: scale(1.2) translate(5%, 5%); }
+        }
+
+        /* Glassmorphism Nebula Style */
         .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 1.5rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+
         .glass-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border-color: var(--nebula-cyan);
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
+            transform: translateY(-10px);
         }
-        .btn-glow {
-            animation: glowing 2s infinite;
+
+        .btn-cosmic {
+            background: linear-gradient(135deg, #a855f7, #06b6d4);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
         }
-        @keyframes glowing {
-            0% { box-shadow: 0 0 5px rgba(0, 122, 255, 0.5); }
-            50% { box-shadow: 0 0 20px rgba(0, 122, 255, 0.8); }
-            100% { box-shadow: 0 0 5px rgba(0, 122, 255, 0.5); }
+
+        .btn-cosmic:hover {
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.6);
+            transform: scale(1.05);
         }
-        .price-strike { text-decoration: line-through; color: #9ca3af; }
-        .promo-price { color: #dc2626; font-size: 2.5rem; font-weight: 800; }
-        
+
+        .text-glow {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .neon-border {
+            border: 1px solid var(--nebula-cyan);
+            box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+
         #setupSection { display: none; }
         .show-setup #setupSection { display: block; }
         .show-setup #landingContent { display: none; }
-        
-        html { scroll-behavior: smooth; }
-        .device-id-box { background: #0f172a; color: #38bdf8; font-family: monospace; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--nebula-deep); }
+        ::-webkit-scrollbar-thumb { background: var(--nebula-purple); border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased" id="appBody">
+<body id="appBody">
 
-    <nav class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-200">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="nebula-bg"></div>
+
+    <nav class="sticky top-0 z-50 border-b border-white/10 bg-black/20 backdrop-blur-md">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img src="icon/icon-512.png" alt="BizPro Logo" class="w-10 h-10 rounded-xl shadow-sm">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-400 p-0.5 shadow-lg shadow-cyan-500/20">
+                    <img src="icon/icon-512.png" alt="Logo" class="w-full h-full rounded-full object-cover bg-slate-900">
+                </div>
                 <div>
-                    <span class="block font-black text-xl tracking-tight leading-none text-slate-900">KETICK</span>
-                    <span class="text-[10px] font-bold text-blue-600 tracking-widest uppercase">BizPro v6</span>
+                    <span class="block font-bold text-xl tracking-tighter text-white">KETICK HUB</span>
+                    <span class="text-[10px] text-cyan-400 font-bold tracking-[0.2em] uppercase">Andromeda System</span>
                 </div>
             </div>
-            <div class="flex items-center gap-6">
-                <a href="#features" class="hidden md:block font-semibold text-slate-600 hover:text-blue-600 transition">Ciri</a>
-                <button onclick="showSetup()" class="bg-blue-600 text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-blue-200 hover:bg-blue-700 transition flex items-center gap-2">
-                    <i class="fas fa-rocket text-xs"></i> Mula Sekarang
-                </button>
-            </div>
+            <button onclick="showSetup()" class="btn-cosmic text-white px-6 py-2 rounded-full font-bold text-sm">
+                Launch System
+            </button>
         </div>
     </nav>
 
     <div id="landingContent">
-        <section class="pt-16 pb-24 px-4 text-center bg-gradient-to-b from-blue-50 to-white">
-            <div class="container mx-auto max-w-4xl">
-                <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-xs font-black mb-8 animate-bounce">
-                    <i class="fas fa-fire"></i> TERHAD: 100 SLOT SAHAJA RM69!
+        <section class="relative pt-20 pb-32 px-4">
+            <div class="container mx-auto text-center max-w-5xl">
+                <div class="inline-block px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-xs font-bold mb-8 tracking-widest uppercase">
+                    🌌 Evolusi Bisnes Bermula Di Sini
                 </div>
-                <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
-                    Sistem Bisnes <span class="text-blue-600">Lengkap</span> Tanpa Bayaran Bulanan.
+                <h1 class="text-6xl md:text-8xl font-black mb-8 leading-tight tracking-tighter">
+                    Urus Bisnes <br>
+                    <span class="bg-gradient-to-r from-cyan-400 via-purple-400 to-magenta-400 bg-clip-text text-transparent">Luar Biasa.</span>
                 </h1>
-                <p class="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto">
-                    Kawal stok, urus pelanggan, dan hantar WhatsApp Blast dengan satu sistem. Guna di telefon atau PC bila-bila masa.
+                <p class="text-xl text-slate-400 max-w-2xl mx-auto mb-12 font-light">
+                    BizPro v6: Sistem POS & CRM paling pantas di galaksi. Bayar sekali RM69, guna seumur hidup tanpa komitmen bulanan.
                 </p>
-                <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <button onclick="showSetup()" class="btn-glow bg-blue-600 text-white px-10 py-5 rounded-2xl font-black text-xl shadow-2xl hover:scale-105 transition-all">
-                        Dapatkan RM69 Lifetime
+                <div class="flex flex-col sm:flex-row justify-center gap-6">
+                    <button onclick="showSetup()" class="btn-cosmic text-white px-12 py-5 rounded-2xl font-black text-xl">
+                        AKTIFKAN RM69 SEKARANG
                     </button>
-                    <a href="#features" class="bg-white border border-slate-200 px-10 py-5 rounded-2xl font-bold text-xl hover:bg-slate-50 transition">
-                        Lihat Demo Sistem
+                    <a href="#features" class="glass-card px-12 py-5 flex items-center justify-center font-bold text-xl border border-white/20 hover:bg-white/10 transition">
+                        Explorasi Ciri
                     </a>
                 </div>
-                
-                <div class="mt-16 flex flex-wrap justify-center gap-8 opacity-50 font-bold text-sm grayscale">
-                    <span class="flex items-center gap-2"><i class="fas fa-check-circle"></i> LHDN READY</span>
-                    <span class="flex items-center gap-2"><i class="fas fa-shield-alt"></i> SECURE CLOUD</span>
-                    <span class="flex items-center gap-2"><i class="fas fa-sync"></i> REAL-TIME SYNC</span>
-                </div>
             </div>
         </section>
 
-        <section class="py-20 bg-slate-900 text-white">
-            <div class="container mx-auto px-4 max-w-5xl">
-                <h2 class="text-center text-3xl font-bold mb-12 italic">"Kenapa perlu bayar ratusan ringgit SETIAP BULAN untuk sistem POS?"</h2>
-                <div class="grid md:grid-cols-3 gap-8 text-center">
-                    <div class="p-6">
-                        <div class="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                        <h4 class="font-bold text-xl mb-2">Tiada Langganan</h4>
-                        <p class="text-slate-400">Jimat RM1,200+ setahun. Bayar sekali, guna sampai bila-bila.</p>
+        <section id="features" class="py-24 px-6 relative">
+            <div class="container mx-auto max-w-7xl">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-card p-10 relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-cyan-500/10 rounded-full blur-2xl group-hover:bg-cyan-500/30 transition"></div>
+                        <i class="fas fa-bolt text-4xl text-cyan-400 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-4">Speed POS</h3>
+                        <p class="text-slate-400 leading-relaxed">Rekod jualan sepantas kilat. Interface yang dioptimumkan untuk skrin smartphone anda.</p>
                     </div>
-                    <div class="p-6">
-                        <div class="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h4 class="font-bold text-xl mb-2">Smartphone Ready</h4>
-                        <p class="text-slate-400">Tak perlu beli hardware POS mahal. Guna phone sendiri pun boleh!</p>
+                    <div class="glass-card p-10 border-cyan-500/50 shadow-2xl shadow-cyan-500/10 scale-105">
+                        <i class="fab fa-whatsapp text-4xl text-green-400 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-4 text-cyan-300">Galaxy Blast</h3>
+                        <p class="text-slate-300 leading-relaxed">Hantar ribuan promosi WhatsApp kepada pelanggan dengan satu klik. Bina empayar anda.</p>
                     </div>
-                    <div class="p-6">
-                        <div class="w-16 h-16 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <h4 class="font-bold text-xl mb-2">Setup 5 Minit</h4>
-                        <p class="text-slate-400">Tak perlu tunggu technician datang. Install dan guna sepantas kilat.</p>
+                    <div class="glass-card p-10 relative overflow-hidden group">
+                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/30 transition"></div>
+                        <i class="fas fa-shield-halved text-4xl text-purple-400 mb-6"></i>
+                        <h3 class="text-2xl font-bold mb-4">LHDN Sync</h3>
+                        <p class="text-slate-400 leading-relaxed">Rekod cukai dan audit yang tersusun rapi. Tenang hati, bisnes selamat.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="features" class="py-24 px-4">
-            <div class="container mx-auto max-w-6xl">
-                <div class="text-center mb-16">
-                    <h2 class="text-4xl font-black mb-4 tracking-tight text-slate-900">Ciri Utama BizPro v6</h2>
-                    <p class="text-slate-500 text-lg">Semua modul yang usahawan perlukan dalam satu dashboard.</p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="glass-card p-8">
-                        <i class="fas fa-cash-register text-4xl text-blue-600 mb-6 block"></i>
-                        <h3 class="font-bold text-2xl mb-3 text-slate-900">Mini POS Pintar</h3>
-                        <p class="text-slate-500 leading-relaxed">Rekod jualan sepantas kilat. Cetak resit Bluetooth atau hantar resit digital via WhatsApp.</p>
-                    </div>
-                    <div class="glass-card p-8 text-white bg-blue-600 border-none">
-                        <i class="fab fa-whatsapp text-4xl mb-6 block"></i>
-                        <h3 class="font-bold text-2xl mb-3">WhatsApp Marketing</h3>
-                        <p class="text-slate-200 leading-relaxed">Hantar mesej promosi beramai-ramai terus kepada database pelanggan tanpa perlu save nombor.</p>
-                    </div>
-                    <div class="glass-card p-8">
-                        <i class="fas fa-boxes text-4xl text-emerald-600 mb-6 block"></i>
-                        <h3 class="font-bold text-2xl mb-3 text-slate-900">Inventori & Stok</h3>
-                        <p class="text-slate-500 leading-relaxed">Auto-deduct stok. Notifikasi amaran bila stok hampir habis (Low Stock Alert).</p>
-                    </div>
-                    <div class="glass-card p-8">
-                        <i class="fas fa-file-invoice-dollar text-4xl text-orange-600 mb-6 block"></i>
-                        <h3 class="font-bold text-2xl mb-3 text-slate-900">Laporan LHDN</h3>
-                        <p class="text-slate-500 leading-relaxed">Mudahkan urusan cukai. Rekod perbelanjaan, untung rugi, dan jualan tahunan siap audit.</p>
-                    </div>
-                    <div class="glass-card p-8">
-                        <i class="fas fa-user-friends text-4xl text-purple-600 mb-6 block"></i>
-                        <h3 class="font-bold text-2xl mb-3 text-slate-900">CRM & Database</h3>
-                        <p class="text-slate-500 leading-relaxed">Kenali siapa regular customer anda. Simpan sejarah pembelian untuk retargeting.</p>
-                    </div>
-                    <div class="glass-card p-8">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-cyan-600 mb-6 block"></i>
-                        <h3 class="font-bold text-2xl mb-3 text-slate-900">Auto Backup</h3>
-                        <p class="text-slate-500 leading-relaxed">Data anda selamat di cloud. Jika phone hilang, login balik dan semua data ada semula.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="pricing" class="py-24 px-4 bg-blue-50 border-y border-blue-100">
+        <section id="pricing" class="py-24 px-6 bg-black/40">
             <div class="container mx-auto max-w-4xl text-center">
-                <h2 class="text-4xl font-black mb-4">Promosi <span class="text-blue-600 italic underline">RM69</span> Sahaja</h2>
-                <p class="text-slate-600 mb-12 font-semibold">Tinggal <span class="text-red-600">14 slot</span> terakhir sebelum harga naik ke RM129/tahun.</p>
-                
-                <div class="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border-4 border-blue-600 relative">
-                    <div class="absolute top-6 right-[-40px] bg-red-600 text-white px-12 py-1 rotate-45 font-bold text-sm shadow-md">BEST SELLER</div>
-                    <div class="p-10 md:p-16">
-                        <h3 class="text-3xl font-black text-slate-900 mb-2">FULL ACCESS LIFETIME</h3>
-                        <div class="flex justify-center items-center gap-4 my-8">
-                            <span class="price-strike text-2xl">RM399</span>
-                            <div class="promo-price">RM69</div>
+                <h2 class="text-4xl font-black mb-16 text-glow">Tawaran Terhad Andromeda</h2>
+                <div class="glass-card p-1 md:p-2 border-cyan-500/30 shadow-inner">
+                    <div class="bg-slate-900/80 rounded-[1.8rem] p-12">
+                        <span class="bg-red-600 text-white px-6 py-1 rounded-full text-xs font-bold tracking-widest uppercase mb-6 inline-block">Flash Sale 100 Slot</span>
+                        <h3 class="text-2xl font-light text-slate-400 mb-2">LIFETIME ACCESS</h3>
+                        <div class="flex justify-center items-baseline gap-4 mb-10">
+                            <span class="text-slate-500 line-through text-2xl font-light">RM399</span>
+                            <span class="text-7xl font-black text-white tracking-tighter">RM69</span>
                         </div>
-                        <ul class="text-left space-y-4 max-w-md mx-auto mb-10 font-semibold text-slate-700">
-                            <li class="flex items-start gap-3"><i class="fas fa-check-circle text-green-500 mt-1"></i> <span>Akses Seumur Hidup (Tiada Bulanan)</span></li>
-                            <li class="flex items-start gap-3"><i class="fas fa-check-circle text-green-500 mt-1"></i> <span>Semua Modul POS, CRM & Billing</span></li>
-                            <li class="flex items-start gap-3"><i class="fas fa-check-circle text-green-500 mt-1"></i> <span>Unlimited Stok & Database Pelanggan</span></li>
-                            <li class="flex items-start gap-3"><i class="fas fa-check-circle text-green-500 mt-1"></i> <span>Free Update & Support VIP</span></li>
-                        </ul>
-                        <button onclick="showSetup()" class="w-full bg-blue-600 text-white py-5 rounded-2xl text-2xl font-black shadow-xl hover:bg-blue-700 hover:-translate-y-1 transition-all">
-                            DAFTAR SEKARANG RM69
+                        <div class="grid md:grid-cols-2 gap-4 text-left max-w-2xl mx-auto mb-10">
+                            <div class="flex items-center gap-3 text-slate-300"><i class="fas fa-star text-cyan-400"></i> Unlimited Invoices</div>
+                            <div class="flex items-center gap-3 text-slate-300"><i class="fas fa-star text-cyan-400"></i> Full CRM Database</div>
+                            <div class="flex items-center gap-3 text-slate-300"><i class="fas fa-star text-cyan-400"></i> WhatsApp Marketing</div>
+                            <div class="flex items-center gap-3 text-slate-300"><i class="fas fa-star text-cyan-400"></i> No Monthly Fees</div>
+                        </div>
+                        <button onclick="showSetup()" class="btn-cosmic w-full py-6 rounded-2xl text-2xl font-black shadow-cyan-500/20">
+                            REBUT SLOT RM69 SEKARANG
                         </button>
-                        <p class="mt-4 text-sm text-slate-400 italic font-medium"><i class="fas fa-lock"></i> Jaminan 7 Hari Wang Dikembalikan Jika Tidak Puas Hati.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="py-24 bg-white px-4">
-            <div class="container mx-auto max-w-3xl">
-                <h2 class="text-3xl font-black text-center mb-12">Ada Soalan? Kami Ada Jawapan.</h2>
-                <div class="space-y-4 text-left">
-                    <details class="group border border-slate-200 rounded-2xl p-6 bg-slate-50 cursor-pointer">
-                        <summary class="flex justify-between items-center font-bold text-lg list-none">
-                            Bagaimana cara install BizPro v6?
-                            <span class="group-open:rotate-180 transition-transform"><i class="fas fa-chevron-down text-blue-600"></i></span>
-                        </summary>
-                        <p class="mt-4 text-slate-600 leading-relaxed">Selepas pendaftaran, anda hanya perlu 'Add to Home Screen' dari pelayar telefon anda. Ia berfungsi seperti aplikasi biasa tanpa perlu download di PlayStore/AppStore.</p>
-                    </details>
-                    <details class="group border border-slate-200 rounded-2xl p-6 bg-slate-50 cursor-pointer">
-                        <summary class="flex justify-between items-center font-bold text-lg list-none">
-                            Data saya selamat ke kalau phone rosak?
-                            <span class="group-open:rotate-180 transition-transform"><i class="fas fa-chevron-down text-blue-600"></i></span>
-                        </summary>
-                        <p class="mt-4 text-slate-600 leading-relaxed">Sangat selamat! Data anda disimpan dalam Firebase Cloud (Google). Anda boleh akses semula data dari sebarang peranti lain hanya dengan login akaun anda.</p>
-                    </details>
-                    <details class="group border border-slate-200 rounded-2xl p-6 bg-slate-50 cursor-pointer">
-                        <summary class="flex justify-between items-center font-bold text-lg list-none">
-                            Betul ke tiada bayaran bulanan?
-                            <span class="group-open:rotate-180 transition-transform"><i class="fas fa-chevron-down text-blue-600"></i></span>
-                        </summary>
-                        <p class="mt-4 text-slate-600 leading-relaxed">Betul. Promosi RM69 adalah bayaran 'One-Time' untuk kegunaan seumur hidup. Tiada caj renewal tahunan atau bulanan untuk versi v6.</p>
-                    </details>
-                </div>
-            </div>
-        </section>
-
-        <footer class="bg-slate-900 text-white py-20 px-4">
-            <div class="container mx-auto max-w-6xl text-center">
-                <div class="flex flex-col items-center gap-4 mb-8">
-                    <img src="icon/icon-512.png" alt="Logo" class="w-16 h-16 grayscale brightness-200">
-                    <h2 class="text-2xl font-black tracking-tighter">KETICK HUB</h2>
-                </div>
-                <div class="flex justify-center gap-6 text-2xl mb-12">
-                    <a href="#" class="hover:text-blue-400 transition"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="hover:text-pink-400 transition"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="hover:text-blue-300 transition"><i class="fab fa-telegram"></i></a>
-                    <a href="#" class="hover:text-white transition"><i class="fab fa-tiktok"></i></a>
-                </div>
-                <p class="text-slate-500 text-sm mb-2">&copy; 2026 Ketick Hub. Diterajui oleh AzlanMymo.</p>
-                <p class="text-slate-700 text-xs">Penaian: BizPro v6 adalah alat bantuan perniagaan. Keputusan kewangan adalah tanggungjawab pengguna sepenuhnya.</p>
-            </div>
+        <footer class="py-20 border-t border-white/5 text-center">
+            <p class="text-slate-500 font-medium">Built for Founders by <span class="text-cyan-400 font-bold">AzlanMymo</span></p>
+            <p class="text-slate-700 text-xs mt-2 uppercase tracking-widest">Ketick Hub &copy; 2026 Space Station Gemencheh</p>
         </footer>
     </div>
 
-    <div id="setupSection" class="min-h-screen py-12 px-4 bg-slate-50">
+    <div id="setupSection" class="min-h-screen py-20 px-6">
         <div class="container mx-auto max-w-2xl">
-            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
-                <div class="bg-blue-600 p-8 text-white text-center">
-                    <button onclick="showLanding()" class="float-left text-blue-200 hover:text-white"><i class="fas fa-arrow-left"></i> Kembali</button>
-                    <i class="fas fa-shield-check text-5xl mb-4 opacity-80"></i>
-                    <h2 class="text-3xl font-black">Aktivasi BizPro v6</h2>
-                    <p class="text-blue-100 mt-2 text-sm uppercase tracking-widest font-bold">Langkah Demi Langkah</p>
+            <div class="glass-card overflow-hidden border-cyan-500/30">
+                <div class="bg-gradient-to-r from-purple-900 to-indigo-900 p-10 text-center">
+                    <button onclick="showLanding()" class="float-left text-white/50 hover:text-white"><i class="fas fa-arrow-left"></i></button>
+                    <h2 class="text-3xl font-black">Aktivasi Andromeda</h2>
+                    <p class="text-cyan-400 text-sm tracking-widest mt-2 uppercase">Command Center</p>
                 </div>
-
-                <div class="p-8 space-y-10">
-                    <div class="relative pl-8 border-l-2 border-blue-200">
-                        <span class="absolute left-[-13px] top-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">1</span>
-                        <h3 class="font-black text-xl mb-2 italic">Jana ID Peranti</h3>
-                        <p class="text-slate-500 text-sm mb-4">Tekan butang di bawah untuk mendaftarkan peranti ini ke pelayan kami.</p>
-                        <div class="flex flex-col gap-3">
-                            <button id="setupBtn" class="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-800 transition flex items-center justify-center gap-2">
-                                <i class="fas fa-fingerprint text-blue-400"></i> Generate My Device ID
-                            </button>
-                            <div id="deviceIdDisplay" class="device-id-box p-4 rounded-xl text-center text-sm font-bold tracking-wider cursor-pointer border border-slate-700">-- BELUM DIJANA --</div>
+                <div class="p-10 space-y-10">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">1. Status Peranti</label>
+                        <button id="setupBtn" class="w-full glass-card py-4 font-bold border-cyan-500/30 hover:bg-cyan-500/10 transition">
+                            GENERATE DEVICE CRYPTO-ID
+                        </button>
+                        <div id="deviceIdDisplay" class="mt-4 p-4 bg-black/60 rounded-xl text-center font-mono text-cyan-400 border border-white/5 break-all">
+                            READY TO INITIALIZE...
                         </div>
                     </div>
-
-                    <div class="relative pl-8 border-l-2 border-blue-200">
-                        <span class="absolute left-[-13px] top-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">2</span>
-                        <h3 class="font-black text-xl mb-2 italic">Dapatkan Product Key</h3>
-                        <p class="text-slate-500 text-sm mb-4">Hantar ID anda kepada Admin untuk pengesahan pembayaran RM69.</p>
-                        <a href="#" id="whatsappLink" target="_blank" class="w-full bg-green-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-green-700 transition flex items-center justify-center gap-3 shadow-lg shadow-green-100">
-                            <i class="fab fa-whatsapp text-xl"></i> WhatsApp Admin (Ketick Hub)
+                    <div>
+                        <label class="block text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">2. Transmisi Data</label>
+                        <a href="#" id="whatsappLink" target="_blank" class="flex items-center justify-center gap-3 w-full bg-green-600/20 text-green-400 border border-green-500/40 py-4 rounded-xl font-bold hover:bg-green-600 hover:text-white transition">
+                            <i class="fab fa-whatsapp text-xl"></i> HUBUNGI PROVIDER
                         </a>
                     </div>
-
-                    <div class="relative pl-8">
-                        <span class="absolute left-[-13px] top-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">3</span>
-                        <h3 class="font-black text-xl mb-2 italic">Masukkan Key</h3>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest">3. Input Product Key</label>
                         <div class="flex gap-2">
-                            <input type="text" id="productKey" placeholder="Paste Product Key Di Sini" class="flex-1 border-2 border-slate-200 p-4 rounded-xl focus:border-blue-600 outline-none transition uppercase font-bold text-slate-700">
-                            <button id="activateBtn" class="bg-blue-600 text-white px-6 py-4 rounded-xl font-black hover:bg-blue-700 transition">AKTIFKAN</button>
+                            <input type="text" id="productKey" placeholder="KEY-ANDROMEDA-XXXX" class="flex-1 bg-black/40 border border-white/10 p-4 rounded-xl focus:border-cyan-400 outline-none uppercase font-bold text-center tracking-widest">
+                            <button id="activateBtn" class="btn-cosmic px-8 rounded-xl font-bold">LINK</button>
                         </div>
-                        <div id="activationMessage" class="mt-3 text-sm font-bold"></div>
+                        <div id="activationMessage" class="mt-4 text-center font-bold"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="launchSystemContainer" class="fixed bottom-6 left-6 right-6 md:left-auto md:w-80 z-[60] hidden">
-        <button onclick="launchApp()" class="w-full bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl font-black text-xl flex items-center justify-center gap-3 animate-pulse border-4 border-white">
-            <i class="fas fa-rocket"></i> MASUK SISTEM
+    <div id="launchSystemContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden w-full max-w-xs px-6">
+        <button onclick="launchApp()" class="btn-cosmic w-full py-4 rounded-full font-black shadow-2xl text-white tracking-widest">
+            ENTER SYSTEM
         </button>
     </div>
 
     <script>
-        const SYSTEM_URL = 'index.html'; 
         const PROVIDER_WHATSAPP = '601123266755';
+        const SYSTEM_URL = 'index.html';
 
-        const appBody = document.getElementById('appBody');
-        const landingContent = document.getElementById('landingContent');
-        const setupSection = document.getElementById('setupSection');
-        const deviceIdDisplay = document.getElementById('deviceIdDisplay');
-        const whatsappLink = document.getElementById('whatsappLink');
-        const activationMessage = document.getElementById('activationMessage');
-        const launchSystemContainer = document.getElementById('launchSystemContainer');
-
-        function showSetup() {
-            appBody.classList.add('show-setup');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showLanding() {
-            appBody.classList.remove('show-setup');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function launchApp() {
-            window.location.href = SYSTEM_URL;
-        }
+        function showSetup() { document.getElementById('appBody').classList.add('show-setup'); window.scrollTo(0,0); }
+        function showLanding() { document.getElementById('appBody').classList.remove('show-setup'); window.scrollTo(0,0); }
+        function launchApp() { window.location.href = SYSTEM_URL; }
 
         let deviceId = localStorage.getItem('bizpro_device_id');
 
         function updateUI() {
             if (deviceId) {
-                deviceIdDisplay.innerText = deviceId;
-                whatsappLink.href = `https://wa.me/${PROVIDER_WHATSAPP}?text=Salam%20Admin%2C%20saya%20nak%20aktifkan%20BizPro%20v6.%20ID%3A%20${deviceId}`;
+                document.getElementById('deviceIdDisplay').innerText = deviceId;
+                document.getElementById('whatsappLink').href = `https://wa.me/${PROVIDER_WHATSAPP}?text=Request%20Andromeda%20Key%20ID%3A%20${deviceId}`;
             }
             if (localStorage.getItem('bizpro_activated') === 'true') {
-                launchSystemContainer.classList.remove('hidden');
-                activationMessage.innerHTML = '<span class="text-emerald-600">✅ SISTEM AKTIF! Sila tekan butang hijau di bawah.</span>';
+                document.getElementById('launchSystemContainer').classList.remove('hidden');
+                document.getElementById('activationMessage').innerHTML = '<span class="text-cyan-400">CORE ACTIVATED. ACCESS GRANTED.</span>';
             }
         }
 
         document.getElementById('setupBtn').addEventListener('click', () => {
             if (!deviceId) {
-                deviceId = 'KETICK-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+                deviceId = 'ANDROMEDA-' + Math.random().toString(36).substring(2, 10).toUpperCase();
                 localStorage.setItem('bizpro_device_id', deviceId);
                 updateUI();
-                alert('ID Device berjaya dijana!');
-            } else {
-                alert('Device ID sedia ada: ' + deviceId);
-            }
-        });
-
-        deviceIdDisplay.addEventListener('click', () => {
-            if (deviceId) {
-                navigator.clipboard.writeText(deviceId);
-                alert('ID disalin!');
             }
         });
 
         document.getElementById('activateBtn').addEventListener('click', () => {
             const key = document.getElementById('productKey').value.trim();
-            if (key.toUpperCase().startsWith('BIZPRO-')) {
+            if (key.toUpperCase().startsWith('BIZPRO-') || key.toUpperCase().startsWith('KEY-')) {
                 localStorage.setItem('bizpro_activated', 'true');
                 updateUI();
-                alert('Tahniah! BizPro v6 telah diaktifkan.');
             } else {
-                activationMessage.innerHTML = '<span class="text-red-500">❌ Key tidak sah. Sila hubungi Admin.</span>';
+                document.getElementById('activationMessage').innerHTML = '<span class="text-red-500">INVALID CORE KEY.</span>';
             }
         });
 
