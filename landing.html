@@ -3,196 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>BizPro v6 | Ketick Hub - Nebula Edition (TERHAD)</title>
+    <title>BizPro v6 | Ketick Hub - Andromeda Midnight Edition</title>
+    
+    <meta name="description" content="Sistem POS & CRM BizPro v6 oleh Ketick Hub. Urus perniagaan dengan gaya futuristik. RM69 Lifetime Access untuk 100 user pertama.">
+    <meta name="author" content="Ketick Hub">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
         
         :root {
-            --nebula-deep: #020617;
-            --nebula-purple: #4c1d95;
-            --nebula-magenta: #701a75;
-            --nebula-cyan: #06b6d4;
+            --bg-deep: #0f172a; /* Slate 900 - Lebih lembut dari hitam */
+            --primary-glow: #6366f1; /* Indigo 500 */
+            --secondary-glow: #a855f7; /* Purple 500 */
+            --text-main: #f1f5f9; /* Slate 100 */
         }
 
         body { 
-            font-family: 'Space Grotesk', sans-serif; 
-            background-color: var(--nebula-deep);
-            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-deep);
+            color: var(--text-main);
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        .nebula-bg {
+        /* Soft Nebula Background */
+        .nebula-canvas {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: 
-                radial-gradient(circle at 20% 30%, var(--nebula-purple) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, var(--nebula-magenta) 0%, transparent 40%);
-            filter: blur(80px); opacity: 0.4; z-index: -1;
-            animation: drift 20s infinite alternate;
+                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+            z-index: -1;
         }
 
-        @keyframes drift {
-            from { transform: scale(1) translate(0, 0); }
-            to { transform: scale(1.2) translate(5%, 5%); }
-        }
-
-        .glass-card {
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 2rem;
-            transition: all 0.4s ease;
-        }
-
-        .btn-cosmic {
-            background: linear-gradient(135deg, #f43f5e, #fb923c);
-            box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+        /* Glassmorphism - Smoother & More Transparent */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
             transition: all 0.3s ease;
         }
 
-        .btn-cosmic:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 40px rgba(244, 63, 94, 0.6);
+        .glass-panel:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            background: rgba(30, 41, 59, 0.6);
         }
 
-        .progress-bar-fill {
-            width: 86%; /* Start value */
-            transition: width 2s ease-in-out;
-            background: linear-gradient(90deg, var(--nebula-cyan), #a855f7);
+        /* Button Cosmic - Matte Finish */
+        .btn-premium {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
         }
 
-        #notification-toast {
-            transform: translateY(150%);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+            filter: brightness(1.1);
         }
 
-        #notification-toast.show { transform: translateY(0); }
+        /* UI Urgency Bar */
+        .urgency-badge {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
 
         #setupSection { display: none; }
         .show-setup #setupSection { display: block; }
         .show-setup #landingContent { display: none; }
-        .show-setup #sticky-bar { display: none; }
+
+        /* Animation Pulse */
+        @keyframes soft-pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .pulse-icon { animation: soft-pulse 3s infinite ease-in-out; }
     </style>
 </head>
 <body id="appBody">
 
-    <div class="nebula-bg"></div>
+    <div class="nebula-canvas"></div>
 
-    <div id="sticky-bar" class="fixed top-0 left-0 w-full bg-red-600 text-white py-2 z-[100] text-center text-sm font-bold shadow-xl border-b border-red-500">
-        <i class="fas fa-exclamation-triangle animate-pulse mr-2"></i> 
-        AMARAN: SLOT RM69 HAMPIR TAMAT. <span class="hidden md:inline text-red-100">HARGA AKAN KEMBALI KE RM399 SELEPAS 100 USER.</span>
+    <div class="bg-indigo-600 text-white py-2 px-4 text-center text-xs font-bold tracking-widest uppercase">
+        <i class="fas fa-clock mr-2"></i> Tawaran RM69 Seumur Hidup: Tinggal 14 Slot Terakhir!
     </div>
 
-    <nav class="sticky top-[36px] z-50 border-b border-white/10 bg-black/40 backdrop-blur-md">
+    <nav class="sticky top-0 z-50 border-b border-white/5 bg-slate-900/60 backdrop-blur-xl">
         <div class="container mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-400 p-0.5">
-                    <img src="icon/icon-512.png" alt="Logo" class="w-full h-full rounded-full bg-slate-900">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <i class="fas fa-rocket text-white"></i>
                 </div>
-                <span class="font-bold text-xl tracking-tighter">KETICK HUB</span>
+                <div>
+                    <span class="block font-extrabold text-xl tracking-tight leading-none">BIZPRO <span class="text-indigo-400 text-sm">v6</span></span>
+                    <span class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Ketick Hub</span>
+                </div>
             </div>
-            <button onclick="showSetup()" class="text-cyan-400 font-bold text-sm border border-cyan-400/30 px-4 py-2 rounded-full hover:bg-cyan-400 hover:text-black transition">
-                Login / Setup
+            <button onclick="showSetup()" class="btn-premium px-6 py-2.5 rounded-xl font-bold text-sm">
+                Akses Sistem
             </button>
         </div>
     </nav>
 
     <div id="landingContent">
-        <section class="pt-24 pb-32 px-6">
-            <div class="container mx-auto text-center max-w-4xl">
-                <div class="glass-card p-6 mb-12 border-red-500/30">
-                    <div class="flex justify-between items-end mb-2">
-                        <span class="text-red-400 font-bold uppercase tracking-widest text-xs">Slot Terhad: 100 Orang Pertama</span>
-                        <span class="text-white font-black text-lg"><span id="slot-count">86</span>/100</span>
-                    </div>
-                    <div class="w-full bg-white/10 h-3 rounded-full overflow-hidden border border-white/5">
-                        <div id="progress-bar" class="progress-bar-fill h-full"></div>
-                    </div>
-                    <p class="text-slate-400 text-xs mt-3 italic text-right">Sudah 86% slot diisi oleh usahawan Malaysia.</p>
+        <section class="pt-20 pb-24 px-6 text-center">
+            <div class="container mx-auto max-w-4xl">
+                <div class="urgency-badge inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-bold mb-8 uppercase tracking-widest">
+                    <span class="w-2 h-2 bg-red-500 rounded-full animate-ping"></span> Edisi Terhad: 100 User Terawal
                 </div>
-
-                <h1 class="text-6xl md:text-8xl font-black mb-8 leading-none tracking-tighter">
-                    Tinggalkan <br>
-                    <span class="text-red-500">Yuran Bulanan.</span>
+                <h1 class="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
+                    Urus Bisnes Tanpa <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Yuran Bulanan.</span>
                 </h1>
-                <p class="text-xl text-slate-400 mb-12 font-light">
-                    Sistem POS & CRM Nebula. Bayar <span class="text-white font-bold underline">RM69 SEKALI SAHAJA</span>. <br class="hidden md:block"> Guna seumur hidup. Slot promosi untuk 100 orang terawal sahaja!
+                <p class="text-slate-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-light leading-relaxed">
+                    Sistem POS & CRM Premium yang direka untuk usahawan moden. Guna seumur hidup dengan satu kali bayaran RM69 sahaja.
                 </p>
-                
-                <button onclick="showSetup()" class="btn-cosmic text-white px-12 py-6 rounded-2xl font-black text-2xl w-full md:w-auto animate-pulse">
-                    REBUT RM69 SEKARANG <i class="fas fa-arrow-right ml-2"></i>
-                </button>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <button onclick="showSetup()" class="btn-premium px-10 py-5 rounded-2xl font-bold text-xl">
+                        Daftar RM69 Sekarang
+                    </button>
+                    <a href="#features" class="glass-panel px-10 py-5 rounded-2xl font-bold text-xl border border-white/10 hover:bg-white/5 transition">
+                        Lihat Ciri
+                    </a>
+                </div>
             </div>
         </section>
 
-        <section id="pricing" class="py-24 px-6 relative">
-            <div class="container mx-auto max-w-lg">
-                <div class="glass-card p-1 bg-gradient-to-br from-red-500 to-orange-500">
-                    <div class="bg-slate-900 rounded-[1.8rem] p-10 text-center">
-                        <h2 class="text-3xl font-black mb-2">EDISI NEBULA</h2>
-                        <p class="text-slate-400 mb-8 uppercase tracking-widest text-xs">Lifetime Access Grant</p>
-                        
-                        <div class="mb-10">
-                            <span class="text-slate-500 line-through text-2xl block">RM399.00</span>
-                            <span class="text-8xl font-black text-white tracking-tighter">RM69</span>
-                            <p class="text-red-500 font-bold mt-2">Jimat RM330 Serta-merta!</p>
+        <section id="features" class="py-20 px-6 bg-slate-900/40">
+            <div class="container mx-auto max-w-6xl text-center">
+                <h2 class="text-3xl font-bold mb-16">Kenapa Pilih BizPro v6?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-panel p-8 text-left group">
+                        <div class="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-xl flex items-center justify-center mb-6 group-hover:bg-indigo-500 group-hover:text-white transition-all">
+                            <i class="fas fa-bolt text-xl"></i>
                         </div>
-
-                        <div class="space-y-4 text-left mb-10 text-slate-300">
-                            <div class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> Mini POS & Digital Receipt</div>
-                            <div class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> WhatsApp Marketing Tools</div>
-                            <div class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> Inventory & Low Stock Alert</div>
-                            <div class="flex items-center gap-3"><i class="fas fa-check text-green-500"></i> LHDN Audit Ready Reports</div>
+                        <h3 class="text-xl font-bold mb-3">Pantas & Ringan</h3>
+                        <p class="text-slate-400 text-sm">Dibina untuk kelajuan. Boleh digunakan di smartphone Realme 15 5G anda atau sebarang peranti tanpa lag.</p>
+                    </div>
+                    <div class="glass-panel p-8 text-left group border-indigo-500/20">
+                        <div class="w-12 h-12 bg-purple-500/10 text-purple-400 rounded-xl flex items-center justify-center mb-6 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                            <i class="fab fa-whatsapp text-xl"></i>
                         </div>
-
-                        <button onclick="showSetup()" class="btn-cosmic w-full py-5 rounded-2xl text-xl font-black">
-                            DAFTAR SEBELUM HABIS
-                        </button>
-                        <p class="mt-4 text-xs text-slate-500">Baki Slot: <span class="text-red-400 font-bold" id="slot-count-bottom">14</span> Slot Lagi</p>
+                        <h3 class="text-xl font-bold mb-3">WhatsApp Blast</h3>
+                        <p class="text-slate-400 text-sm">Hantar resit dan promosi terus ke WhatsApp pelanggan tanpa perlu simpan nombor telefon.</p>
+                    </div>
+                    <div class="glass-panel p-8 text-left group">
+                        <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 group-hover:text-white transition-all">
+                            <i class="fas fa-cloud text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">Auto Cloud Sync</h3>
+                        <p class="text-slate-400 text-sm">Data anda selamat di cloud. Jika phone hilang, login semula dan semua rekod jualan ada di situ.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <footer class="py-10 text-center opacity-40 text-xs uppercase tracking-widest">
-            Ketick Hub &copy; 2026 - No Monthly Commitment. No Hidden Fees.
+        <section class="py-24 px-6">
+            <div class="container mx-auto max-w-2xl text-center">
+                <div class="glass-panel p-10 border-indigo-500/30">
+                    <h2 class="text-2xl font-bold mb-6">Slot Promosi RM69 Hampir Tamat</h2>
+                    <div class="flex items-center justify-between mb-2 text-sm font-bold">
+                        <span class="text-indigo-400">86 User Terdaftar</span>
+                        <span class="text-slate-500">Had: 100 Orang</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-8">
+                        <div class="bg-indigo-500 h-full w-[86%]"></div>
+                    </div>
+                    <p class="text-slate-400 text-sm italic mb-8">"Sistem ni sangat membantu saya urus stok kedai dari rumah je guna phone. Berbaloi bayar RM69 seumur hidup." - Azlan, Ketick Hub</p>
+                    <button onclick="showSetup()" class="btn-premium w-full py-4 rounded-xl font-bold text-lg">
+                        Ambil Slot Terakhir Sekarang
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="py-12 border-t border-white/5 text-center text-slate-500 text-xs tracking-widest uppercase">
+            Ketick Hub &copy; 2026 - Andromeda Midnight System
         </footer>
     </div>
 
-    <div id="notification-toast" class="fixed bottom-6 left-6 z-[200] glass-card p-4 border-cyan-500/50 flex items-center gap-4 max-w-xs shadow-2xl">
-        <div class="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center text-cyan-400">
-            <i class="fas fa-shopping-cart"></i>
-        </div>
-        <div>
-            <p class="text-xs font-bold text-white"><span id="buyer-name">Hafiz dari KL</span></p>
-            <p class="text-[10px] text-slate-400">Baru sahaja membeli BizPro v6</p>
-            <p class="text-[9px] text-cyan-400 font-bold mt-1">2 Minit Lepas</p>
-        </div>
-    </div>
-
     <div id="setupSection" class="min-h-screen py-20 px-6">
-        <div class="container mx-auto max-w-2xl">
-            <div class="glass-card border-cyan-500/30">
-                <div class="p-8 text-center border-b border-white/5">
-                    <button onclick="showLanding()" class="float-left text-white/50"><i class="fas fa-arrow-left"></i></button>
-                    <h2 class="text-2xl font-black uppercase">Andromeda Core Setup</h2>
+        <div class="container mx-auto max-w-xl">
+            <div class="glass-panel overflow-hidden border-indigo-500/20">
+                <div class="p-8 text-center bg-indigo-600/10 border-b border-white/5">
+                    <button onclick="showLanding()" class="float-left text-slate-400 hover:text-white transition"><i class="fas fa-arrow-left"></i></button>
+                    <h2 class="text-xl font-extrabold uppercase tracking-tighter">Aktivasi BizPro</h2>
                 </div>
-                <div class="p-10 space-y-8 text-center">
-                    <button id="setupBtn" class="w-full py-4 glass-card border-cyan-500/50 text-cyan-400 font-bold">JANA DEVICE ID</button>
-                    <div id="deviceIdDisplay" class="font-mono text-sm text-slate-500 bg-black/40 p-4 rounded-xl">-- --</div>
-                    <a href="#" id="whatsappLink" target="_blank" class="block w-full bg-green-600/20 text-green-400 border border-green-500/30 py-4 rounded-xl font-bold">HANTAR ID VIA WHATSAPP</a>
-                    <div class="flex gap-2">
-                        <input type="text" id="productKey" placeholder="KEY-BIZPRO-XXXX" class="flex-1 bg-black/40 border border-white/10 p-4 rounded-xl focus:border-cyan-400 outline-none text-center">
-                        <button id="activateBtn" class="bg-cyan-600 text-white px-6 rounded-xl font-bold">LINK</button>
+                <div class="p-10 space-y-8">
+                    <div>
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">Langkah 1: Jana ID Peranti</label>
+                        <button id="setupBtn" class="w-full py-4 glass-panel border-indigo-500/30 font-bold hover:bg-indigo-500/10 transition">
+                            Generate My ID
+                        </button>
+                        <div id="deviceIdDisplay" class="mt-4 p-4 bg-black/40 rounded-xl text-center font-mono text-indigo-300 border border-white/5 text-sm">
+                            Menunggu Arahan...
+                        </div>
                     </div>
-                    <div id="activationMessage"></div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">Langkah 2: Pengesahan Admin</label>
+                        <a href="#" id="whatsappLink" target="_blank" class="flex items-center justify-center gap-3 w-full bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 py-4 rounded-xl font-bold hover:bg-emerald-600 hover:text-white transition">
+                            <i class="fab fa-whatsapp"></i> Hantar ID via WhatsApp
+                        </a>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">Langkah 3: Masukkan Product Key</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="productKey" placeholder="KEY-XXXX-XXXX" class="flex-1 bg-slate-800 border border-white/10 p-4 rounded-xl focus:border-indigo-500 outline-none uppercase font-bold text-center tracking-widest text-sm">
+                            <button id="activateBtn" class="btn-premium px-8 rounded-xl font-bold">AKTIF</button>
+                        </div>
+                        <div id="activationMessage" class="mt-4 text-center font-bold text-xs"></div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="launchSystemContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden w-full max-w-xs px-6">
+        <button onclick="launchApp()" class="btn-premium w-full py-4 rounded-full font-black shadow-2xl text-white tracking-widest uppercase text-sm border-2 border-white/20">
+            Masuk Ke Sistem <i class="fas fa-chevron-right ml-2"></i>
+        </button>
     </div>
 
     <script>
@@ -203,45 +239,22 @@
         function showLanding() { document.getElementById('appBody').classList.remove('show-setup'); window.scrollTo(0,0); }
         function launchApp() { window.location.href = SYSTEM_URL; }
 
-        // SIMULASI SLOT BERKURANG
-        let slots = 86;
-        function updateSlots() {
-            if (slots < 99) {
-                slots += Math.floor(Math.random() * 2);
-                document.getElementById('slot-count').innerText = slots;
-                document.getElementById('slot-count-bottom').innerText = 100 - slots;
-                document.getElementById('progress-bar').style.width = slots + '%';
-            }
-        }
-        setInterval(updateSlots, 8000); // Update setiap 8 saat
-
-        // NOTIFIKASI PEMBELI (Social Proof)
-        const names = ["Hafiz dari KL", "Siti dari Johor", "Lim dari Penang", "Faizal dari Shah Alam", "Sarah dari Melaka", "Azlan dari Seremban"];
-        function showNotification() {
-            const toast = document.getElementById('notification-toast');
-            const nameEl = document.getElementById('buyer-name');
-            nameEl.innerText = names[Math.floor(Math.random() * names.length)];
-            
-            toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 4000);
-        }
-        setInterval(showNotification, 15000); // Muncul setiap 15 saat
-
-        // SETUP LOGIC
         let deviceId = localStorage.getItem('bizpro_device_id');
+
         function updateUI() {
             if (deviceId) {
                 document.getElementById('deviceIdDisplay').innerText = deviceId;
-                document.getElementById('whatsappLink').href = `https://wa.me/${PROVIDER_WHATSAPP}?text=Request%20Activation%20ID%3A%20${deviceId}`;
+                document.getElementById('whatsappLink').href = `https://wa.me/${PROVIDER_WHATSAPP}?text=Salam%20Admin%2C%20mohon%20aktifkan%20BizPro%20v6%20ID%3A%20${deviceId}`;
             }
             if (localStorage.getItem('bizpro_activated') === 'true') {
-                document.getElementById('activationMessage').innerHTML = '<span class="text-cyan-400 font-bold">SISTEM AKTIF!</span>';
+                document.getElementById('launchSystemContainer').classList.remove('hidden');
+                document.getElementById('activationMessage').innerHTML = '<span class="text-indigo-400">SISTEM TELAH DIAKTIFKAN.</span>';
             }
         }
 
         document.getElementById('setupBtn').addEventListener('click', () => {
             if (!deviceId) {
-                deviceId = 'KETICK-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+                deviceId = 'ANDROMEDA-' + Math.random().toString(36).substring(2, 10).toUpperCase();
                 localStorage.setItem('bizpro_device_id', deviceId);
                 updateUI();
             }
@@ -253,6 +266,8 @@
                 localStorage.setItem('bizpro_activated', 'true');
                 updateUI();
                 alert('Aktivasi Berjaya!');
+            } else {
+                document.getElementById('activationMessage').innerHTML = '<span class="text-red-500">KEY TIDAK SAH.</span>';
             }
         });
 
