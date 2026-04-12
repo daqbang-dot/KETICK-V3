@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>KETICkbiz v6 | Flux Edition OS + Billing + CRM</title>
+
+    <!-- PWA meta -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BizPro">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+
+    <!-- External libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="src/css/style.css">
+
+    <style>
+        /* Additional inline styles for glassmorphism and critical layout */
+        .toast-notify { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.85); color: white; padding: 14px 20px; border-radius: 28px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(8px); animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
+        .doc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .doc-modal-content { max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; background: white; border-radius: 32px; padding: 20px; position: relative; }
+        .glass-modal-overlay { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="theme-QUO">
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
+        <div class="text-center p-8 max-w-sm w-full">
+            <div class="w-24 h-24 bg-gradient-to-tr from-blue-600 to-blue-400 rounded-[30px] mx-auto mb-8 flex items-center justify-center shadow-2xl rotate-3">
+                <i class="fas fa-rocket text-white text-4xl"></i>
+            </div>
+            <h2 class="text-4xl font-black mb-2 tracking-tighter" data-i18n="welcome">Selamat Datang</h2>
+            <p class="text-gray-400 text-sm mb-10 font-medium tracking-wide">KETICK • BizPro V6</p>
+            <button onclick="enterSystem()" class="group relative w-full bg-black text-white py-5 rounded-[24px] font-bold text-lg overflow-hidden transition-all active:scale-95">
+                <span class="relative z-10 uppercase tracking-widest"><span data-i18n="enter-system">Masuk Sistem</span> <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></span>
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </button>
+            <p class="mt-6 text-[10px] text-gray-300 font-bold uppercase tracking-widest">Hak Cipta by AzlanMymo</p>
+        </div>
+    </div>
+
+    <!-- Header & Drawer -->
+    <nav class="bg-white/70 backdrop-blur-xl border-b border-gray-200 px-4 py-2 sticky top-0 z-50 no-print flex items-center justify-between">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md" id="app-logo">
+                <i class="fas fa-bolt text-white text-sm"></i>
+            </div>
+            <h1 class="font-extrabold text-xl tracking-tighter">KETICK</h1>
+            <span class="text-[8px] bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-bold ml-1">BIZPro</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="loadModule('dashboard')" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                <i class="fas fa-home text-lg"></i>
+            </button>
+            <button id="menuToggleBtn" class="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Drawer -->
+    <div id="drawerOverlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden transition-all overlay" onclick="closeDrawer()"></div>
+    <div id="drawer" class="fixed top-0 left-0 bottom-0 w-80 bg-white/95 backdrop-blur-xl shadow-2xl z-50 flex flex-col drawer-transition drawer-closed border-r border-gray-100">
+        <div class="flex justify-between items-center p-5 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                    <i class="fas fa-bolt text-white text-sm"></i>
+                </div>
+                <span class="font-extrabold text-xl tracking-tighter">BIZPRO</span>
+            </div>
+            <button id="closeDrawerBtn" class="p-2 rounded-full hover:bg-gray-100 transition">
+                <i class="fas fa-times text-gray-500"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto py-4 custom-scroll">
+            <div class="px-3 space-y-1">
+                <button onclick="loadModule('dashboard'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-home text-blue-500 w-6"></i> <span data-i18n="menu-dash">Dashboard</span></button>
+                <button onclick="loadModule('pos'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-cash-register text-emerald-600 w-6"></i> <span data-i18n="menu-pos">Mini POS</span></button>
+                <button onclick="loadModule('inventory'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-boxes text-amber-600 w-6"></i> <span data-i18n="menu-inv">Inventory</span></button>
+                <button onclick="loadModule('crm'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-user-friends text-indigo-500 w-6"></i> <span data-i18n="menu-crm">CRM Database</span></button>
+                <button onclick="loadModule('billing'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-receipt text-blue-600 w-6"></i> <span data-i18n="menu-bill">Billing</span></button>
+                <button onclick="loadModule('promo'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-tags text-purple-500 w-6"></i> <span data-i18n="menu-promo">Coupon Manager</span></button>
+                <button onclick="loadModule('social'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-share-nodes text-pink-500 w-6"></i> <span data-i18n="menu-social">Social Marketing</span></button>
+                <button onclick="loadModule('blast'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fab fa-whatsapp text-emerald-500 w-6"></i> <span data-i18n="menu-blast">Smart Blast</span></button>
+                <button onclick="loadModule('autoreply'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-comments text-sky-500 w-6"></i> <span data-i18n="menu-auto">WhatsApp Chatbox</span></button>
+                <button onclick="loadModule('lhdn'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-file-invoice-dollar text-orange-500 w-6"></i> <span data-i18n="menu-tax">LHDN Tax Records</span></button>
+                <button onclick="loadModule('history'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-history text-gray-500 w-6"></i> <span data-i18n="menu-hist">History</span></button>
+                <!-- TAMBAH BUTANG LAPORAN -->
+                <button onclick="loadModule('report'); closeDrawer();" class="nav-item-drawer w-full text-left text-gray-800"><i class="fas fa-chart-bar text-green-500 w-6"></i> <span data-i18n="menu-report">Laporan</span></button>
+            </div>
+        </div>
+        <div class="p-5 border-t border-gray-100 space-y-3">
+            <button id="installBtn" class="w-full bg-blue-600 text-white p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hidden">
+                <i class="fas fa-download"></i> Install App
+            </button>
+            <button onclick="exportData(); closeDrawer();" class="w-full flux-input p-3 text-xs font-bold flex items-center justify-center gap-2 uppercase">
+                <i class="fas fa-download"></i> <span data-i18n="btn-export">Export Backup</span>
+            </button>
+            <button onclick="document.getElementById('import-file').click(); closeDrawer();" class="w-full bg-blue-50 text-blue-600 p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 uppercase">
+                <i class="fas fa-upload"></i> <span data-i18n="btn-import">Import Data</span>
+            </button>
+            <input type="file" id="import-file" class="hidden" onchange="importData(event)">
+            <button onclick="openThresholdModal()" class="w-full bg-amber-50 text-amber-600 p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+                <i class="fas fa-exclamation-triangle"></i> <span data-i18n="btn-threshold">Set Stok Rendah (Ambang)</span>
+            </button>
+            <!-- NEW: First Time Setup Button -->
+            <button id="first-time-setup-btn" class="w-full bg-purple-600 text-white p-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hidden">
+                <i class="fas fa-key"></i> First Time Setup
+            </button>
+            <p class="text-[9px] text-center text-gray-300 font-bold mt-2">System by AzlanMymo</p>
+        </div>
+    </div>
+
+    <!-- Main content: modules will be loaded into this container -->
+    <main id="app-content">
+        <!-- Dashboard will be loaded here on init -->
+    </main>
+
+    <!-- Global Modals -->
+    <div id="reviewModal" class="doc-modal hidden" onclick="if(event.target===this) closeReviewModal()">
+        <div class="doc-modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-black" data-i18n="review-title">Review Dokumen</h3>
+                <button onclick="closeReviewModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <div id="reviewDocContent" class="bg-white p-6 rounded-2xl border"></div>
+            <div class="mt-4 flex justify-end gap-3">
+                <button onclick="downloadReviewAsPDF()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fas fa-download mr-1"></i> Download PDF</button>
+                <button onclick="closeReviewModal()" class="bg-gray-200 px-4 py-2 rounded-xl text-sm font-bold" data-i18n="btn-close">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tax-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-center justify-center hidden">
+        <div class="bg-white w-full max-w-md rounded-[40px] p-8">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-black" data-i18n="tax-new">Rekod Baru</h3><button onclick="document.getElementById('tax-modal').classList.add('hidden')" class="text-gray-400"><i class="fas fa-times"></i></button></div>
+            <div class="space-y-4">
+                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer"><i class="fas fa-camera text-2xl text-gray-300 mb-2"></i><span id="tax-img-status" class="text-[10px] text-gray-400" data-i18n="tax-upload">Muat Naik Resit</span><input type="file" id="tax-img-input" class="hidden" onchange="document.getElementById('tax-img-status').innerText = t('Imej Sedia')"></label>
+                <div class="grid grid-cols-2 gap-4"><input type="date" id="tax-date" class="p-3 flux-input"><input type="number" id="tax-amount" class="p-3 flux-input" placeholder="Jumlah (RM)"></div>
+                <select id="tax-category" class="w-full p-3 flux-input"><option value="Utiliti">Utiliti</option><option value="Sewa">Sewa</option><option value="Gaji">Gaji</option><option value="Stok">Stok</option><option value="Pemasaran">Pemasaran</option><option value="Logistik">Logistik</option><option value="Alatan">Alatan</option><option value="Lain-lain">Lain-lain</option></select>
+                <input type="text" id="tax-vendor" class="w-full p-3 flux-input" placeholder="Vendor">
+                <button onclick="saveTaxRecord()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold" data-i18n="btn-save">SIMPAN</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-modal" class="fixed inset-0 z-[999] glass-modal-overlay flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-[90%] max-w-sm p-8 text-center rounded-[32px] transform scale-95 transition-transform duration-300">
+            <div id="modal-icon" class="text-5xl mb-4 drop-shadow-md"></div>
+            <h3 id="modal-title" class="text-2xl font-black mb-2 tracking-tight"></h3>
+            <p id="modal-msg" class="text-sm font-medium text-gray-700 dark:text-gray-200 mb-6 whitespace-pre-line"></p>
+            <input type="text" id="modal-input" class="w-full p-4 flux-input mb-6 hidden text-center font-bold text-lg rounded-2xl" />
+            <div class="flex gap-3 justify-center">
+                <button id="modal-cancel" class="hidden flex-1 py-4 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 dark:border-gray-600 text-gray-800 dark:text-white font-bold hover:bg-white/80 transition shadow-sm backdrop-blur-sm" data-i18n="btn-cancel">Batal</button>
+                <button id="modal-ok" class="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Job/Note -->
+    <div id="job-modal" class="fixed inset-0 z-[1000] glass-modal-overlay flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="glass-panel w-[90%] max-w-md p-8 rounded-[32px] transform scale-95 transition-transform duration-300">
+            <div class="text-5xl mb-4 drop-shadow-md text-center"><i class="fas fa-calendar-plus text-blue-500"></i></div>
+            <h3 id="job-modal-title" class="text-2xl font-black mb-4 text-center tracking-tight">Tambah Nota</h3>
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Perkara / Subject</label>
+                    <input type="text" id="job-subject" class="w-full p-3 flux-input rounded-xl" placeholder="Contoh: Mesyuarat">
+                </div>
+                <div>
+                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Tarikh / Date</label>
+                    <input type="date" id="job-date" class="w-full p-3 flux-input rounded-xl">
+                </div>
+                <div>
+                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Masa / Time (optional)</label>
+                    <input type="time" id="job-time" class="w-full p-3 flux-input rounded-xl">
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="job-reminder" class="w-5 h-5 accent-blue-600">
+                    <label for="job-reminder" class="text-sm font-medium text-gray-700 dark:text-gray-300">Ingatkan saya / Remind me</label>
+                </div>
+            </div>
+            <div class="flex gap-3 justify-center mt-6">
+                <button id="job-modal-cancel" class="flex-1 py-3 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 dark:border-gray-600 text-gray-800 dark:text-white font-bold hover:bg-white/80 transition shadow-sm backdrop-blur-sm">Batal</button>
+                <button id="job-modal-ok" class="flex-1 py-3 rounded-2xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="src/js/app.js"></script>
+</body>
+</html>
