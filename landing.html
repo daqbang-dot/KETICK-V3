@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>BizPro v6 | Sistem POS, Billing & CRM – RM69 Seumur Hidup</title>
+    
+    <meta name="description" content="BizPro v6 – Sistem POS, Billing, Inventory, CRM & WhatsApp Marketing. Promosi 100 user pertama: RM69 Lifetime Access. Urus bisnes dari smartphone anda!">
+    <meta name="keywords" content="POS Malaysia, sistem billing, inventori, CRM, WhatsApp marketing, LHDN, Ketick Hub">
+    <meta name="author" content="Ketick Hub">
+    <meta property="og:title" content="BizPro v6 – RM69 Lifetime Access">
+    <meta property="og:description" content="Sistem POS lengkap tanpa bayaran bulanan. Khas untuk usahawan Malaysia.">
+    <meta property="og:image" content="https://placehold.co/1200x630/6366f1/white?text=BizPro+v6+Ketick">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org/",
+      "@type": "SoftwareApplication",
+      "name": "BizPro v6",
+      "applicationCategory": "BusinessApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "69.00",
+        "priceCurrency": "MYR"
+      }
+    }
+    </script>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        
+        :root {
+            --bg-deep: #0f172a;
+            --primary-glow: #6366f1;
+            --text-main: #f1f5f9;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        /* Subtle Nebula Background */
+        .nebula-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.1) 0%, transparent 40%);
+            z-index: -1;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            background: rgba(30, 41, 59, 0.6);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.4);
+        }
+
+        #setupSection { display: none; }
+        .show-setup #setupSection { display: block; }
+        .show-setup #landingContent { display: none; }
+        .show-setup #sticky-promo { display: none; }
+
+        .price-strike { text-decoration: line-through; color: #64748b; }
+        .device-id-box { background: #020617; color: #818cf8; font-family: monospace; }
+    </style>
+</head>
+<body id="appBody">
+
+    <div class="nebula-canvas"></div>
+
+    <div id="sticky-promo" class="bg-indigo-600 text-white py-2 px-4 text-center text-[10px] md:text-xs font-bold tracking-widest uppercase sticky top-0 z-[60]">
+        <i class="fas fa-bolt mr-2 animate-pulse"></i> Promosi RM69 Seumur Hidup: Tinggal <span id="slots-left">14</span> Slot Sahaja!
+    </div>
+
+    <nav class="sticky top-[32px] md:top-[36px] z-50 border-b border-white/5 bg-slate-900/60 backdrop-blur-xl">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <img src="icon/icon-512.png" alt="BizPro" class="w-5 h-5 object-contain invert">
+                </div>
+                <div>
+                    <span class="block font-extrabold text-xl tracking-tighter leading-none">KETICK <span class="text-indigo-400">BIZPro</span></span>
+                </div>
+            </div>
+            <div class="hidden md:flex gap-6 text-sm font-semibold text-slate-400">
+                <a href="#features" class="hover:text-white">Ciri</a>
+                <a href="#pricing" class="hover:text-white">Promosi</a>
+                <a href="#testimoni" class="hover:text-white">Testimoni</a>
+            </div>
+            <button onclick="showSetup()" class="btn-premium px-5 py-2 rounded-full font-bold text-xs flex items-center gap-2">
+                <i class="fas fa-rocket text-[10px]"></i> Launch App
+            </button>
+        </div>
+    </nav>
+
+    <div id="landingContent">
+        <section class="pt-16 pb-20 px-6 text-center">
+            <div class="container mx-auto max-w-4xl">
+                <div class="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-4 py-1.5 rounded-full text-[10px] font-bold text-indigo-300 mb-8 uppercase tracking-widest">
+                    🎉 Tawaran 100 User Pertama
+                </div>
+                <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+                    Urus Bisnes Laju <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Tanpa Komitmen.</span>
+                </h1>
+                <p class="text-slate-400 text-lg md:text-xl mb-12 max-w-2xl mx-auto font-light">
+                    Sistem POS, Billing, & WhatsApp Marketing premium. Bayar RM69 sekali, guna seumur hidup. Direka khas untuk usahawan Malaysia.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <button onclick="showSetup()" class="btn-premium px-10 py-5 rounded-2xl font-bold text-xl shadow-2xl">
+                        Dapatkan RM69 Lifetime
+                    </button>
+                    <a href="#features" class="glass-panel px-10 py-5 rounded-2xl font-bold text-xl border border-white/10 hover:bg-white/5 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-play-circle text-indigo-400"></i> Tonton Demo
+                    </a>
+                </div>
+                <div class="mt-16 relative">
+                    <img src="https://picsum.photos/id/20/1100/600" alt="Dashboard BizPro" class="rounded-3xl border border-white/10 shadow-2xl opacity-80">
+                </div>
+            </div>
+        </section>
+
+        <section class="py-10 px-6">
+            <div class="container mx-auto max-w-2xl">
+                <div class="glass-panel p-6 border-indigo-500/20">
+                    <div class="flex justify-between text-xs font-bold mb-3 uppercase tracking-widest">
+                        <span class="text-indigo-400">Permintaan Tinggi</span>
+                        <span>86/100 Slot Terisi</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                        <div class="bg-indigo-500 h-full w-[86%] shadow-[0_0_15px_rgba(99,102,241,0.5)]"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="py-24 px-6 bg-slate-900/40">
+            <div class="container mx-auto max-w-6xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Semua Modul Dalam Satu Hub</h2>
+                    <p class="text-slate-500">Tak perlu lagi pening guna banyak software berasingan.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-cash-register text-3xl text-indigo-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">Mini POS</h3>
+                        <p class="text-slate-500 text-sm">Jualan pantas, cetak resit Bluetooth, & auto-update stok serta-merta.</p>
+                    </div>
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-receipt text-3xl text-purple-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">Billing & Invois</h3>
+                        <p class="text-slate-500 text-sm">Quotation, Invoice, & Receipt dengan cop digital. Eksport ke PDF dalam sesaat.</p>
+                    </div>
+                    <div class="glass-panel p-8 group border-indigo-500/20">
+                        <i class="fab fa-whatsapp text-3xl text-emerald-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2 text-indigo-300">WhatsApp Blast</h3>
+                        <p class="text-slate-400 text-sm">Hantar promosi beramai-ramai ke database pelanggan tanpa perlu save nombor.</p>
+                    </div>
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-boxes text-3xl text-orange-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">Inventori Pintar</h3>
+                        <p class="text-slate-500 text-sm">Amaran stok rendah (Low Stock Alert) supaya anda tak terlepas jualan.</p>
+                    </div>
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-file-invoice-dollar text-3xl text-cyan-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">Rekod Cukai LHDN</h3>
+                        <p class="text-slate-500 text-sm">Kategorikan resit perbelanjaan. Laporan siap sedia untuk audit & cukai.</p>
+                    </div>
+                    <div class="glass-panel p-8 group">
+                        <i class="fas fa-user-friends text-3xl text-pink-400 mb-6 block group-hover:scale-110 transition"></i>
+                        <h3 class="font-bold text-xl mb-2">CRM Pelanggan</h3>
+                        <p class="text-slate-500 text-sm">Simpan sejarah transaksi pelanggan untuk strategi 'retargeting' yang berkesan.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="py-24 px-6">
+            <div class="container mx-auto max-w-4xl text-center">
+                <h2 class="text-4xl font-extrabold mb-12">Pilih Pelan Masa Depan</h2>
+                <div class="glass-panel p-1 border-indigo-500/30 overflow-hidden relative shadow-2xl">
+                    <div class="absolute top-6 right-[-35px] bg-red-600 text-white px-10 py-1 rotate-45 text-[10px] font-bold">TERLARIS</div>
+                    <div class="bg-slate-900/80 rounded-[1.4rem] p-10 md:p-16">
+                        <h3 class="text-2xl font-bold mb-6 italic text-indigo-400">UNLIMITED PRO EDITION</h3>
+                        <div class="flex justify-center items-baseline gap-4 mb-8">
+                            <span class="price-strike text-2xl">RM399</span>
+                            <span class="text-7xl font-black text-white tracking-tighter">RM69</span>
+                        </div>
+                        <p class="text-emerald-400 font-bold mb-10 tracking-widest text-sm uppercase">Bayar Sekali • Guna Selamanya</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 text-left max-w-2xl mx-auto mb-12 text-slate-300">
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-indigo-500"></i> Semua Ciri POS & Billing</div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-indigo-500"></i> WhatsApp Marketing (Blast)</div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-indigo-500"></i> Unlimited Produk & User</div>
+                            <div class="flex items-center gap-3"><i class="fas fa-check-circle text-indigo-500"></i> Laporan LHDN & Audit</div>
+                        </div>
+
+                        <button onclick="showSetup()" class="btn-premium w-full py-5 rounded-2xl text-2xl font-extrabold uppercase tracking-widest">
+                            Aktifkan RM69 Sekarang
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimoni" class="py-24 px-6 bg-slate-900/40 text-center">
+            <div class="container mx-auto max-w-4xl">
+                <h2 class="text-3xl font-bold mb-16">Apa Kata Pengguna Kami?</h2>
+                <div class="glass-panel p-10 italic">
+                    <i class="fas fa-quote-left text-4xl text-indigo-500/30 mb-6 block"></i>
+                    <p class="text-xl text-slate-300 mb-6 leading-relaxed">
+                        "Dulu saya pening nak rekod stok manual. Sejak guna BizPro v6, semuanya jadi auto. Paling best sebab boleh guna kat smartphone Realme saya je. Harga RM69 seumur hidup memang tak masuk akal murahnya!"
+                    </p>
+                    <div class="font-bold text-indigo-400">— Azlan, Pengasas Ketick Hub</div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="py-16 border-t border-white/5 text-center px-6">
+            <div class="flex justify-center gap-6 mb-8 text-slate-500">
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-facebook-f text-xl"></i></a>
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-tiktok text-xl"></i></a>
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-instagram text-xl"></i></a>
+                <a href="#" class="hover:text-indigo-400"><i class="fab fa-telegram-plane text-xl"></i></a>
+            </div>
+            <p class="text-slate-600 text-xs tracking-widest uppercase">Ketick Hub &copy; 2026 • BizPro v6 Andromeda Edition</p>
+            <p class="text-[10px] text-slate-700 mt-4 max-w-md mx-auto">Dibangunkan oleh AzlanMymo. Sistem ini tertakluk kepada Terma & Syarat Ketick Hub.</p>
+        </footer>
+    </div>
+
+    <div id="setupSection" class="min-h-screen py-20 px-6">
+        <div class="container mx-auto max-w-xl">
+            <div class="glass-panel overflow-hidden border-indigo-500/30">
+                <div class="p-8 text-center bg-indigo-600/10 border-b border-white/5">
+                    <button onclick="showLanding()" class="float-left text-slate-500 hover:text-white transition"><i class="fas fa-arrow-left"></i></button>
+                    <h2 class="text-xl font-extrabold uppercase">Aktivasi Andromeda</h2>
+                </div>
+                <div class="p-10 space-y-10">
+                    <div>
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">1. Identiti Peranti</label>
+                        <button id="setupBtn" class="w-full py-4 glass-panel border-indigo-500/20 font-bold hover:bg-indigo-500/10 transition">
+                            GENERATE DEVICE ID
+                        </button>
+                        <div id="deviceIdDisplay" class="mt-4 p-4 bg-black/40 rounded-xl text-center font-mono text-indigo-400 border border-white/5 text-xs break-all">
+                            MENUNGGU ARAHAN...
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">2. Verifikasi Pembayaran</label>
+                        <a href="#" id="whatsappLink" target="_blank" class="flex items-center justify-center gap-3 w-full bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 py-4 rounded-xl font-bold hover:bg-emerald-600 hover:text-white transition">
+                            <i class="fab fa-whatsapp"></i> Hantar ID via WhatsApp
+                        </a>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-4">3. Masukkan Kunci Produk</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="productKey" placeholder="BIZPRO-XXXX-XXXX" class="flex-1 bg-slate-800 border border-white/5 p-4 rounded-xl focus:border-indigo-500 outline-none text-center font-bold tracking-widest uppercase text-sm">
+                            <button id="activateBtn" class="btn-premium px-8 rounded-xl font-bold">LINK</button>
+                        </div>
+                        <div id="activationMessage" class="mt-4 text-center font-bold text-xs uppercase tracking-tighter"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="launchSystemContainer" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 hidden w-full max-w-xs px-6">
+        <button onclick="launchApp()" class="btn-premium w-full py-4 rounded-full font-black shadow-2xl text-white tracking-widest uppercase text-sm border-2 border-white/20">
+            Masuk Ke Sistem <i class="fas fa-chevron-right ml-2"></i>
+        </button>
+    </div>
+
+    <script>
+        const PROVIDER_WHATSAPP = '601123266755';
+        const SYSTEM_URL = 'index.html';
+
+        function showSetup() { document.getElementById('appBody').classList.add('show-setup'); window.scrollTo(0,0); }
+        function showLanding() { document.getElementById('appBody').classList.remove('show-setup'); window.scrollTo(0,0); }
+        function launchApp() { window.location.href = SYSTEM_URL; }
+
+        let deviceId = localStorage.getItem('bizpro_device_id');
+
+        function updateUI() {
+            if (deviceId) {
+                document.getElementById('deviceIdDisplay').innerText = deviceId;
+                document.getElementById('whatsappLink').href = `https://wa.me/${PROVIDER_WHATSAPP}?text=Salam%20Admin%2C%20mohon%20aktifkan%20BizPro%20v6%20ID%3A%20${deviceId}`;
+            }
+            if (localStorage.getItem('bizpro_activated') === 'true') {
+                document.getElementById('launchSystemContainer').classList.remove('hidden');
+                document.getElementById('activationMessage').innerHTML = '<span class="text-indigo-400">SISTEM TELAH DIAKTIFKAN. TERIMA KASIH!</span>';
+            }
+        }
+
+        document.getElementById('setupBtn').addEventListener('click', () => {
+            if (!deviceId) {
+                deviceId = 'ANDROMEDA-' + Math.random().toString(36).substring(2, 11).toUpperCase() + '-' + Date.now().toString().slice(-4);
+                localStorage.setItem('bizpro_device_id', deviceId);
+                updateUI();
+            }
+        });
+
+        document.getElementById('activateBtn').addEventListener('click', () => {
+            const key = document.getElementById('productKey').value.trim();
+            if (key.toUpperCase().startsWith('BIZPRO-') || key.toUpperCase().startsWith('KEY-')) {
+                localStorage.setItem('bizpro_activated', 'true');
+                updateUI();
+                alert('Tahniah! BizPro v6 kini aktif.');
+            } else {
+                document.getElementById('activationMessage').innerHTML = '<span class="text-red-500">Kunci Produk Tidak Sah.</span>';
+            }
+        });
+
+        updateUI();
+    </script>
+</body>
+</html>
