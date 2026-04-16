@@ -1,15 +1,63 @@
 {
-  "name": "BizPro v6 POS",
+  "id": "ketick-bizpro-v6",
+  "name": "KETICK BizPro v6 Flux Edition",
   "short_name": "BizPro",
-  "start_url": ".",
+  "description": "Sistem ERP, Mini POS, CRM, dan Pengurusan Cukai LHDN pintar untuk perniagaan moden.",
+  "categories": ["business", "finance", "productivity"],
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#2563eb",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#ffffff",
   "theme_color": "#2563eb",
+  "dir": "ltr",
+  "lang": "ms",
   "icons": [
     {
-      "src": "icon-512.png",
+      "src": "icon/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buka Mini POS",
+      "short_name": "Mini POS",
+      "description": "Terus buka mesin daftar tunai",
+      "url": "./index.html#pos",
+      "icons": [
+        {
+          "src": "icon/icon-512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Rekod Cukai Baru",
+      "short_name": "Rekod LHDN",
+      "description": "Muat naik resit dan rekod perbelanjaan",
+      "url": "./index.html#lhdn",
+      "icons": [
+        {
+          "src": "icon/icon-512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Jana Invois / Bil",
+      "short_name": "Billing",
+      "description": "Buat dokumen sebut harga atau invois",
+      "url": "./index.html#billing",
+      "icons": [
+        {
+          "src": "icon/icon-512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
