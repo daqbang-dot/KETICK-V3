@@ -234,6 +234,7 @@ let posDiscount = 0;
 let currentReviewDoc = null;
 let blastImageData = null;
 let isDarkTheme = localStorage.getItem('f6_dark') === 'true';
+let customBg = localStorage.getItem('f6_custom_bg') || '';
 
 // ================== ENTER SYSTEM ==================
 async function enterSystem() {
@@ -276,6 +277,7 @@ function initAppAfterActivation() {
     if (bizBank) bizBank.value = db.prof.bank;
 
     applyTheme();
+    applyCustomBg();
     updateBizProfile();
     renderDashboard();
 
@@ -1404,6 +1406,47 @@ function initReportModule() {
     const lhdnBtn = document.getElementById('report-lhdn-btn');
     if (lhdnBtn) {
         lhdnBtn.onclick = () => exportReport('lhdn');
+    }
+}
+
+// ================== CUSTOM BACKGROUND ==================
+function uploadBgImg(input) {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        try {
+            customBg = e.target.result;
+            localStorage.setItem('f6_custom_bg', customBg);
+            applyCustomBg();
+        } catch (err) {
+            // Pelayar telefon ada had memori, jika gambar saiz terlalu gergasi ia akan ralat
+            await showAlert('Saiz gambar terlalu besar! Sila pilih gambar yang lebih kecil.');
+            removeBgImg();
+        }
+    };
+    if(input.files[0]) reader.readAsDataURL(input.files[0]);
+}
+
+function removeBgImg() {
+    customBg = '';
+    localStorage.removeItem('f6_custom_bg');
+    applyCustomBg();
+}
+
+function applyCustomBg() {
+    if (customBg) {
+        document.body.style.backgroundImage = `url(${customBg})`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+    } else {
+        document.body.style.backgroundImage = 'none';
+    }
+    
+    // Kemas kini butang Buang Wallpaper di Dashboard jika wujud
+    const btnRemove = document.getElementById('btn-remove-bg');
+    if (btnRemove) {
+        if (customBg) btnRemove.classList.remove('hidden');
+        else btnRemove.classList.add('hidden');
     }
 }
 
