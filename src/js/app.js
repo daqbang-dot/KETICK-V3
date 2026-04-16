@@ -515,24 +515,6 @@ function updateInvImg(input, idx) {
     reader.readAsDataURL(input.files[0]); 
 }
 
-// ================== DASHBOARD ==================
-function renderDashboard() { 
-    const paidTransactions = db.hist.filter(h => h.type === 'REC'); 
-    const totalRev = paidTransactions.reduce((sum, h) => sum + h.total, 0); 
-    const totalMargin = paidTransactions.reduce((sum, h) => sum + h.margin, 0); 
-    const totalTax = db.tax.reduce((sum, t) => sum + t.amt, 0); 
-    const dashRev = document.getElementById('dash-total-rev'); 
-    if(dashRev) dashRev.innerText = `RM ${totalRev.toFixed(2)}`; 
-    const dashMargin = document.getElementById('dash-total-margin'); 
-    if(dashMargin) dashMargin.innerText = `RM ${totalMargin.toFixed(2)}`; 
-    const dashTax = document.getElementById('dash-tax-expense'); 
-    if(dashTax) dashTax.innerText = `RM ${totalTax.toFixed(2)}`; 
-    const dashInvCount = document.getElementById('dash-inv-count'); 
-    if(dashInvCount) dashInvCount.innerText = `${db.inv.length} Unit`; 
-    renderJobs(); 
-    updateLowStockPanel(); 
-}
-
 // ================== MINI POS ==================
 function renderProductGrid() {
     const searchTerm = (document.getElementById('pos-search')?.value || '').toLowerCase();
