@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bizpro-v43'; // Bump ke versi 40
+const CACHE_NAME = 'bizpro-v44'; // Bump ke versi 44
 const urlsToCache = [
   './',
   './index.html',
