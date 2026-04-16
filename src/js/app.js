@@ -1428,18 +1428,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
     if(sidebar) {
-        // Guna "true" (Capture Phase) untuk pintas klik sebelum sampai ke HTML
         sidebar.addEventListener('click', function(e) {
-            // Jika sidebar masih kecik (lebar kurang 200px), kembangkan dia DULU!
-            if (this.offsetWidth < 200) {
+            // Jika sidebar belum kembang (lebar kurang 300px), kembangkan DULU & sekat pertukaran page
+            if (!this.classList.contains('expanded') && this.offsetWidth < 300) {
                 this.classList.add('expanded');
                 e.preventDefault();
-                e.stopPropagation(); // INI RAHSIA DIA: Halang fungsi loadModule dari berjalan
+                e.stopPropagation(); 
             }
         }, true); 
     }
 
-    // Tutup sidebar bila tap ruang kosong luar sidebar
     if(mainContent) {
         mainContent.addEventListener('click', function(e) {
             if(sidebar && sidebar.classList.contains('expanded')) {
@@ -1458,7 +1456,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 this.classList.remove('tergedik');
             }, 500);
 
-            // Selepas berjaya pilih menu, auto tutup sidebar dengan smooth
             setTimeout(() => {
                 if(sidebar) sidebar.classList.remove('expanded');
             }, 300);
