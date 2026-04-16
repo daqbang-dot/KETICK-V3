@@ -1429,7 +1429,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if(sidebar) {
         sidebar.addEventListener('click', function(e) {
-            // Jika sidebar belum kembang (lebar kurang 300px), kembangkan DULU & sekat pertukaran page
+            // Jika sidebar belum kembang (lebar kurang 300px), kembangkan DULU & sekat klik
             if (!this.classList.contains('expanded') && this.offsetWidth < 300) {
                 this.classList.add('expanded');
                 e.preventDefault();
@@ -1448,6 +1448,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
+            // 🔥 INI PENYELESAIAN UTAMA: 
+            // Halang browser dari cuba pergi ke href="#" yang membatalkan loading modul!
+            e.preventDefault(); 
+            
             navLinks.forEach(nav => nav.classList.remove('active'));
             this.classList.add('active');
             this.classList.add('tergedik');
