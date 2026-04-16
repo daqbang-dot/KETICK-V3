@@ -1,7 +1,9 @@
-const CACHE_NAME = 'bizpro-v39';
+const CACHE_NAME = 'bizpro-v40'; // Bump ke versi 40
 const urlsToCache = [
   './',
   './index.html',
+  './manifest.json',
+  './icon/icon-512.png',
   './src/css/style.css',
   './src/js/app.js',
   './src/modules/dashboard/dashboard.html',
@@ -15,6 +17,7 @@ const urlsToCache = [
   './src/modules/autoreply/autoreply.html',
   './src/modules/lhdn/lhdn.html',
   './src/modules/history/history.html',
+  './src/modules/report/report.html', // Modul report ditambah
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
