@@ -1,6 +1,6 @@
 // ================================================
 // KETICK BizPro v6 - Flux Edition
-// app.js - Activation System Versi A (Clean)
+// app.js - Activation System Versi A (Clean) & Hover Sidebar
 // ================================================
 
 // ================== DATA & STORAGE ==================
@@ -224,33 +224,6 @@ async function showActivationModal() {
     });
 }
 
-// ================== ENTER SYSTEM (dengan semakan activation) ==================
-async function enterSystem() {
-    document.getElementById('login-overlay').classList.add('hidden');
-    setupAdminGesture();
-
-    if (!isActivated()) {
-        const setupBtn = document.getElementById('first-time-setup-btn');
-        if (setupBtn) setupBtn.classList.remove('hidden');
-
-        const activated = await showActivationModal();
-        
-        if (!activated) {
-            document.getElementById('login-overlay').classList.remove('hidden');
-            return;
-        }
-
-        if (setupBtn) setupBtn.classList.add('hidden');
-    }
-
-    logActivity('app_open', { 
-        serial: activationData.serialNumber,
-        device: activationData.deviceFingerprint 
-    });
-
-    loadModule('dashboard');
-    initAppAfterActivation();
-}
 // ================== GLOBAL VARIABLES ==================
 let currentModule = 'dashboard';
 let logoClickCount = 0;
@@ -260,6 +233,7 @@ let cart = [];
 let posDiscount = 0;
 let currentReviewDoc = null;
 let blastImageData = null;
+let isDarkTheme = localStorage.getItem('f6_dark') === 'true';
 
 // ================== ENTER SYSTEM ==================
 async function enterSystem() {
@@ -302,7 +276,6 @@ function initAppAfterActivation() {
     if (bizBank) bizBank.value = db.prof.bank;
 
     applyTheme();
-    applyLanguage();
     updateBizProfile();
     renderDashboard();
 
@@ -376,10 +349,14 @@ async function loadModule(moduleName) {
 
     logActivity('module_view', { module: moduleName });
 
-    document.querySelectorAll('.nav-item-drawer').forEach(btn => {
+    // Kemas kini active menu pada Drawer lama (jika wujud) dan Sidebar Baru
+    document.querySelectorAll('.nav-item-drawer, .sidebar .nav-link').forEach(btn => {
         const onclick = btn.getAttribute('onclick');
-        if (onclick && onclick.includes(moduleName)) btn.classList.add('active');
-        else btn.classList.remove('active');
+        if (onclick && onclick.includes(`loadModule('${moduleName}')`)) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
     });
 }
 
@@ -406,71 +383,7 @@ function setupAdminGesture() {
     });
 }
 
-// ================== DWIBAHASA & THEME ==================
-let currentLang = localStorage.getItem('f6_lang') || 'BM';
-let isDarkTheme = localStorage.getItem('f6_dark') === 'true';
-
-const i18nDict = {
-    'BM': {
-        'welcome': 'Selamat Datang', 'enter-system': 'Masuk Sistem',
-        'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventori', 'menu-crm': 'Pangkalan Data CRM', 'menu-bill': 'Pengebilan', 'menu-promo': 'Pengurus Kupon', 'menu-social': 'Pemasaran Sosial', 'menu-blast': 'Blast Pintar', 'menu-auto': 'Chatbox WhatsApp', 'menu-tax': 'Rekod Cukai LHDN', 'menu-hist': 'Sejarah',
-        'menu-report': 'Laporan',
-        'btn-export': 'Eksport Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Stok Rendah (Ambang)',
-        'dash-title': 'Ringkasan Niaga', 'dash-subtitle': 'Prestasi semasa anda hari ini.', 'dash-alert-stock': '⚠️ Stok Kritikal (≤ ambang)', 'lbl-rev-title': 'Revenue Terkini (Receipt)', 'btn-tax-record': 'REKOD CUKAI', 'lbl-rev-sub': 'Berdasarkan jualan yang telah dibayar (Receipt)', 'lbl-margin': 'Margin Keuntungan', 'lbl-exp': 'Belanja (Cukai)', 'lbl-stk': 'Jumlah Item Stok', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Jadual Kerja & Temujanji', 'btn-add-job': '+ Tambah Nota',
-        'pos-cust-info': 'Maklumat Pelanggan', 'btn-use': 'GUNA', 'pos-cart': 'Keranjang', 'pos-total': 'Jumlah:', 'pos-discount': 'Diskaun Kupon:', 'pos-after-disc': 'Selepas Diskaun:', 'pos-cash': 'Tunai (RM):', 'pos-change': 'Baki:', 'btn-complete': 'Selesai', 'btn-clear': 'Kosong', 'btn-print': 'Cetak Resit',
-        'inv-title': 'Inventori Stok', 'btn-new-prod': '+ Produk Baru', 'th-image': 'Imej', 'th-info': 'Informasi Produk', 'th-cost': 'Kos (RM)', 'th-sell': 'Jual (RM)', 'th-stock': 'Baki Stok', 'th-action': 'Tindakan',
-        'crm-title': 'Pangkalan Data Pelanggan', 'btn-add-lead': '+ Tambah Lead',
-        'bill-gen-title': 'Penjana Dokumen', 'bill-client': 'Pelanggan', 'bill-coupon': 'Kod Kupon (Diskaun)', 'bill-doc-type': 'Jenis Dokumen', 'btn-add-prod': '+ Tambah Produk', 'btn-save-record': 'SAHKAN & SIMPAN REKOD', 'btn-save-pdf': 'Simpan PDF',
-        'doc-date': 'Tarikh', 'doc-bill-to': 'Kepada / Bill To:', 'doc-payment-info': 'Maklumat Pembayaran:', 'doc-item-desc': 'Perihalan Item', 'doc-unit': 'Unit', 'doc-price': 'Harga (RM)', 'doc-total': 'Jumlah (RM)', 'doc-discount': 'Diskaun Kupon', 'doc-digital': 'Dokumen ini dijana secara digital.', 'doc-grand': 'Jumlah Keseluruhan',
-        'promo-add': 'Tambah Kupon Baru', 'btn-save': 'SIMPAN', 'promo-list': 'Senarai Kupon',
-        'social-plan': 'Rancang Content', 'social-schedule': 'Jadual',
-        'blast-cat': 'KATALOG', 'blast-select': 'Pilih Penerima', 'blast-msg': 'Mesej', 'blast-img': 'Gambar', 'blast-delay': 'Sela (saat)',
-        'auto-save': 'Simpan Template', 'auto-list': 'Senarai Template',
-        'btn-record': '+ Rekod', 'tax-total': 'Total Tuntutan', 'tax-count': 'Bilangan Resit', 'tax-top': 'Kategori Tertinggi', 'tax-status': 'Status Audit', 'tax-ok': 'Tersusun', 'th-date': 'Tarikh', 'th-receipt': 'Resit', 'th-category': 'Kategori', 'th-vendor': 'Vendor', 'th-amount': 'Jumlah',
-        'hist-title': 'Rekod Transaksi', 'th-ref': 'No. Rujukan', 'th-client': 'Pelanggan', 'th-phone': 'Telefon', 'th-type': 'Jenis', 'btn-search': 'Cari', 'btn-wa': 'WhatsApp',
-        'review-title': 'Review Dokumen', 'btn-close': 'Tutup', 'tax-new': 'Rekod Baru', 'tax-upload': 'Muat Naik Resit', 'btn-cancel': 'Batal',
-        'Tiada Kupon.': 'Tiada Kupon.', 'Tiada Jadual.': 'Tiada Jadual.', 'Imej Sedia': 'Imej Sedia', 'Tiada template sapaan.': 'Tiada template sapaan.', 'SALIN': 'SALIN', 'Tiada rekod perbelanjaan.': 'Tiada rekod perbelanjaan.', 'SET PAID': 'SET PAID', 'TAMBAH SPEC': 'TAMBAH SPEC', 'SOROK': 'SOROK', 'LIHAT': 'LIHAT', 'Pergi ke Inventory': 'Pergi ke Inventory', 'Keranjang kosong': 'Keranjang kosong'
-    },
-    'EN': {
-        'welcome': 'Welcome', 'enter-system': 'Enter System',
-        'menu-dash': 'Dashboard', 'menu-pos': 'Mini POS', 'menu-inv': 'Inventory', 'menu-crm': 'CRM Database', 'menu-bill': 'Billing', 'menu-promo': 'Coupon Manager', 'menu-social': 'Social Marketing', 'menu-blast': 'Smart Blast', 'menu-auto': 'WhatsApp Chatbox', 'menu-tax': 'Tax Records', 'menu-hist': 'History',
-        'menu-report': 'Report',
-        'btn-export': 'Export Backup', 'btn-import': 'Import Data', 'btn-threshold': 'Set Low Stock Threshold',
-        'dash-title': 'Business Summary', 'dash-subtitle': 'Your current performance today.', 'dash-alert-stock': '⚠️ Critical Stock (≤ threshold)', 'lbl-rev-title': 'Current Revenue (Receipt)', 'btn-tax-record': 'TAX RECORD', 'lbl-rev-sub': 'Based on paid sales (Receipt)', 'lbl-margin': 'Profit Margin', 'lbl-exp': 'Expenses (Tax)', 'lbl-stk': 'Total Stock Items', 'lbl-biz-info': 'Business Info', 'lbl-job-title': 'Work Schedule & Appointments', 'btn-add-job': '+ Add Note',
-        'pos-cust-info': 'Customer Information', 'btn-use': 'APPLY', 'pos-cart': 'Shopping Cart', 'pos-total': 'Total:', 'pos-discount': 'Coupon Discount:', 'pos-after-disc': 'After Discount:', 'pos-cash': 'Cash (RM):', 'pos-change': 'Change:', 'btn-complete': 'Complete', 'btn-clear': 'Clear', 'btn-print': 'Print Receipt',
-        'inv-title': 'Stock Inventory', 'btn-new-prod': '+ New Product', 'th-image': 'Image', 'th-info': 'Product Info', 'th-cost': 'Cost (RM)', 'th-sell': 'Sell (RM)', 'th-stock': 'Stock Bal', 'th-action': 'Action',
-        'crm-title': 'Customer Database', 'btn-add-lead': '+ Add Lead',
-        'bill-gen-title': 'Document Generator', 'bill-client': 'Customer', 'bill-coupon': 'Coupon Code (Discount)', 'bill-doc-type': 'Document Type', 'btn-add-prod': '+ Add Product', 'btn-save-record': 'CONFIRM & SAVE RECORD', 'btn-save-pdf': 'Save PDF',
-        'doc-date': 'Date', 'doc-bill-to': 'To / Bill To:', 'doc-payment-info': 'Payment Info:', 'doc-item-desc': 'Item Description', 'doc-unit': 'Unit', 'doc-price': 'Price (RM)', 'doc-total': 'Total (RM)', 'doc-discount': 'Coupon Discount', 'doc-digital': 'This document is digitally generated.', 'doc-grand': 'Grand Total',
-        'promo-add': 'Add New Coupon', 'btn-save': 'SAVE', 'promo-list': 'Coupon List',
-        'social-plan': 'Plan Content', 'social-schedule': 'Schedule',
-        'blast-cat': 'CATALOG', 'blast-select': 'Select Recipient', 'blast-msg': 'Message', 'blast-img': 'Image', 'blast-delay': 'Delay (sec)',
-        'auto-save': 'Save Template', 'auto-list': 'Template List',
-        'btn-record': '+ Record', 'tax-total': 'Total Claims', 'tax-count': 'Receipt Count', 'tax-top': 'Top Category', 'tax-status': 'Audit Status', 'tax-ok': 'Organized', 'th-date': 'Date', 'th-receipt': 'Receipt', 'th-category': 'Category', 'th-vendor': 'Vendor', 'th-amount': 'Amount',
-        'hist-title': 'Transaction Records', 'th-ref': 'Ref. No', 'th-client': 'Customer', 'th-phone': 'Phone', 'th-type': 'Type', 'btn-search': 'Search', 'btn-wa': 'WhatsApp',
-        'review-title': 'Review Document', 'btn-close': 'Close', 'tax-new': 'New Record', 'tax-upload': 'Upload Receipt', 'btn-cancel': 'Cancel',
-        'Tiada Kupon.': 'No Coupons.', 'Tiada Jadual.': 'No Schedule.', 'Imej Sedia': 'Image Ready', 'Tiada template sapaan.': 'No greeting templates.', 'SALIN': 'COPY', 'Tiada rekod perbelanjaan.': 'No expense records.', 'SET PAID': 'SET PAID', 'TAMBAH SPEC': 'ADD SPEC', 'SOROK': 'HIDE', 'LIHAT': 'VIEW', 'Pergi ke Inventory': 'Go to Inventory', 'Keranjang kosong': 'Cart is empty'
-    }
-};
-
-function t(key) { return i18nDict[currentLang][key] || key; }
-
-function toggleLanguage() {
-    currentLang = currentLang === 'BM' ? 'EN' : 'BM';
-    localStorage.setItem('f6_lang', currentLang);
-    applyLanguage();
-}
-
-function applyLanguage() {
-    const btn = document.getElementById('btn-lang');
-    if (btn) btn.innerText = currentLang;
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (i18nDict[currentLang] && i18nDict[currentLang][key]) el.innerText = i18nDict[currentLang][key];
-    });
-    renderDashboard(); renderProductGrid(); renderCart(); renderInventory(); renderCRM(); renderCoupons(); renderSchedule(); renderAR(); renderTax(); renderHistory();
-}
-
+// ================== THEME ==================
 function toggleDarkMode() {
     isDarkTheme = !isDarkTheme;
     localStorage.setItem('f6_dark', isDarkTheme);
@@ -488,6 +401,7 @@ function applyTheme() {
     }
 }
 
+// ================== CUSTOM MODALS ==================
 function showCustomModal(type, title, msg, defaultValue = '') {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-modal');
@@ -517,9 +431,9 @@ function showCustomModal(type, title, msg, defaultValue = '') {
     });
 }
 
-const showAlert = async (msg) => await showCustomModal('alert', currentLang==='BM'?'Perhatian':'Attention', msg);
-const showConfirm = async (msg) => await showCustomModal('confirm', currentLang==='BM'?'Pengesahan':'Confirmation', msg);
-const showPrompt = async (msg, def='') => await showCustomModal('prompt', currentLang==='BM'?'Sila Masukkan Maklumat':'Please Enter Details', msg, def);
+const showAlert = async (msg) => await showCustomModal('alert', 'Perhatian', msg);
+const showConfirm = async (msg) => await showCustomModal('confirm', 'Pengesahan', msg);
+const showPrompt = async (msg, def='') => await showCustomModal('prompt', 'Sila Masukkan Maklumat', msg, def);
 
 // ================== LOW STOCK & UTILS ==================
 function getLowStockItems() { return db.inv.filter(item => item.qty <= db.lowStockThreshold); }
@@ -538,7 +452,7 @@ function updateLowStockPanel() {
     const container = document.getElementById('low-stock-list'); 
     if (lowItems.length === 0) { if(panel) panel.classList.add('hidden'); return; } 
     if(panel) panel.classList.remove('hidden'); 
-    if(container) container.innerHTML = lowItems.map(item => `<div class="flex justify-between items-center border-b border-red-100 pb-2"><span class="font-bold">${item.name}</span><span class="text-red-600 font-black">Stok: ${item.qty}</span><button onclick="loadModule('inventory'); closeDrawer();" class="text-xs bg-red-100 px-2 py-1 rounded-full">${t('Pergi ke Inventory')}</button></div>`).join(''); 
+    if(container) container.innerHTML = lowItems.map(item => `<div class="flex justify-between items-center border-b border-red-100 pb-2"><span class="font-bold">${item.name}</span><span class="text-red-600 font-black">Stok: ${item.qty}</span><button onclick="loadModule('inventory'); closeDrawer();" class="text-xs bg-red-100 px-2 py-1 rounded-full">Pergi ke Inventory</button></div>`).join(''); 
 }
 function checkLowStockAndNotify(previousLowIds = []) { 
     const lowItems = getLowStockItems(); 
@@ -552,13 +466,13 @@ function checkLowStockAndNotify(previousLowIds = []) {
     return currentLowIds; 
 }
 async function openThresholdModal() { 
-    const newVal = await showPrompt(currentLang==='BM'?`Tetapkan ambang stok rendah (stok ≤ nilai ini dianggap kritikal):`:`Set low stock threshold:`, db.lowStockThreshold); 
+    const newVal = await showPrompt('Tetapkan ambang stok rendah (stok ≤ nilai ini dianggap kritikal):', db.lowStockThreshold); 
     if (newVal !== null && !isNaN(parseInt(newVal))) { 
         db.lowStockThreshold = parseInt(newVal); 
         save(); 
         checkLowStockAndNotify([]); 
         renderInventory(); 
-        showAlert(currentLang==='BM'?`Ambang ditukar kepada ${db.lowStockThreshold}`:`Threshold changed to ${db.lowStockThreshold}`); 
+        showAlert(`Ambang ditukar kepada ${db.lowStockThreshold}`); 
     } 
 }
 
@@ -572,7 +486,7 @@ function renderInventory() {
             <td class="p-6"><div class="w-16 h-16 bg-gray-100 rounded-2xl overflow-hidden relative border border-white flex items-center justify-center">${item.img ? `<img src="${item.img}" class="w-full h-full object-cover">` : `<i class="fas fa-camera text-gray-300"></i>`}<input type="file" onchange="updateInvImg(this, ${idx})" class="absolute inset-0 opacity-0 cursor-pointer"></div><\/td>
             <td class="p-6"><input type="text" value="${item.name}" onchange="updateInv(${idx}, 'name', this.value)" class="font-bold w-full bg-transparent outline-none text-gray-800">
             <div class="mt-2 space-y-1 ${item.showDetails ? '' : 'hidden'}">${(item.details || []).map((d, dIdx) => `<div class="flex gap-1"><input type="text" value="${d}" onchange="db.inv[${idx}].details[${dIdx}]=this.value; save();" placeholder="Spec" class="block text-[10px] p-2 w-full bg-white border border-gray-100 rounded-lg shadow-sm"><button onclick="db.inv[${idx}].details.splice(${dIdx},1); renderInventory(); save();" class="text-red-300 text-[10px]">&times;</button></div>`).join('')}</div>
-            <div class="flex gap-4 mt-3"><button onclick="if(!db.inv[${idx}].details) db.inv[${idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> ${t('TAMBAH SPEC')}</button><button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? t('SOROK') : t('LIHAT')}</button></div><\/td>
+            <div class="flex gap-4 mt-3"><button onclick="if(!db.inv[${idx}].details) db.inv[${idx}].details=[]; db.inv[${idx}].details.push(''); renderInventory();" class="text-[9px] font-black text-blue-600 uppercase"><i class="fas fa-plus mr-1"></i> TAMBAH SPEC</button><button onclick="db.inv[${idx}].showDetails=!db.inv[${idx}].showDetails; renderInventory();" class="text-[9px] font-bold text-gray-400 uppercase"><i class="fas ${item.showDetails ? 'fa-eye-slash' : 'fa-eye'} mr-1"></i> ${item.showDetails ? 'SOROK' : 'LIHAT'}</button></div><\/td>
             <td class="p-6"><input type="number" value="${item.kos}" onchange="updateInv(${idx}, 'kos', this.value)" class="w-20 p-2 flux-input text-xs font-bold"><\/td>
             <td class="p-6"><input type="number" value="${item.jual}" onchange="updateInv(${idx}, 'jual', this.value)" class="w-20 p-2 flux-input text-xs font-bold text-blue-600"><\/td>
             <td class="p-6"><input type="number" value="${item.qty}" onchange="updateInv(${idx}, 'qty', this.value)" class="w-16 p-2 flux-input text-xs text-center font-bold"><\/td>
@@ -581,7 +495,7 @@ function renderInventory() {
     }).join(''); 
 }
 function addInventoryItem() { 
-    db.inv.push({ id: Date.now(), name: currentLang==='BM'?'Produk Baru':'New Product', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true, salesCount: 0 }); 
+    db.inv.push({ id: Date.now(), name: 'Produk Baru', kos: 0, jual: 0, qty: 0, details: [], img: '', showDetails: true, salesCount: 0 }); 
     renderInventory(); save(); checkLowStockAndNotify([]); 
 }
 function updateInv(idx, field, val) { 
@@ -652,10 +566,10 @@ function setupPosExtra() {}
 async function addToCart(productId) { 
     const product = db.inv.find(p => p.id === productId); 
     if (!product) return; 
-    if (product.qty <= 0) { await showAlert(currentLang==='BM'?"Stok habis!":"Out of stock!"); return; } 
+    if (product.qty <= 0) { await showAlert("Stok habis!"); return; } 
     const existing = cart.find(i => i.id === productId); 
     if (existing) { 
-        if (existing.qty + 1 > product.qty) { await showAlert(currentLang==='BM'?"Stok tidak mencukupi":"Insufficient stock"); return; } 
+        if (existing.qty + 1 > product.qty) { await showAlert("Stok tidak mencukupi"); return; } 
         existing.qty++; 
     } else { 
         cart.push({ id: product.id, name: product.name, price: product.jual, qty: 1 }); 
@@ -668,7 +582,7 @@ async function updateCartQty(id, delta) {
     const product = db.inv.find(p => p.id === id); 
     const newQty = cart[idx].qty + delta; 
     if (newQty <= 0) { cart.splice(idx,1); } 
-    else if (product && newQty > product.qty) { await showAlert(currentLang==='BM'?"Stok tidak mencukupi":"Insufficient stock"); return; } 
+    else if (product && newQty > product.qty) { await showAlert("Stok tidak mencukupi"); return; } 
     else { cart[idx].qty = newQty; } 
     renderCart(); 
 }
@@ -677,7 +591,7 @@ function renderCart() {
     const container = document.getElementById('cart-items'); 
     if (!container) return; 
     if (cart.length === 0) { 
-        container.innerHTML = `<div class="text-center text-gray-400 py-4">${t('Keranjang kosong')}</div>`; 
+        container.innerHTML = `<div class="text-center text-gray-400 py-4">Keranjang kosong</div>`; 
         document.getElementById('cart-total').innerText = 'RM 0.00'; 
         document.getElementById('cart-grand').innerText = 'RM 0.00'; 
         document.getElementById('discount-row').style.display = 'none'; 
@@ -717,19 +631,19 @@ async function applyPosCoupon() {
         coupon.quantity--; 
         if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } 
         save(); renderCoupons(); 
-        await showAlert(currentLang==='BM'?`Kupon ${code} digunakan: RM ${posDiscount} diskaun`:`Coupon ${code} applied: RM ${posDiscount} discount`); 
+        await showAlert(`Kupon ${code} digunakan: RM ${posDiscount} diskaun`); 
         renderCart(); 
     } else { 
-        await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!"); 
+        await showAlert("Kupon tidak sah atau habis!"); 
         posDiscount = 0; renderCart(); 
     } 
 }
 async function completeSale() { 
-    if (cart.length === 0) { await showAlert(currentLang==='BM'?"Keranjang kosong":"Cart is empty"); return; } 
+    if (cart.length === 0) { await showAlert("Keranjang kosong"); return; } 
     const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); 
     const grand = total - posDiscount; 
     const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; 
-    if (cash < grand) { await showAlert(currentLang==='BM'?"Tunai tidak mencukupi":"Insufficient cash"); return; } 
+    if (cash < grand) { await showAlert("Tunai tidak mencukupi"); return; } 
     const custName = document.getElementById('pos-cust-name').value.trim(); 
     const custPhone = document.getElementById('pos-cust-phone').value.trim(); 
     if (custName) { 
@@ -741,7 +655,7 @@ async function completeSale() {
     for (let item of cart) { 
         const product = db.inv.find(p => p.id === item.id); 
         if (product) { 
-            if (product.qty < item.qty) { await showAlert(currentLang==='BM'?`Stok ${product.name} tidak mencukupi`:`Not enough stock for ${product.name}`); return; } 
+            if (product.qty < item.qty) { await showAlert(`Stok ${product.name} tidak mencukupi`); return; } 
             product.qty -= item.qty; 
             product.salesCount = (product.salesCount || 0) + item.qty; 
             margin += (product.jual - product.kos) * item.qty; 
@@ -761,10 +675,10 @@ async function completeSale() {
         window.open(`https://wa.me/${custPhone}?text=${encodedMsg}`, '_blank'); 
     } 
     clearCart(); 
-    await showAlert(currentLang==='BM'?"Jualan selesai. Resit dibuka.":"Sale complete. Receipt generated."); 
+    await showAlert("Jualan selesai. Resit dibuka."); 
 }
 async function printReceipt() { 
-    if (cart.length === 0) { await showAlert(currentLang==='BM'?"Tiada item dalam keranjang":"No items in cart"); return; } 
+    if (cart.length === 0) { await showAlert("Tiada item dalam keranjang"); return; } 
     const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0); 
     const grand = total - posDiscount; 
     const cash = parseFloat(document.getElementById('cash-paid')?.value) || 0; 
@@ -818,10 +732,10 @@ async function generateFinalBilling() {
     const newRef = `${type}${refNum}`; 
     db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: newRef, type: type, clientName: client ? client.name : 'Umum', phone: client?.phone || '', total: finalTotal, margin: finalMargin, items: items, discount: activeDiscount }); 
     save(); 
-    await showAlert(currentLang==='BM'?`Rekod ${type} Berjaya Disimpan! No: ${newRef}`:`${type} Record Saved! No: ${newRef}`); 
+    await showAlert(`Rekod ${type} Berjaya Disimpan! No: ${newRef}`); 
     location.reload(); 
 }
-async function deleteDoc(id) { const doc = db.hist.find(h => h.id === id); if (doc) { const type = doc.type; const refNum = parseInt(doc.ref.slice(3)); recycleRef(type, refNum); db.hist = db.hist.filter(h => h.id !== id); save(); renderHistory(); await showAlert(currentLang==='BM'?`Dokumen ${doc.ref} dibatalkan. Nombor akan diguna semula.`:`Document ${doc.ref} cancelled. Number will be recycled.`); } }
+async function deleteDoc(id) { const doc = db.hist.find(h => h.id === id); if (doc) { const type = doc.type; const refNum = parseInt(doc.ref.slice(3)); recycleRef(type, refNum); db.hist = db.hist.filter(h => h.id !== id); save(); renderHistory(); await showAlert(`Dokumen ${doc.ref} dibatalkan. Nombor akan diguna semula.`); } }
 function populateBillingClients() { const s = document.getElementById('bill-client-select'); if(s) s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
 function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input')?.appendChild(div); }
 function calcBilling() { 
@@ -852,13 +766,13 @@ function calcBilling() {
         discountRow.classList.add('hidden'); 
     } 
 }
-async function applyCoupon() { const c = document.getElementById('coupon-input')?.value.toUpperCase(); const coupon = db.coupons.find(coupon => coupon.code === c && coupon.quantity > 0); if (coupon) { activeDiscount = coupon.value; coupon.quantity--; if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } save(); renderCoupons(); await showAlert(currentLang==='BM'?"Kupon Guna!":"Coupon Applied!"); calcBilling(); } else { await showAlert(currentLang==='BM'?"Kupon tidak sah atau habis!":"Invalid or expired coupon!"); activeDiscount = 0; calcBilling(); } }
+async function applyCoupon() { const c = document.getElementById('coupon-input')?.value.toUpperCase(); const coupon = db.coupons.find(coupon => coupon.code === c && coupon.quantity > 0); if (coupon) { activeDiscount = coupon.value; coupon.quantity--; if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } save(); renderCoupons(); await showAlert("Kupon Guna!"); calcBilling(); } else { await showAlert("Kupon tidak sah atau habis!"); activeDiscount = 0; calcBilling(); } }
 function updateBillTo() { const id = document.getElementById('bill-client-select')?.value, c = db.cli.find(x => x.id == id); const billTo = document.getElementById('bill-to-client'); if(billTo) billTo.innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---'; }
 function shareWhatsapp() { const clientId = document.getElementById('bill-client-select')?.value; const client = db.cli.find(c => c.id == clientId); const phone = client ? client.phone : ''; const total = document.getElementById('grandtotal')?.innerText; const msg = encodeURIComponent(`Terima kasih. Sila lihat dokumen anda. Jumlah: ${total}`); if(phone) window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'); else window.open(`https://wa.me/?text=${msg}`, '_blank'); }
 function updateBillingTheme() { const type = document.getElementById('billing-type')?.value; document.body.className = `theme-${type} ${isDarkTheme ? 'dark-mode' : ''}`; const previewTitle = document.getElementById('preview-title'); if(previewTitle) previewTitle.innerText = type; const watermark = document.getElementById('watermark'); if(watermark) watermark.innerText = type; const refNo = document.getElementById('ref-no'); if(refNo) refNo.innerText = `${type}${db.ref[type]}`; const prevDate = document.getElementById('prev-date'); if(prevDate) prevDate.innerText = new Date().toLocaleDateString('en-GB'); }
 
 // ================== CRM ==================
-async function addClient() { const n = await showPrompt(currentLang==='BM'?"Nama Pelanggan:":"Customer Name:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
+async function addClient() { const n = await showPrompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
 function renderCRM() { const container = document.getElementById('crm-list-grid'); if(container) container.innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
 
 // ================== BUSINESS PROFILE ==================
@@ -902,11 +816,11 @@ function showJobModal() {
             const reminder = reminderCheck.checked;
 
             if (!subject) {
-                showAlert(currentLang === 'BM' ? 'Sila masukkan perkara.' : 'Please enter a subject.');
+                showAlert('Sila masukkan perkara.');
                 return;
             }
             if (!date) {
-                showAlert(currentLang === 'BM' ? 'Sila pilih tarikh.' : 'Please select a date.');
+                showAlert('Sila pilih tarikh.');
                 return;
             }
 
@@ -920,11 +834,11 @@ function showJobModal() {
                 }
                 const ts = new Date(reminderDateTime).getTime();
                 if (isNaN(ts)) {
-                    showAlert(currentLang === 'BM' ? 'Tarikh atau masa tidak sah.' : 'Invalid date or time.');
+                    showAlert('Tarikh atau masa tidak sah.');
                     return;
                 }
                 if (ts <= Date.now()) {
-                    showAlert(currentLang === 'BM' ? 'Masa peringatan mestilah pada masa hadapan.' : 'Reminder time must be in the future.');
+                    showAlert('Masa peringatan mestilah pada masa hadapan.');
                     return;
                 }
                 reminderTimestamp = ts;
@@ -978,13 +892,13 @@ async function addJob() {
     save();
     renderJobs();
     if (reminder && reminderTimestamp) scheduleReminder(newJob);
-    showAlert(currentLang === 'BM' ? 'Nota berjaya ditambah!' : 'Note added successfully!');
+    showAlert('Nota berjaya ditambah!');
 }
 function renderJobs() {
     const container = document.getElementById('calendar-widget');
     if (!container) return;
     if (db.jobs.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8 text-sm">${t('Tiada Jadual.')}</div>`;
+        container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-8 text-sm">Tiada Jadual.</div>`;
         return;
     }
     container.innerHTML = db.jobs.map(j => `
@@ -1006,7 +920,7 @@ function renderCoupons() {
     const container = document.getElementById('coupon-list');
     if (!container) return;
     if (!db.coupons.length) {
-        container.innerHTML = `<p class="text-xs">${t('Tiada Kupon.')}</p>`;
+        container.innerHTML = `<p class="text-xs">Tiada Kupon.</p>`;
         return;
     }
     container.innerHTML = db.coupons.map((c, idx) => `
@@ -1099,7 +1013,7 @@ function addSchedule() {
     if (title && date && time) {
         const timestamp = new Date(`${date}T${time}`).getTime();
         if (isNaN(timestamp) || timestamp <= Date.now()) {
-            showAlert(currentLang === 'BM' ? 'Tarikh dan masa mestilah pada masa hadapan.' : 'Date and time must be in the future.');
+            showAlert('Tarikh dan masa mestilah pada masa hadapan.');
             return;
         }
         const scheduleItem = {
@@ -1147,9 +1061,9 @@ function addSchedule() {
         }, delay);
         
         if (fileInput) fileInput.value = '';
-        showAlert(currentLang === 'BM' ? 'Content dijadualkan! Notifikasi akan dihantar pada masa yang ditetapkan.' : 'Content scheduled! Notification will be sent at the scheduled time.');
+        showAlert('Content dijadualkan! Notifikasi akan dihantar pada masa yang ditetapkan.');
     } else {
-        showAlert(currentLang === 'BM' ? 'Sila lengkapkan semua maklumat (platform, kapsyen, tarikh, masa).' : 'Please fill all fields (platform, caption, date, time).');
+        showAlert('Sila lengkapkan semua maklumat (platform, kapsyen, tarikh, masa).');
     }
 }
 
@@ -1157,7 +1071,7 @@ function renderSchedule() {
     const container = document.getElementById('schedule-list');
     if (!container) return;
     if (db.sch.length === 0) {
-        container.innerHTML = `<p class="text-xs text-center py-4">${t('Tiada Jadual.')}</p>`;
+        container.innerHTML = `<p class="text-xs text-center py-4">Tiada Jadual.</p>`;
         return;
     }
     container.innerHTML = db.sch.map(s => `
@@ -1235,12 +1149,12 @@ async function startBlast() { const cs = document.querySelectorAll('.blast-check
 function generateCatalogText() { let c = "KATALOG:\n"; db.inv.slice(0, 10).forEach(i => c += `- ${i.name} RM${i.jual}\n`); const msgArea = document.getElementById('blast-msg'); if(msgArea) msgArea.value = c; }
 
 // ================== AUTOREPLY ==================
-function renderAR() { const container = document.getElementById('ar-list'); if(container) container.innerHTML = db.ar.map(item => `<div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100"><div class="flex-1 pr-4"><p class="font-bold text-sm text-gray-800">${item.title}</p><p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p></div><div class="flex gap-2"><button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold uppercase">${t('SALIN')}</button><button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button></div></div>`).join('') || `<p class="text-gray-400 text-xs italic py-4">${t('Tiada template sapaan.')}</p>`; }
-async function saveAR() { const title = document.getElementById('ar-title')?.value, msg = document.getElementById('ar-msg')?.value; if(!title || !msg) return await showAlert(currentLang==='BM'?"Sila isi tajuk dan mesej!":"Please fill title and message!"); db.ar.push({ id: Date.now(), title, msg }); save(); renderAR(); document.getElementById('ar-title').value = ''; document.getElementById('ar-msg').value = ''; }
-function copyToClipboard(msg) { const text = decodeURIComponent(msg); navigator.clipboard.writeText(text).then(async () => { await showAlert(currentLang==='BM'?"Template disalin ke papan klip!":"Template copied to clipboard!"); }); }
-async function deleteAR(id) { const confirmed = await showConfirm(currentLang==='BM'?"Padam template?":"Delete template?"); if(confirmed) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
+function renderAR() { const container = document.getElementById('ar-list'); if(container) container.innerHTML = db.ar.map(item => `<div class="bg-gray-50 p-4 rounded-2xl flex justify-between items-center border border-gray-100"><div class="flex-1 pr-4"><p class="font-bold text-sm text-gray-800">${item.title}</p><p class="text-[10px] text-gray-400 line-clamp-1">${item.msg}</p></div><div class="flex gap-2"><button onclick="copyToClipboard('${encodeURIComponent(item.msg)}')" class="bg-blue-600 text-white p-2 px-3 rounded-lg text-[10px] font-bold uppercase">SALIN</button><button onclick="deleteAR(${item.id})" class="text-red-400 text-xs px-2"><i class="fas fa-trash"></i></button></div></div>`).join('') || `<p class="text-gray-400 text-xs italic py-4">Tiada template sapaan.</p>`; }
+async function saveAR() { const title = document.getElementById('ar-title')?.value, msg = document.getElementById('ar-msg')?.value; if(!title || !msg) return await showAlert("Sila isi tajuk dan mesej!"); db.ar.push({ id: Date.now(), title, msg }); save(); renderAR(); document.getElementById('ar-title').value = ''; document.getElementById('ar-msg').value = ''; }
+function copyToClipboard(msg) { const text = decodeURIComponent(msg); navigator.clipboard.writeText(text).then(async () => { await showAlert("Template disalin ke papan klip!"); }); }
+async function deleteAR(id) { const confirmed = await showConfirm("Padam template?"); if(confirmed) { db.ar = db.ar.filter(x => x.id !== id); save(); renderAR(); } }
 
-// ================== LHDN TAX (FIXED) ==================
+// ================== LHDN TAX ==================
 function resetTaxModal() {
     const modal = document.getElementById('tax-modal');
     if (!modal) return;
@@ -1255,7 +1169,7 @@ function resetTaxModal() {
     const imgInput = document.getElementById('tax-img-input');
     if (imgInput) imgInput.value = '';
     const imgStatus = document.getElementById('tax-img-status');
-    if (imgStatus) imgStatus.innerText = t('tax-upload');
+    if (imgStatus) imgStatus.innerText = 'Muat Naik Resit';
 }
 function setupTaxModalReset() {
     const openModalBtn = document.querySelector('#lhdn-section .bg-orange-600');
@@ -1278,7 +1192,7 @@ async function saveTaxRecord() {
     const vendor = document.getElementById('tax-vendor')?.value;
     const imgInput = document.getElementById('tax-img-input');
     if (!date || isNaN(amt) || !vendor) {
-        await showAlert(currentLang==='BM'?"Sila isi semua maklumat!":"Please fill all information!");
+        await showAlert("Sila isi semua maklumat!");
         return;
     }
     const processSave = (imgData) => {
@@ -1287,7 +1201,7 @@ async function saveTaxRecord() {
         renderTax();
         document.getElementById('tax-modal').classList.add('hidden');
         resetTaxModal();
-        showAlert(currentLang==='BM'?"Rekod disimpan!":"Record saved!");
+        showAlert("Rekod disimpan!");
     };
     if (imgInput && imgInput.files[0]) {
         const reader = new FileReader();
@@ -1313,14 +1227,14 @@ function renderTax() {
             <td class="p-6 text-right font-black text-orange-600">RM ${t.amt.toFixed(2)}<\/td>
             <td class="p-6 text-center"><button onclick="deleteTax(${t.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash"></i></button><\/td>
          <\/tr>`; 
-    }).join('') || `<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">${t('Tiada rekod perbelanjaan.')}<\/td><\/tr>`; 
+    }).join('') || `<tr><td colspan="6" class="p-10 text-center text-gray-400 font-bold">Tiada rekod perbelanjaan.<\/td><\/tr>`; 
     document.getElementById('tax-total-amt').innerText = `RM ${total.toFixed(2)}`; 
     document.getElementById('tax-receipt-count').innerText = db.tax.length; 
     const topCat = Object.keys(categories).reduce((a, b) => categories[a] > categories[b] ? a : b, '-'); 
     document.getElementById('tax-top-cat').innerText = topCat; 
 }
 async function deleteTax(id) { 
-    const confirmed = await showConfirm(currentLang==='BM'?"Padam rekod ini?":"Delete this record?"); 
+    const confirmed = await showConfirm("Padam rekod ini?"); 
     if(confirmed) { 
         db.tax = db.tax.filter(t => t.id !== id); 
         save(); 
@@ -1358,9 +1272,9 @@ function renderHistory() {
             <td class="p-6 text-center space-x-2">
                 <button onclick="viewDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-blue-500 hover:text-blue-700 text-xs font-bold"><i class="fas fa-eye mr-1"></i> Review</button>
                 <button onclick="downloadDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-download mr-1"></i> Download</button>
-                ${h.type === 'INV' ? `<button onclick="convertInvToRec(${h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> ${t('SET PAID')}</button>` : ''}
+                ${h.type === 'INV' ? `<button onclick="convertInvToRec(${h.id})" class="text-emerald-500 hover:text-emerald-700 text-xs font-bold"><i class="fas fa-check-double mr-1"></i> SET PAID</button>` : ''}
                 <button onclick="deleteDoc(${h.id})" class="text-gray-200 hover:text-red-500"><i class="fas fa-trash-alt"></i></button>
-                ${h.phone ? `<button onclick="sendReceiptViaWhatsApp(${h.id})" class="text-green-500 hover:text-green-700 text-xs font-bold"><i class="fab fa-whatsapp mr-1"></i> ${t('btn-wa')}</button>` : ''}
+                ${h.phone ? `<button onclick="sendReceiptViaWhatsApp(${h.id})" class="text-green-500 hover:text-green-700 text-xs font-bold"><i class="fab fa-whatsapp mr-1"></i> WhatsApp</button>` : ''}
             <\/td>
         <\/tr>
     `).reverse().join('');
@@ -1374,7 +1288,7 @@ function sendReceiptViaWhatsApp(id) {
         window.open(`https://wa.me/${trans.phone}?text=${encoded}`, '_blank');
     }
 }
-async function convertInvToRec(id) { const idx = db.hist.findIndex(h => h.id === id); if(idx !== -1 && db.hist[idx].type === 'INV') { const inv = db.hist[idx]; inv.type = 'REC'; const newRefNum = getNextRef('REC'); inv.ref = `REC${newRefNum}`; let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; }); inv.margin = m - (inv.discount || 0); save(); renderHistory(); await showAlert(currentLang==='BM'?"Invoice ditukar kepada Receipt!":"Invoice converted to Receipt!"); } }
+async function convertInvToRec(id) { const idx = db.hist.findIndex(h => h.id === id); if(idx !== -1 && db.hist[idx].type === 'INV') { const inv = db.hist[idx]; inv.type = 'REC'; const newRefNum = getNextRef('REC'); inv.ref = `REC${newRefNum}`; let m = 0; inv.items.forEach(i => { m += (i.jual - i.kos) * i.qty; }); inv.margin = m - (inv.discount || 0); save(); renderHistory(); await showAlert("Invoice ditukar kepada Receipt!"); } }
 
 // ================== DOCUMENT REVIEW & PDF ==================
 function viewDocument(hist) { 
@@ -1503,8 +1417,24 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawe
 // PWA
 let deferredPrompt; const installBtn = document.getElementById('installBtn');
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });
-installBtn.addEventListener('click', async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { installBtn.classList.add('hidden'); } deferredPrompt = null; });
-window.addEventListener('appinstalled', () => { installBtn.classList.add('hidden'); });
+if (installBtn) { installBtn.addEventListener('click', async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { installBtn.classList.add('hidden'); } deferredPrompt = null; }); }
+window.addEventListener('appinstalled', () => { if (installBtn) installBtn.classList.add('hidden'); });
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW fail', err)); }
+
+// ================== SIDEBAR UI/UX LOGIC ==================
+document.addEventListener("DOMContentLoaded", () => {
+    const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            navLinks.forEach(nav => nav.classList.remove('active'));
+            this.classList.add('active');
+            this.classList.add('tergedik');
+            setTimeout(() => {
+                this.classList.remove('tergedik');
+            }, 500);
+        });
+    });
+});
 
 console.log('✅ KETICK BizPro v6 - app.js loaded successfully with new secure activation system');
