@@ -94,16 +94,20 @@ main {
 .doc-accent-border { border-color: var(--doc-color) !important; }
 
 /* =========================================
-   LEGACY DRAWER (Dikekalkan)
+   LEGACY DRAWER (Dikekalkan & Diperbesarkan untuk Touch)
 ========================================= */
 .nav-item-drawer {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 20px;
+    gap: 18px; /* Jarak antara ikon dan teks dibesarkan */
+    padding: 16px 24px; /* Zon butang digemukkan supaya senang sentuh */
+    margin-bottom: 4px; /* Jarak antara menu supaya jari tak tersalah tekan */
     border-radius: 20px;
     transition: all 0.2s ease;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1.05rem; /* Teks dibesarkan sedikit */
+    touch-action: manipulation; /* Beritahu telefon ini butang, respon serta-merta */
+    cursor: pointer;
 }
 
 .nav-item-drawer.active {
@@ -112,7 +116,13 @@ main {
     box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
 }
 
-.nav-item-drawer.active i { color: white !important; }
+.nav-item-drawer.active i { 
+    color: white !important; 
+}
+
+.nav-item-drawer i {
+    font-size: 1.3rem; /* Ikon dibesarkan sedikit */
+}
 
 .drawer-transition { transition: transform 0.3s ease-in-out; }
 .drawer-open { transform: translateX(0); }
