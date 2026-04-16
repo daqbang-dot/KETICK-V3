@@ -1,9 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
+    /* Warna Asal BizPro */
     --flux-accent: #007AFF;
     --flux-bg: #F2F2f7;
     --flux-card: rgba(255, 255, 255, 0.8);
+    
+    /* Warna Sidebar KETICK */
+    --sidebar-bg: rgba(255, 255, 255, 0.85);
+    --sidebar-border: rgba(0, 0, 0, 0.05);
+    --primary-bizpro: #2563eb; 
+    --text-muted: #64748b;
+    --text-active: #ffffff;
 }
 
 * {
@@ -36,32 +44,15 @@ main {
     }
 }
 
+/* =========================================
+   FLUX CARDS & UI ELEMENTS
+========================================= */
 .flux-card {
     background: var(--flux-card);
     backdrop-filter: blur(20px);
     border-radius: 28px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 8px 32px rgba(0,0,0,0.05);
-}
-
-.nav-item-drawer {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 20px;
-    border-radius: 20px;
-    transition: all 0.2s ease;
-    font-weight: 600;
-}
-
-.nav-item-drawer.active {
-    background: var(--flux-accent);
-    color: white !important;
-    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
-}
-
-.nav-item-drawer.active i {
-    color: white !important;
 }
 
 .flux-input {
@@ -87,46 +78,46 @@ main {
     border-radius: 10px;
 }
 
-.theme-QUO {
-    --doc-color: #007AFF;
+/* =========================================
+   THEMES & DOCUMENTS
+========================================= */
+.theme-QUO { --doc-color: #007AFF; }
+.theme-INV { --doc-color: #1c1c1e; }
+.theme-REC { --doc-color: #10b981; }
+
+.doc-accent-bg { background-color: var(--doc-color) !important; }
+.doc-accent-text { color: var(--doc-color) !important; }
+.doc-accent-border { border-color: var(--doc-color) !important; }
+
+/* =========================================
+   LEGACY DRAWER (Dikekalkan)
+========================================= */
+.nav-item-drawer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 20px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    font-weight: 600;
 }
 
-.theme-INV {
-    --doc-color: #1c1c1e;
+.nav-item-drawer.active {
+    background: var(--flux-accent);
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
 }
 
-.theme-REC {
-    --doc-color: #10b981;
-}
+.nav-item-drawer.active i { color: white !important; }
 
-.doc-accent-bg {
-    background-color: var(--doc-color) !important;
-}
+.drawer-transition { transition: transform 0.3s ease-in-out; }
+.drawer-open { transform: translateX(0); }
+.drawer-closed { transform: translateX(-100%); }
+.overlay { transition: opacity 0.3s ease; }
 
-.doc-accent-text {
-    color: var(--doc-color) !important;
-}
-
-.doc-accent-border {
-    border-color: var(--doc-color) !important;
-}
-
-.drawer-transition {
-    transition: transform 0.3s ease-in-out;
-}
-
-.drawer-open {
-    transform: translateX(0);
-}
-
-.drawer-closed {
-    transform: translateX(-100%);
-}
-
-.overlay {
-    transition: opacity 0.3s ease;
-}
-
+/* =========================================
+   POS, INVENTORY & CART
+========================================= */
 .low-stock-row {
     background-color: #fee2e2 !important;
     border-left: 4px solid #ef4444;
@@ -182,10 +173,158 @@ main {
     font-weight: bold;
 }
 
-/* Dark mode */
+/* =========================================
+   KETICK BIZPRO HOVER SIDEBAR & ANIMATION
+========================================= */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 80px; 
+    background: var(--sidebar-bg);
+    backdrop-filter: blur(12px);
+    border-right: 1px solid var(--sidebar-border);
+    padding: 20px 0;
+    transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow-x: hidden;
+    overflow-y: auto; 
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.03);
+}
+
+.sidebar::-webkit-scrollbar { display: none; }
+
+.sidebar:hover { width: 280px; }
+
+.brand {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    margin-bottom: 30px;
+    height: 50px;
+}
+
+.brand span {
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+    margin-left: 10px;
+}
+
+.sidebar:hover .brand span {
+    opacity: 1;
+    transition-delay: 0.1s;
+}
+
+.nav-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.nav-item {
+    position: relative;
+    padding: 0 12px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-muted);
+    padding: 12px 15px;
+    border-radius: 14px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.nav-link i {
+    font-size: 1.25rem;
+    min-width: 35px;
+    transform-origin: center; 
+}
+
+.nav-link span {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.3s;
+}
+
+.sidebar:hover .nav-link span {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.nav-link:hover {
+    background: rgba(37, 99, 235, 0.08);
+    color: var(--primary-bizpro);
+}
+
+.nav-link.active {
+    background: var(--primary-bizpro);
+    color: var(--text-active);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+}
+
+.nav-item::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 80px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1e293b;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    font-weight: bold;
+    white-space: nowrap;
+    z-index: 1001;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.sidebar:not(:hover) .nav-item:hover::after {
+    opacity: 1;
+}
+
+@keyframes gedik {
+    0% { transform: scale(1) rotate(0deg); }
+    20% { transform: scale(1.3) rotate(-15deg); }
+    40% { transform: scale(1.3) rotate(15deg); }
+    60% { transform: scale(1.3) rotate(-15deg); }
+    80% { transform: scale(1.3) rotate(15deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+.nav-link.tergedik i {
+    animation: gedik 0.5s ease-in-out;
+}
+
+.main-content-wrapper {
+    margin-left: 80px; 
+    padding: 30px;
+    width: calc(100% - 80px);
+    transition: margin-left 0.4s;
+}
+
+/* =========================================
+   DARK MODE OVERRIDES
+========================================= */
 body.dark-mode {
     --flux-bg: #121212;
     --flux-card: rgba(30, 30, 30, 0.8);
+    --sidebar-bg: rgba(30, 30, 30, 0.85);
+    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --text-muted: #94a3b8;
     color: #e5e7eb;
 }
 
