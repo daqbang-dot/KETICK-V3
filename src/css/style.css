@@ -195,11 +195,11 @@ main {
     left: 0;
     top: 0;
     height: 100vh;
-    width: 100px; /* Besarkan sedikit supaya senang tekan guna jari */
+    width: 140px; /* ASAL: 80px. Kita gemukkan ke 140px supaya sangat mudah disentuh! */
     background: var(--sidebar-bg);
     backdrop-filter: blur(12px);
     border-right: 1px solid var(--sidebar-border);
-    padding: 20px 0;
+    padding: 30px 0;
     transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     overflow-x: hidden;
     overflow-y: auto; 
@@ -211,27 +211,25 @@ main {
 
 .sidebar::-webkit-scrollbar { display: none; }
 
-/* Tambah sokongan class .expanded untuk touch peranti bimbit */
-.sidebar:hover, .sidebar.expanded { width: 280px; }
+.sidebar:hover { width: 340px; } /* Lebar bila terbuka penuh */
 
 .brand {
     display: flex;
     align-items: center;
-    padding: 0 20px;
-    margin-bottom: 30px;
-    height: 50px;
-    cursor: pointer; /* Tunjuk boleh ditekan */
+    padding: 0 30px;
+    margin-bottom: 40px;
+    height: 60px;
+    cursor: pointer;
 }
 
 .brand span {
-    font-size: 1.5rem;
+    font-size: 2rem; /* Jenama dibesarkan */
     opacity: 0;
     transition: opacity 0.3s;
-    margin-left: 10px;
+    margin-left: 15px;
 }
 
-.sidebar:hover .brand span, 
-.sidebar.expanded .brand span {
+.sidebar:hover .brand span {
     opacity: 1;
     transition-delay: 0.1s;
 }
@@ -240,12 +238,12 @@ main {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 12px; /* Jarak antara menu lebih renggang (asal 6px) */
 }
 
 .nav-item {
     position: relative;
-    padding: 0 12px;
+    padding: 0 20px;
 }
 
 .nav-link {
@@ -253,17 +251,18 @@ main {
     align-items: center;
     text-decoration: none;
     color: var(--text-muted);
-    padding: 12px 15px;
-    border-radius: 14px;
+    padding: 18px 24px; /* Butang digemukkan gila-gila untuk tap pakai jari */
+    border-radius: 20px;
     transition: all 0.3s ease;
     white-space: nowrap;
-    font-weight: 700;
-    font-size: 0.9rem;
+    font-weight: 800;
+    font-size: 1.2rem; /* Teks menu dibesarkan */
+    touch-action: manipulation; /* Anti-zoom untuk butang ini sahaja */
 }
 
 .nav-link i {
-    font-size: 1.25rem;
-    min-width: 35px;
+    font-size: 1.8rem; /* Ikon dibesarkan sangat jelas! */
+    min-width: 50px;
     transform-origin: center; 
 }
 
@@ -273,8 +272,7 @@ main {
     transition: all 0.3s;
 }
 
-.sidebar:hover .nav-link span, 
-.sidebar.expanded .nav-link span {
+.sidebar:hover .nav-link span {
     opacity: 1;
     transform: translateX(0);
 }
@@ -293,14 +291,14 @@ main {
 .nav-item::after {
     content: attr(data-tooltip);
     position: absolute;
-    left: 100px; /* Selari dengan lebar sidebar baru */
+    left: 140px; /* Selari dengan lebar sidebar baru */
     top: 50%;
     transform: translateY(-50%);
     background: #1e293b;
     color: #fff;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.75rem;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 1rem;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s;
@@ -310,7 +308,7 @@ main {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-.sidebar:not(:hover):not(.expanded) .nav-item:hover::after {
+.sidebar:not(:hover) .nav-item:hover::after {
     opacity: 1;
 }
 
@@ -328,9 +326,9 @@ main {
 }
 
 .main-content-wrapper {
-    margin-left: 100px; /* Selari dengan lebar sidebar baru */
-    padding: 30px;
-    width: calc(100% - 100px);
+    margin-left: 140px; /* Anjakkan sikit main content supaya tak bertindih */
+    padding: 40px;
+    width: calc(100% - 140px);
     transition: margin-left 0.4s;
 }
 
