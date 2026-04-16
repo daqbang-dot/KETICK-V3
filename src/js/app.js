@@ -1408,7 +1408,6 @@ function initReportModule() {
 }
 
 // ================== DRAWER & PWA ==================
-// Laci lama dibiarkan untuk fungsi fallback jika diperlukan
 function openDrawer() { document.getElementById('drawer').classList.remove('drawer-closed'); document.getElementById('drawer').classList.add('drawer-open'); document.getElementById('drawerOverlay').classList.remove('hidden'); }
 function closeDrawer() { document.getElementById('drawer').classList.add('drawer-closed'); document.getElementById('drawer').classList.remove('drawer-open'); document.getElementById('drawerOverlay').classList.add('hidden'); }
 document.getElementById('menuToggleBtn')?.addEventListener('click', openDrawer);
@@ -1428,17 +1427,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const mainContent = document.querySelector('.main-content-wrapper');
     const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
-    // Buka sidebar bila ia ditekan/disentuh (khas untuk mobile/touch)
     if(sidebar) {
-        sidebar.addEventListener('click', function() {
-            this.classList.add('expanded');
-        });
+        // Guna "true" (Capture Phase) untuk pintas klik sebelum sampai ke HTML
+        sidebar.addEventListener('click', function(e) {
+            // Jika sidebar masih kecik (lebar kurang 200px), kembangkan dia DULU!
+            if (this.offsetWidth < 200) {
+                this.classList.add('expanded');
+                e.preventDefault();
+                e.stopPropagation(); // INI RAHSIA DIA: Halang fungsi loadModule dari berjalan
+            }
+        }, true); 
     }
 
-    // Tutup sidebar bila pengguna tekan luar (kawasan main content)
+    // Tutup sidebar bila tap ruang kosong luar sidebar
     if(mainContent) {
         mainContent.addEventListener('click', function(e) {
-            // Hanya buang jika yang ditekan bukan dalam sidebar
             if(sidebar && sidebar.classList.contains('expanded')) {
                 sidebar.classList.remove('expanded');
             }
@@ -1455,7 +1458,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 this.classList.remove('tergedik');
             }, 500);
 
-            // Tutup sidebar secara automatik selepas setengah saat menu dipilih
+            // Selepas berjaya pilih menu, auto tutup sidebar dengan smooth
             setTimeout(() => {
                 if(sidebar) sidebar.classList.remove('expanded');
             }, 300);
@@ -1463,4 +1466,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-console.log('✅ KETICK BizPro v6 - app.js loaded successfully with secure activation & touch sidebar');
+console.log('✅ KETICK BizPro v6 - app.js loaded successfully with smooth touch sidebar fix');
