@@ -404,3 +404,23 @@ body.dark-mode .glass-panel {
     background: rgba(30, 30, 30, 0.75);
     border-color: rgba(255, 255, 255, 0.1);
 }
+
+/* =========================================
+   FORCE LANDSCAPE / ANTI-ZOOM
+========================================= */
+/* Halang butang & input dari di-zoom secara automatik oleh browser bimbit */
+button, input, select, textarea, a {
+    touch-action: manipulation;
+}
+
+/* Jika pengguna guna telefon (skrin kecil) dan pegang menegak (portrait) */
+@media screen and (max-width: 800px) and (orientation: portrait) {
+    #rotate-overlay {
+        display: flex !important; /* Tunjuk amaran */
+    }
+    
+    /* Sorokkan sementara antaramuka lain supaya tak nampak serabut */
+    #login-overlay, .sidebar, #app-content {
+        display: none !important;
+    }
+}
