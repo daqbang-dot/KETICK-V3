@@ -1408,6 +1408,7 @@ function initReportModule() {
 }
 
 // ================== DRAWER & PWA ==================
+// Laci lama dibiarkan untuk fungsi fallback jika diperlukan
 function openDrawer() { document.getElementById('drawer').classList.remove('drawer-closed'); document.getElementById('drawer').classList.add('drawer-open'); document.getElementById('drawerOverlay').classList.remove('hidden'); }
 function closeDrawer() { document.getElementById('drawer').classList.add('drawer-closed'); document.getElementById('drawer').classList.remove('drawer-open'); document.getElementById('drawerOverlay').classList.add('hidden'); }
 document.getElementById('menuToggleBtn')?.addEventListener('click', openDrawer);
@@ -1417,24 +1418,49 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawe
 // PWA
 let deferredPrompt; const installBtn = document.getElementById('installBtn');
 window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; installBtn.classList.remove('hidden'); });
-if (installBtn) { installBtn.addEventListener('click', async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { installBtn.classList.add('hidden'); } deferredPrompt = null; }); }
-window.addEventListener('appinstalled', () => { if (installBtn) installBtn.classList.add('hidden'); });
+installBtn.addEventListener('click', async () => { if (!deferredPrompt) return; deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if (outcome === 'accepted') { installBtn.classList.add('hidden'); } deferredPrompt = null; });
+window.addEventListener('appinstalled', () => { installBtn.classList.add('hidden'); });
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => console.log('SW registered')).catch(err => console.log('SW fail', err)); }
 
-// ================== SIDEBAR UI/UX LOGIC ==================
+// ================== SIDEBAR UI/UX LOGIC (TOUCH FIX) ==================
 document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content-wrapper');
     const navLinks = document.querySelectorAll('.sidebar .nav-link');
+
+    // Buka sidebar bila ia ditekan/disentuh (khas untuk mobile/touch)
+    if(sidebar) {
+        sidebar.addEventListener('click', function() {
+            this.classList.add('expanded');
+        });
+    }
+
+    // Tutup sidebar bila pengguna tekan luar (kawasan main content)
+    if(mainContent) {
+        mainContent.addEventListener('click', function(e) {
+            // Hanya buang jika yang ditekan bukan dalam sidebar
+            if(sidebar && sidebar.classList.contains('expanded')) {
+                sidebar.classList.remove('expanded');
+            }
+        });
+    }
 
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             navLinks.forEach(nav => nav.classList.remove('active'));
             this.classList.add('active');
             this.classList.add('tergedik');
+            
             setTimeout(() => {
                 this.classList.remove('tergedik');
             }, 500);
+
+            // Tutup sidebar secara automatik selepas setengah saat menu dipilih
+            setTimeout(() => {
+                if(sidebar) sidebar.classList.remove('expanded');
+            }, 300);
         });
     });
 });
 
-console.log('✅ KETICK BizPro v6 - app.js loaded successfully with new secure activation system');
+console.log('✅ KETICK BizPro v6 - app.js loaded successfully with secure activation & touch sidebar');
