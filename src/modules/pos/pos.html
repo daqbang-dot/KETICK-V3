@@ -1,84 +1,89 @@
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-    <div class="lg:col-span-2 flex flex-col h-[calc(100vh-140px)]">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-3xl font-black text-gray-800 dark:text-white drop-shadow-sm"><i class="fas fa-cash-register mr-3 text-emerald-500"></i>Terminal POS</h2>
-        </div>
-        
-        <div class="flux-card p-4 mb-4 z-10 relative">
-            <div class="relative">
-                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                <input type="text" id="pos-search" placeholder="Cari nama produk, kod, atau imbas barcode..." class="w-full pl-12 pr-4 py-3 bg-gray-100/50 dark:bg-black/50 border border-gray-200 dark:border-gray-700 rounded-2xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" onkeyup="renderProductGrid()">
-            </div>
-            
-            <div class="flex gap-2 mt-3 overflow-x-auto custom-scroll pb-1">
-                <button class="px-4 py-1.5 bg-emerald-500 text-white rounded-full text-xs font-bold whitespace-nowrap shadow-sm">Semua</button>
-                <button class="px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full text-xs font-bold whitespace-nowrap hover:bg-gray-200 transition">Produk Fizikal</button>
-                <button class="px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full text-xs font-bold whitespace-nowrap hover:bg-gray-200 transition">Servis</button>
-                <button class="px-4 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full text-xs font-bold whitespace-nowrap hover:bg-gray-200 transition">Alat Ganti</button>
-            </div>
-        </div>
+<div class="min-h-screen bg-[#0B101E] text-white font-['Inter'] -m-4 p-4 md:-m-8 md:p-8 rounded-xl flex flex-col gap-6">
 
-        <div id="product-grid" class="product-grid flex-1 overflow-y-auto custom-scroll pb-20 pr-2">
-            </div>
+    <div class="flex justify-between items-center border-b border-white/5 pb-4">
+        <h2 class="text-2xl md:text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+            <i class="fas fa-cash-register text-[#00F0FF] drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]"></i> 
+            Terminal POS
+        </h2>
     </div>
 
-    <div class="flux-card flex flex-col h-[calc(100vh-140px)] border-t-8 border-t-emerald-500 relative overflow-hidden shadow-2xl">
-        <div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 10px 10px;"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
         
-        <div class="p-5 flex-1 flex flex-col z-10">
-            <div class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-2xl mb-4 border border-gray-100 dark:border-gray-700">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-bold text-xs text-gray-500 uppercase tracking-widest"><i class="fas fa-user-circle mr-1"></i> Pelanggan</h3>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="pos-cust-name" placeholder="Nama (Pilihan)" class="p-2 bg-white dark:bg-black/50 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-bold">
-                    <input type="text" id="pos-cust-phone" placeholder="No Telefon" class="p-2 bg-white dark:bg-black/50 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-bold">
-                </div>
-            </div>
-
-            <div class="flex justify-between items-center mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-                <h3 class="font-black text-gray-800 dark:text-gray-200">Pesanan Semasa</h3>
-                <span class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded-md font-bold cursor-pointer hover:bg-red-200" onclick="clearCart()">Kosongkan</span>
-            </div>
-            <div id="cart-items" class="flex-1 overflow-y-auto custom-scroll space-y-1 mb-4 pr-1">
-                </div>
-
-            <div class="flex gap-2 mb-4 bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700">
-                <input type="text" id="pos-coupon" placeholder="Kod Kupon (Jika ada)" class="flex-1 p-2 bg-transparent text-sm uppercase font-bold outline-none">
-                <button onclick="applyPosCoupon()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 rounded-lg text-xs font-bold transition shadow-sm"><i class="fas fa-tag"></i> GUNA</button>
-            </div>
-
-            <div class="bg-gray-800 dark:bg-gray-900 text-white p-4 rounded-2xl shadow-inner mb-4">
-                <div class="flex justify-between text-sm mb-1 text-gray-300"><span>Subtotal:</span><span id="cart-total">RM 0.00</span></div>
-                <div class="flex justify-between text-sm text-red-400 mb-2 border-b border-gray-700 pb-2" id="discount-row" style="display:none;"><span>Diskaun:</span><span id="cart-discount">- RM 0.00</span></div>
-                <div class="flex justify-between items-end">
-                    <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Grand Total</span>
-                    <span id="cart-grand" class="text-3xl font-black tracking-tighter">RM 0.00</span>
-                </div>
-            </div>
-
-            <div class="space-y-3">
-                <div class="flex gap-2 items-center">
-                    <div class="bg-gray-100 dark:bg-gray-800 px-3 py-3 rounded-xl font-bold text-gray-500">Tunai</div>
-                    <input type="number" id="cash-paid" class="flex-1 p-3 bg-white dark:bg-black/50 border-2 border-gray-200 dark:border-gray-600 rounded-xl text-lg font-black text-right outline-none focus:border-emerald-500 transition" placeholder="0.00" oninput="calculateChange()">
+        <div class="lg:col-span-2 flex flex-col gap-4">
+            
+            <div class="bg-[#151C2C] border border-white/5 p-4 rounded-2xl relative z-10 shadow-lg">
+                <div class="relative mb-3">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="pos-search" placeholder="Cari nama produk, kod, atau imbas barcode..." class="w-full pl-12 pr-4 py-3 bg-[#0B101E] border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-[#00F0FF] transition-colors" onkeyup="renderProductGrid()">
                 </div>
                 
-                <div class="grid grid-cols-4 gap-2">
-                    <button onclick="setQuickCash('exact')" class="bg-blue-100 hover:bg-blue-200 text-blue-700 py-2 rounded-lg text-xs font-black transition">TEPAT</button>
-                    <button onclick="setQuickCash(20)" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-2 rounded-lg text-xs font-black transition">RM20</button>
-                    <button onclick="setQuickCash(50)" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-2 rounded-lg text-xs font-black transition">RM50</button>
-                    <button onclick="setQuickCash(100)" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 py-2 rounded-lg text-xs font-black transition">RM100</button>
-                </div>
-
-                <div class="flex justify-between items-center bg-emerald-50 dark:bg-emerald-900/30 p-3 rounded-xl border border-emerald-100 dark:border-emerald-800">
-                    <span class="text-sm font-bold text-emerald-700 dark:text-emerald-400 uppercase">Baki Pulangan:</span>
-                    <span id="change-amount" class="text-xl font-black text-emerald-600 dark:text-emerald-300">RM 0.00</span>
+                <div class="flex gap-2 overflow-x-auto custom-scroll pb-1">
+                    <button class="px-4 py-1.5 bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/30 rounded-full text-xs font-semibold whitespace-nowrap">Semua</button>
+                    <button class="px-4 py-1.5 bg-[#0B101E] text-gray-400 border border-white/10 hover:border-white/30 hover:text-white rounded-full text-xs font-semibold whitespace-nowrap transition-colors">Fizikal</button>
+                    <button class="px-4 py-1.5 bg-[#0B101E] text-gray-400 border border-white/10 hover:border-white/30 hover:text-white rounded-full text-xs font-semibold whitespace-nowrap transition-colors">Servis</button>
                 </div>
             </div>
 
-            <div class="grid grid-cols-4 gap-2 mt-4">
-                <button onclick="printReceipt()" class="col-span-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-white py-3 rounded-xl font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition"><i class="fas fa-print text-lg"></i></button>
-                <button onclick="completeSale()" class="col-span-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3 rounded-xl font-black text-lg shadow-lg shadow-emerald-200 dark:shadow-none hover:scale-[1.02] transition active:scale-95"><i class="fas fa-check-circle mr-2"></i> SELESAI (BAYAR)</button>
+            <div id="product-grid" class="flex-1 overflow-y-auto custom-scroll pb-10">
+                </div>
+        </div>
+
+        <div class="bg-[#151C2C] border border-white/5 rounded-2xl flex flex-col relative overflow-hidden shadow-2xl h-[calc(100vh-140px)] min-h-[600px] lg:sticky lg:top-4">
+            
+            <div class="p-5 flex-1 flex flex-col z-10">
+                <div class="bg-[#0B101E] border border-white/5 p-3 rounded-xl mb-4">
+                    <h3 class="font-semibold text-xs text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fas fa-user-circle text-[#B981FF]"></i> Pelanggan</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="pos-cust-name" placeholder="Nama (Pilihan)" class="p-2 bg-[#151C2C] border border-white/5 rounded-lg text-xs text-white focus:border-[#00F0FF] outline-none">
+                        <input type="text" id="pos-cust-phone" placeholder="No Telefon" class="p-2 bg-[#151C2C] border border-white/5 rounded-lg text-xs text-white focus:border-[#00F0FF] outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mb-2 pb-2 border-b border-white/5">
+                    <h3 class="font-semibold text-white">Pesanan Semasa</h3>
+                    <span class="text-[10px] bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-1 rounded-md cursor-pointer hover:bg-red-500/20 transition-colors" onclick="clearCart()">Kosongkan</span>
+                </div>
+                
+                <div id="cart-items" class="flex-1 overflow-y-auto custom-scroll space-y-2 mb-4 pr-1 min-h-[150px]">
+                    </div>
+
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="pos-coupon" placeholder="Kod Kupon" class="flex-1 p-2 bg-[#0B101E] border border-white/10 rounded-lg text-sm uppercase text-white focus:border-[#00F0FF] outline-none">
+                    <button onclick="applyPosCoupon()" class="bg-[#151C2C] border border-[#00F0FF]/50 text-[#00F0FF] hover:bg-[#00F0FF]/10 px-4 rounded-lg text-xs font-bold transition-colors">GUNA</button>
+                </div>
+
+                <div class="bg-[#0B101E] border border-white/5 p-4 rounded-xl mb-4">
+                    <div class="flex justify-between text-sm mb-1 text-gray-400"><span>Subtotal:</span><span id="cart-total">RM 0.00</span></div>
+                    <div class="flex justify-between text-sm text-red-400 mb-2 border-b border-white/5 pb-2" id="discount-row" style="display:none;"><span>Diskaun:</span><span id="cart-discount">- RM 0.00</span></div>
+                    <div class="flex justify-between items-end mt-2">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Grand Total</span>
+                        <span id="cart-grand" class="text-3xl font-bold text-[#CCFF00] drop-shadow-[0_0_8px_rgba(204,255,0,0.4)]">RM 0.00</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex gap-2 items-center">
+                        <div class="bg-[#151C2C] border border-white/5 px-3 py-3 rounded-lg font-bold text-gray-400 text-sm">Tunai</div>
+                        <input type="number" id="cash-paid" class="flex-1 p-3 bg-[#0B101E] border border-white/10 rounded-lg text-lg font-bold text-white text-right outline-none focus:border-[#00F0FF] transition-colors" placeholder="0.00" oninput="calculateChange()">
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="setQuickCash('exact')" class="bg-[#B981FF]/10 border border-[#B981FF]/30 text-[#B981FF] hover:bg-[#B981FF]/20 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-colors">TEPAT</button>
+                        <button onclick="setQuickCash(20)" class="bg-[#151C2C] border border-white/5 text-gray-300 hover:border-white/30 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-colors">RM20</button>
+                        <button onclick="setQuickCash(50)" class="bg-[#151C2C] border border-white/5 text-gray-300 hover:border-white/30 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-colors">RM50</button>
+                        <button onclick="setQuickCash(100)" class="bg-[#151C2C] border border-white/5 text-gray-300 hover:border-white/30 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-colors">RM100</button>
+                    </div>
+
+                    <div class="flex justify-between items-center bg-[#00F0FF]/10 border border-[#00F0FF]/20 p-3 rounded-xl mt-2">
+                        <span class="text-xs font-semibold text-[#00F0FF]">Baki Pulangan:</span>
+                        <span id="change-amount" class="text-xl font-bold text-white">RM 0.00</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 mt-4">
+                    <button onclick="printReceipt()" class="col-span-1 bg-[#151C2C] border border-white/10 text-gray-300 py-3 rounded-xl font-bold hover:bg-white/5 transition-colors"><i class="fas fa-print"></i></button>
+                    <button onclick="completeSale()" class="col-span-3 bg-[#10B981]/20 border border-[#10B981]/50 text-[#10B981] hover:bg-[#10B981]/30 py-3 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-colors uppercase tracking-widest"><i class="fas fa-check-circle mr-2"></i> Selesai Bayar</button>
+                </div>
             </div>
         </div>
     </div>
