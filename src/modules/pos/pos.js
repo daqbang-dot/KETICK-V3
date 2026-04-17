@@ -1,5 +1,5 @@
 // ================================================
-// KETICK BizPro v6 - Modul Mini POS
+// KETICK BizPro v6 - Modul Mini POS (Web3 Edition)
 // ================================================
 
 function renderProductGrid() {
@@ -10,14 +10,16 @@ function renderProductGrid() {
     const others = sorted.slice(4);
     const container = document.getElementById('product-grid');
     if (!container) return;
+    
     let html = '';
+    // Pastikan grid responsif: 2 kolum di phone, 3 atau 4 di tablet/PC
     if (top4.length) {
-        html += `<div class="col-span-full text-xs font-bold text-gray-500 mb-2">🔥 Best Seller</div><div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">`;
+        html += `<div class="col-span-full text-xs font-semibold text-[#CCFF00] mb-2 flex items-center gap-2"><i class="fas fa-fire"></i> Best Seller</div><div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">`;
         html += top4.map(p => productCard(p)).join('');
         html += `</div>`;
     }
     if (others.length) {
-        html += `<div class="col-span-full text-xs font-bold text-gray-500 mt-4 mb-2">📦 Semua Produk</div><div class="product-grid">`;
+        html += `<div class="col-span-full text-xs font-semibold text-gray-400 mt-2 mb-2 flex items-center gap-2"><i class="fas fa-box"></i> Semua Produk</div><div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">`;
         html += others.map(p => productCard(p)).join('');
         html += `</div>`;
     }
@@ -26,11 +28,16 @@ function renderProductGrid() {
 
 function productCard(p) {
     const lowIds = getLowStockItems().map(i => i.id);
-    return `<div class="product-btn ${lowIds.includes(p.id) ? 'low-stock' : ''} bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl p-3 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col items-center gap-1" onclick="addToCart(${p.id})">
-        <div class="flex justify-center mb-1">${p.img ? `<img src="${p.img}" class="w-14 h-14 object-cover rounded-xl shadow-sm">` : '<i class="fas fa-box text-gray-300 dark:text-gray-600 text-3xl"></i>'}</div>
-        <div class="font-bold text-xs text-gray-800 dark:text-gray-200 truncate w-full text-center">${p.name}</div>
-        <div class="text-emerald-600 dark:text-emerald-400 font-black text-sm">RM ${p.jual.toFixed(2)}</div>
-        <div class="text-[9px] text-gray-400 font-bold bg-gray-100 dark:bg-gray-900 px-2 py-0.5 rounded-md">Stok: ${p.qty}</div>
+    const isLow = lowIds.includes(p.id);
+    const borderStyle = isLow ? 'border-red-500/50' : 'border-white/5 hover:border-[#00F0FF]/50';
+    
+    return `<div class="bg-[#151C2C] border ${borderStyle} rounded-xl p-3 shadow-lg hover:shadow-[0_0_15px_rgba(0,240,255,0.15)] transition-all cursor-pointer flex flex-col items-center text-center group" onclick="addToCart(${p.id})">
+        <div class="w-16 h-16 rounded-lg bg-[#0B101E] flex justify-center items-center mb-2 overflow-hidden border border-white/5 group-hover:border-[#00F0FF]/30 transition-colors">
+            ${p.img ? `<img src="${p.img}" class="w-full h-full object-cover">` : `<i class="fas fa-cube text-gray-600 text-2xl group-hover:text-[#00F0FF] transition-colors"></i>`}
+        </div>
+        <div class="font-semibold text-xs text-gray-300 line-clamp-2 w-full mb-1 group-hover:text-white transition-colors">${p.name}</div>
+        <div class="text-[#CCFF00] font-bold text-sm mt-auto">RM ${p.jual.toFixed(2)}</div>
+        <div class="text-[9px] text-gray-500 uppercase tracking-widest mt-1 ${isLow ? 'text-red-400' : ''}">Stok: ${p.qty}</div>
     </div>`;
 }
 
@@ -67,7 +74,7 @@ function renderCart() {
     const container = document.getElementById('cart-items'); 
     if (!container) return; 
     if (cart.length === 0) { 
-        container.innerHTML = `<div class="text-center text-gray-400 py-10 flex flex-col items-center justify-center gap-2"><i class="fas fa-shopping-basket text-4xl mb-2 opacity-50"></i><span class="text-sm font-bold">Keranjang Kosong</span></div>`; 
+        container.innerHTML = `<div class="text-center text-gray-500 py-10 flex flex-col items-center justify-center gap-2"><i class="fas fa-shopping-cart text-3xl mb-1 opacity-20"></i><span class="text-xs font-semibold uppercase tracking-widest">Keranjang Kosong</span></div>`; 
         document.getElementById('cart-total').innerText = 'RM 0.00'; 
         document.getElementById('cart-grand').innerText = 'RM 0.00'; 
         document.getElementById('discount-row').style.display = 'none'; 
@@ -76,19 +83,20 @@ function renderCart() {
     let total = 0; 
     container.innerHTML = cart.map(item => { 
         const lineTotal = item.price * item.qty; total += lineTotal; 
-        return `<div class="cart-item bg-white dark:bg-black/50 p-3 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex justify-between items-center mb-2">
-            <div class="flex-1">
-                <span class="font-bold text-xs text-gray-800 dark:text-gray-200 line-clamp-1">${item.name}</span>
-                <div class="text-[10px] font-bold text-gray-400">RM ${item.price.toFixed(2)}</div>
-            </div>
-            <div class="cart-qty flex items-center bg-gray-100 dark:bg-gray-800 rounded-full px-1 py-1 mr-2">
-                <button onclick="updateCartQty(${item.id}, -1)" class="w-6 h-6 rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-white font-bold shadow-sm hover:scale-105 active:scale-95 transition">-</button>
-                <span class="w-6 text-center text-xs font-black">${item.qty}</span>
-                <button onclick="updateCartQty(${item.id}, 1)" class="w-6 h-6 rounded-full bg-white dark:bg-gray-700 text-gray-800 dark:text-white font-bold shadow-sm hover:scale-105 active:scale-95 transition">+</button>
+        return `
+        <div class="bg-[#0B101E] border border-white/5 p-2 rounded-lg flex justify-between items-center group">
+            <div class="flex-1 pr-2">
+                <span class="font-semibold text-[11px] text-gray-300 line-clamp-1">${item.name}</span>
+                <div class="text-[9px] text-[#00F0FF]">RM ${item.price.toFixed(2)} /unit</div>
             </div>
             <div class="flex items-center gap-2">
-                <div class="font-black text-sm text-emerald-600 dark:text-emerald-400">RM ${lineTotal.toFixed(2)}</div>
-                <button onclick="removeCartItem(${item.id})" class="text-red-400 hover:text-red-600 ml-1 transition p-1"><i class="fas fa-times-circle"></i></button>
+                <div class="flex items-center bg-[#151C2C] border border-white/10 rounded-md">
+                    <button onclick="updateCartQty(${item.id}, -1)" class="w-6 h-6 text-gray-400 hover:text-white transition">-</button>
+                    <span class="w-6 text-center text-xs font-bold text-white">${item.qty}</span>
+                    <button onclick="updateCartQty(${item.id}, 1)" class="w-6 h-6 text-gray-400 hover:text-white transition">+</button>
+                </div>
+                <div class="font-bold text-xs text-[#CCFF00] w-14 text-right">RM ${lineTotal.toFixed(2)}</div>
+                <button onclick="removeCartItem(${item.id})" class="text-red-500/50 hover:text-red-400 ml-1"><i class="fas fa-times"></i></button>
             </div>
         </div>`; 
     }).join(''); 
@@ -114,12 +122,10 @@ function calculateChange() {
     return change; 
 }
 
-// Fungsi Quick Cash 
 function setQuickCash(amount) {
     const input = document.getElementById('cash-paid');
     const grandText = document.getElementById('cart-grand').innerText;
     const grandValue = parseFloat(grandText.replace('RM ', '').replace(',', '')) || 0;
-    
     if (amount === 'exact') {
         input.value = grandValue.toFixed(2);
     } else {
