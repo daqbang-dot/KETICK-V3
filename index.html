@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
-        <meta name="viewport" content="width=1280, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=1280, maximum-scale=1.0, user-scalable=no">
     <title>KETICK BizPro v6 | Flux Edition</title>
 
     <link rel="manifest" href="manifest.json">
@@ -12,6 +12,10 @@
     <meta name="apple-mobile-web-app-title" content="BizPro">
     <link rel="apple-touch-icon" href="icon/icon-512.png">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -20,6 +24,11 @@
     <link rel="stylesheet" href="src/css/style.css">
 
     <style>
+        /* Tukar font family ke Inter untuk seluruh sistem */
+        body { 
+            font-family: 'Inter', sans-serif; 
+        }
+        
         /* Additional inline styles for glassmorphism and critical layout */
         .toast-notify { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.85); color: white; padding: 14px 20px; border-radius: 28px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(8px); animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
@@ -31,18 +40,18 @@
 </head>
 <body class="theme-QUO">
 
-    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
+    <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0B101E]">
         <div class="text-center p-8 max-w-sm w-full">
-            <div class="w-24 h-24 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-[30px] mx-auto mb-8 flex items-center justify-center shadow-2xl rotate-3">
+            <div class="w-24 h-24 bg-gradient-to-tr from-[#00F0FF] to-blue-600 rounded-[30px] mx-auto mb-8 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.3)] rotate-3">
                 <i class="fas fa-rocket text-white text-4xl"></i>
             </div>
-            <h2 class="text-4xl font-black mb-2 tracking-tighter">Selamat Datang</h2>
-            <p class="text-gray-400 text-sm mb-10 font-medium tracking-wide">KETICK • BizPro V6</p>
-            <button onclick="enterSystem()" class="group relative w-full bg-black text-white py-5 rounded-[24px] font-bold text-lg overflow-hidden transition-all active:scale-95">
-                <span class="relative z-10 uppercase tracking-widest">Masuk Sistem <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></span>
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <h2 class="text-4xl font-black mb-2 tracking-tighter text-white">Selamat Datang</h2>
+            <p class="text-[#00F0FF] text-sm mb-10 font-medium tracking-wide">KETICK • BizPro V6</p>
+            <button onclick="enterSystem()" class="group relative w-full bg-[#151C2C] border border-white/10 text-white py-5 rounded-[24px] font-bold text-lg overflow-hidden transition-all hover:border-[#00F0FF] active:scale-95">
+                <span class="relative z-10 uppercase tracking-widest">Masuk Sistem <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform text-[#00F0FF]"></i></span>
+                <div class="absolute inset-0 bg-[#00F0FF]/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </button>
-            <p class="mt-6 text-[10px] text-gray-300 font-bold uppercase tracking-widest">Hak Cipta by AzlanMymo</p>
+            <p class="mt-6 text-[10px] text-gray-500 font-bold uppercase tracking-widest">Hak Cipta by AzlanMymo</p>
         </div>
     </div>
 
@@ -51,11 +60,11 @@
             
             <div>
                 <div class="brand cursor-pointer" id="app-logo">
-                    <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-lg flex items-center justify-center shadow-md text-white mr-2">
+                    <div class="w-8 h-8 bg-gradient-to-br from-[#00F0FF] to-blue-600 rounded-lg flex items-center justify-center shadow-md text-white mr-2">
                         <img src="icon/icon-512.png" alt="Icon" class="w-5 h-5 object-contain custom-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                         <i class="fas fa-bolt text-sm hidden"></i>
                     </div>
-                    <span class="font-black bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">KETICK</span>
+                    <span class="font-black bg-gradient-to-r from-[#00F0FF] to-blue-400 bg-clip-text text-transparent">KETICK</span>
                 </div>
 
                 <ul class="nav-list overflow-y-auto custom-scroll" style="max-height: calc(100vh - 250px);">
@@ -264,10 +273,9 @@
         </div>
     </div>
 
-        <script src="src/js/app.js"></script>
-    
+    <script src="src/js/app.js"></script>
     <script src="src/modules/dashboard/dashboard.js"></script>
-<script src="src/modules/pos/pos.js"></script>
+    <script src="src/modules/pos/pos.js"></script>
     
     <script>
         document.addEventListener('dblclick', function(event) {
