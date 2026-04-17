@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bizpro-v56'; // Pastikan 'const' huruf kecil
+const CACHE_NAME = 'bizpro-v57'; // Pastikan 'const' huruf kecil
 const urlsToCache = [
   './',
   './index.html',
