@@ -30,22 +30,26 @@ function renderDashboard() {
             recentList.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-6">Tiada rekod transaksi.</p>`;
         } else {
             const recents = [...db.hist].reverse().slice(0, 5);
-            recentList.innerHTML = recents.map(h => {
-                let badgeColor = h.type === 'REC' ? 'bg-emerald-100 text-emerald-600' : (h.type === 'INV' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600');
-                let icon = h.type === 'REC' ? 'fa-check-circle' : (h.type === 'INV' ? 'fa-file-invoice' : 'fa-file-alt');
+                        recentList.innerHTML = recents.map(h => {
+                // Tentukan warna dan ikon berdasarkan jenis dokumen
+                let badgeColor = h.type === 'REC' ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' : (h.type === 'INV' ? 'bg-[#F59E0B]/10 text-[#F59E0B] border-[#F59E0B]/20' : 'bg-gray-500/10 text-gray-400 border-gray-500/20');
+                let dotColor = h.type === 'REC' ? 'bg-[#10B981]' : (h.type === 'INV' ? 'bg-[#F59E0B]' : 'bg-gray-400');
+                let statusText = h.type === 'REC' ? 'Completed' : (h.type === 'INV' ? 'Pending' : 'Draft');
+                let amountColor = h.type === 'REC' ? 'text-[#CCFF00]' : 'text-white';
+                let sign = h.type === 'REC' ? '+' : '';
+
                 return `
-                <div class="flex justify-between items-center p-3 bg-white/50 dark:bg-black/30 rounded-xl border border-gray-100 dark:border-gray-700 backdrop-blur-sm mb-2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full ${badgeColor} flex items-center justify-center text-xs"><i class="fas ${icon}"></i></div>
-                        <div>
-                            <p class="text-xs font-bold text-gray-800 dark:text-gray-200 line-clamp-1">${h.clientName || 'POS'}</p>
-                            <p class="text-[9px] text-gray-500 uppercase">${h.ref} • ${h.date}</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs font-black text-gray-800 dark:text-white">RM${h.total.toFixed(2)}</p>
-                    </div>
-                </div>`;
+                <tr class="hover:bg-[#0B101E]/50 transition-colors">
+                    <td class="py-4 text-xs font-mono text-gray-300">${h.ref}</td>
+                    <td class="py-4 text-xs text-gray-400 line-clamp-1">${h.clientName || 'POS Walk-in'}</td>
+                    <td class="py-4">
+                        <span class="${badgeColor} border px-2 py-1 rounded-md text-[10px] flex items-center w-max gap-1.5">
+                            <div class="w-1.5 h-1.5 rounded-full ${dotColor}"></div> ${statusText}
+                        </span>
+                    </td>
+                    <td class="py-4 text-xs text-gray-400">${h.date}</td>
+                    <td class="py-4 text-xs font-semibold ${amountColor} text-right">${sign} RM${h.total.toFixed(2)}</td>
+                </tr>`;
             }).join('');
         }
     }
