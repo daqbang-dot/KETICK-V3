@@ -515,68 +515,6 @@ function updateInvImg(input, idx) {
     reader.readAsDataURL(input.files[0]); 
 }
 
-// ================== BILLING ==================
-async function generateFinalBilling() { 
-    const type = document.getElementById('billing-type')?.value; 
-    const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'); 
-    const clientId = document.getElementById('bill-client-select')?.value; 
-    const client = db.cli.find(c => c.id == clientId); 
-    let total = 0, margin = 0, items = []; 
-    selects.forEach((s, idx) => { 
-        const item = db.inv.find(i => i.id == s.value); 
-        const q = parseInt(qtys[idx].value); 
-        if(item) { 
-            if(type !== 'QUO') item.qty -= q; 
-            total += item.jual * q; 
-            if(type === 'REC') margin += (item.jual - item.kos) * q; 
-            items.push({ name: item.name, qty: q, jual: item.jual, kos: item.kos }); 
-        } 
-    }); 
-    const finalTotal = total - activeDiscount; 
-    const finalMargin = (type === 'REC') ? (margin - activeDiscount) : 0; 
-    const refNum = getNextRef(type); 
-    const newRef = `${type}${refNum}`; 
-    db.hist.push({ id: Date.now(), date: new Date().toLocaleDateString('en-GB'), ref: newRef, type: type, clientName: client ? client.name : 'Umum', phone: client?.phone || '', total: finalTotal, margin: finalMargin, items: items, discount: activeDiscount }); 
-    save(); 
-    await showAlert(`Rekod ${type} Berjaya Disimpan! No: ${newRef}`); 
-    location.reload(); 
-}
-async function deleteDoc(id) { const doc = db.hist.find(h => h.id === id); if (doc) { const type = doc.type; const refNum = parseInt(doc.ref.slice(3)); recycleRef(type, refNum); db.hist = db.hist.filter(h => h.id !== id); save(); renderHistory(); await showAlert(`Dokumen ${doc.ref} dibatalkan. Nombor akan diguna semula.`); } }
-function populateBillingClients() { const s = document.getElementById('bill-client-select'); if(s) s.innerHTML = '<option value="">-- Pilih Pelanggan --</option>' + db.cli.map(c => `<option value="${c.id}">${c.name}</option>`).join(''); }
-function addBillingItemRow() { const div = document.createElement('div'); div.className = "flex gap-2"; div.innerHTML = `<select class="w-3/4 p-3 text-xs flux-input item-select" onchange="calcBilling()"><option value="">Pilih Produk...</option>${db.inv.map(i => `<option value="${i.id}">${i.name}</option>`).join('')}</select><input type="number" class="w-1/4 p-3 text-xs flux-input qty-input text-center" value="1" onchange="calcBilling()">`; document.getElementById('billing-items-input')?.appendChild(div); }
-function calcBilling() { 
-    const selects = document.querySelectorAll('.item-select'), qtys = document.querySelectorAll('.qty-input'), body = document.getElementById('preview-items-body'); 
-    if(!body) return; 
-    body.innerHTML = ''; 
-    let sub = 0; 
-    selects.forEach((s, idx) => { 
-        const item = db.inv.find(i => i.id == s.value); 
-        if(item) { 
-            const line = item.jual * qtys[idx].value; 
-            sub += line; 
-            body.innerHTML += `<tr>
-                <td class="p-5 font-bold text-gray-800">${item.name}<\/td>
-                <td class="p-5 text-center font-bold">${qtys[idx].value}<\/td>
-                <td class="p-5 text-right">RM ${item.jual.toFixed(2)}<\/td>
-                <td class="p-5 text-right font-black doc-accent-text">RM ${line.toFixed(2)}<\/td>
-             <\/tr>`; 
-        } 
-    }); 
-    const grand = sub - activeDiscount; 
-    document.getElementById('grandtotal').innerText = `RM ${Math.max(0, grand).toFixed(2)}`; 
-    const discountRow = document.getElementById('preview-discount-row'); 
-    if(activeDiscount>0) { 
-        discountRow.classList.remove('hidden'); 
-        document.getElementById('prev-discount-val').innerText = `- RM ${activeDiscount.toFixed(2)}`; 
-    } else { 
-        discountRow.classList.add('hidden'); 
-    } 
-}
-async function applyCoupon() { const c = document.getElementById('coupon-input')?.value.toUpperCase(); const coupon = db.coupons.find(coupon => coupon.code === c && coupon.quantity > 0); if (coupon) { activeDiscount = coupon.value; coupon.quantity--; if (coupon.quantity === 0) { const idx = db.coupons.indexOf(coupon); db.coupons.splice(idx,1); } save(); renderCoupons(); await showAlert("Kupon Guna!"); calcBilling(); } else { await showAlert("Kupon tidak sah atau habis!"); activeDiscount = 0; calcBilling(); } }
-function updateBillTo() { const id = document.getElementById('bill-client-select')?.value, c = db.cli.find(x => x.id == id); const billTo = document.getElementById('bill-to-client'); if(billTo) billTo.innerText = c ? `${c.name}\n${c.phone}\n${c.addr}` : '---'; }
-function shareWhatsapp() { const clientId = document.getElementById('bill-client-select')?.value; const client = db.cli.find(c => c.id == clientId); const phone = client ? client.phone : ''; const total = document.getElementById('grandtotal')?.innerText; const msg = encodeURIComponent(`Terima kasih. Sila lihat dokumen anda. Jumlah: ${total}`); if(phone) window.open(`https://wa.me/${phone}?text=${msg}`, '_blank'); else window.open(`https://wa.me/?text=${msg}`, '_blank'); }
-function updateBillingTheme() { const type = document.getElementById('billing-type')?.value; document.body.className = `theme-${type} ${isDarkTheme ? 'dark-mode' : ''}`; const previewTitle = document.getElementById('preview-title'); if(previewTitle) previewTitle.innerText = type; const watermark = document.getElementById('watermark'); if(watermark) watermark.innerText = type; const refNo = document.getElementById('ref-no'); if(refNo) refNo.innerText = `${type}${db.ref[type]}`; const prevDate = document.getElementById('prev-date'); if(prevDate) prevDate.innerText = new Date().toLocaleDateString('en-GB'); }
-
 // ================== CRM ==================
 async function addClient() { const n = await showPrompt("Nama Pelanggan:"); if(n) { db.cli.push({ id: Date.now(), name: n, phone: '', addr: '' }); save(); renderCRM(); } }
 function renderCRM() { const container = document.getElementById('crm-list-grid'); if(container) container.innerHTML = db.cli.map((c, idx) => `<div class="flux-card p-6 border-none shadow-md group"><div class="flex justify-between items-start mb-4"><div class="w-12 h-12 bg-blue-100 rounded-[18px] flex items-center justify-center text-blue-600 font-black text-xl">${c.name.charAt(0)}</div><button onclick="db.cli.splice(${idx},1); save(); renderCRM();" class="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100"><i class="fas fa-times-circle"></i></button></div><input type="text" value="${c.name}" onchange="db.cli[${idx}].name=this.value; save();" class="font-bold w-full text-gray-800 bg-transparent outline-none"><div class="mt-4 space-y-2"><input type="text" value="${c.phone}" onchange="db.cli[${idx}].phone=this.value; save();" placeholder="601..." class="text-xs w-full p-2 flux-input"><textarea onchange="db.cli[${idx}].addr=this.value; save();" class="text-[10px] w-full p-2 flux-input h-14">${c.addr}</textarea></div></div>`).join(''); }
