@@ -13,6 +13,7 @@ const urlsToCache = [
   './src/modules/inventory/inventory.html',
   './src/modules/crm/crm.html',
   './src/modules/billing/billing.html',
+  './src/modules/billing/billing.js',
   './src/modules/promo/promo.html',
   './src/modules/social/social.html',
   './src/modules/blast/blast.html',
