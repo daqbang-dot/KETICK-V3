@@ -332,12 +332,17 @@ async function loadModule(moduleName) {
     currentModule = moduleName;
     history.pushState({ module: moduleName }, '', `#${moduleName}`);
 
+    // 🔥 PANGGILAN initBilling() ADA DI SINI
+    if (moduleName === 'billing' && typeof initBilling === 'function') {
+        initBilling();
+    }
+
     const renderFunc = {
         'dashboard': renderDashboard,
         'pos': () => { renderProductGrid(); renderCart(); setupPosExtra(); },
         'inventory': renderInventory,
         'crm': renderCRM,
-        'billing': () => { populateBillingClients(); updateBillingTheme(); },
+        // Panggilan billing lama dikeluarkan dari sini sebab dah dikendalikan di atas
         'promo': renderCoupons,
         'social': () => { renderSchedule(); setupSocialExtra(); },
         'blast': () => { renderBlastClientList(); setupBlastExtra(); },
