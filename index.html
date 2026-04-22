@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1280, maximum-scale=1.0, user-scalable=no">
-    <title>KETICK BizPro v6 | Flux Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>KETICK BizPro v6 | Web3 Edition</title>
 
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2563eb">
+    <meta name="theme-color" content="#0B101E">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="BizPro">
@@ -24,21 +26,51 @@
     <link rel="stylesheet" href="src/css/style.css">
 
     <style>
-        /* Tukar font family ke Inter untuk seluruh sistem */
-        body { 
-            font-family: 'Inter', sans-serif; 
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0B101E; }
         
-        /* Additional inline styles for glassmorphism and critical layout */
+        /* CSS KHAS UNTUK RESPONSIVE MOBILE */
+        @media (max-width: 768px) {
+            .sidebar { 
+                transform: translateX(-100%); 
+                position: fixed; 
+                top: 0; left: 0; height: 100vh; 
+                z-index: 70; 
+                transition: transform 0.3s ease-in-out; 
+                background-color: #0B101E;
+                border-right: 1px solid rgba(255,255,255,0.1);
+            }
+            .sidebar.open { transform: translateX(0); }
+            .main-content-wrapper { 
+                margin-left: 0 !important; 
+                padding-top: 80px !important; 
+                padding-bottom: 20px !important;
+            }
+        }
+
+        /* Modal & Overlay Styles */
         .toast-notify { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.85); color: white; padding: 14px 20px; border-radius: 28px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.85rem; font-weight: 500; backdrop-filter: blur(8px); animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(100%); } to { opacity: 1; transform: translateY(0); } }
-        .doc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-        .doc-modal-content { max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; background: white; border-radius: 32px; padding: 20px; position: relative; }
-        .glass-modal-overlay { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
-        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .doc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .doc-modal-content { max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; background: #151C2C; border: 1px solid rgba(255,255,255,0.1); border-radius: 32px; padding: 20px; position: relative; color: white; }
+        .glass-modal-overlay { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .glass-panel { background: #151C2C; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
     </style>
 </head>
-<body class="theme-QUO">
+<body class="theme-QUO dark-mode">
+
+    <div class="md:hidden fixed top-0 left-0 w-full bg-[#0B101E]/90 backdrop-blur-xl border-b border-white/5 z-[60] flex justify-between items-center p-4 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-[#00F0FF] to-blue-600 rounded-lg flex items-center justify-center shadow-[0_0_10px_rgba(0,240,255,0.3)] text-white">
+                <i class="fas fa-bolt text-sm"></i>
+            </div>
+            <span class="font-black text-white tracking-widest uppercase">BizPro <span class="text-[#00F0FF]">v6</span></span>
+        </div>
+        <button onclick="toggleMobileMenu()" class="text-[#00F0FF] text-2xl focus:outline-none bg-white/5 w-10 h-10 rounded-lg flex items-center justify-center border border-white/10 active:scale-95 transition-transform">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[65] hidden md:hidden" onclick="toggleMobileMenu()"></div>
 
     <div id="login-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-[#0B101E]">
         <div class="text-center p-8 max-w-sm w-full">
@@ -59,122 +91,108 @@
         <div class="flex flex-col h-full justify-between pb-4">
             
             <div>
-                <div class="brand cursor-pointer" id="app-logo">
+                <div class="brand cursor-pointer md:flex hidden" id="app-logo">
                     <div class="w-8 h-8 bg-gradient-to-br from-[#00F0FF] to-blue-600 rounded-lg flex items-center justify-center shadow-md text-white mr-2">
                         <img src="icon/icon-512.png" alt="Icon" class="w-5 h-5 object-contain custom-icon" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                         <i class="fas fa-bolt text-sm hidden"></i>
                     </div>
                     <span class="font-black bg-gradient-to-r from-[#00F0FF] to-blue-400 bg-clip-text text-transparent">KETICK</span>
                 </div>
+                
+                <div class="md:hidden flex justify-end p-4 border-b border-white/10 mb-4">
+                    <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
+                </div>
 
                 <ul class="nav-list overflow-y-auto custom-scroll" style="max-height: calc(100vh - 250px);">
                     <li class="nav-item" data-tooltip="Dashboard">
-                        <a href="#" class="nav-link active" onclick="loadModule('dashboard')">
-                            <i class="fas fa-home text-blue-500"></i>
-                            <span>Dashboard</span>
+                        <a href="#" class="nav-link active" onclick="loadModule('dashboard'); checkMobileClose()">
+                            <i class="fas fa-home text-[#00F0FF]"></i>
+                            <span class="text-gray-300">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="Mini POS">
-                        <a href="#" class="nav-link" onclick="loadModule('pos')">
-                            <i class="fas fa-cash-register text-emerald-600"></i>
-                            <span>Mini POS</span>
+                        <a href="#" class="nav-link" onclick="loadModule('pos'); checkMobileClose()">
+                            <i class="fas fa-cash-register text-[#10B981]"></i>
+                            <span class="text-gray-300">Mini POS</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="Inventori">
-                        <a href="#" class="nav-link" onclick="loadModule('inventory')">
-                            <i class="fas fa-boxes text-amber-600"></i>
-                            <span>Inventori</span>
+                        <a href="#" class="nav-link" onclick="loadModule('inventory'); checkMobileClose()">
+                            <i class="fas fa-boxes text-[#F59E0B]"></i>
+                            <span class="text-gray-300">Inventori</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="CRM Database">
-                        <a href="#" class="nav-link" onclick="loadModule('crm')">
-                            <i class="fas fa-user-friends text-indigo-500"></i>
-                            <span>CRM Database</span>
+                        <a href="#" class="nav-link" onclick="loadModule('crm'); checkMobileClose()">
+                            <i class="fas fa-user-friends text-[#B981FF]"></i>
+                            <span class="text-gray-300">CRM Database</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="Pengebilan">
-                        <a href="#" class="nav-link" onclick="loadModule('billing')">
-                            <i class="fas fa-receipt text-blue-600"></i>
-                            <span>Pengebilan</span>
+                        <a href="#" class="nav-link" onclick="loadModule('billing'); checkMobileClose()">
+                            <i class="fas fa-receipt text-blue-500"></i>
+                            <span class="text-gray-300">Pengebilan</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="Rekod LHDN">
-                        <a href="#" class="nav-link" onclick="loadModule('lhdn')">
+                        <a href="#" class="nav-link" onclick="loadModule('lhdn'); checkMobileClose()">
                             <i class="fas fa-file-invoice-dollar text-orange-500"></i>
-                            <span>Rekod Cukai LHDN</span>
+                            <span class="text-gray-300">Rekod Cukai LHDN</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="Kupon Promosi">
-                        <a href="#" class="nav-link" onclick="loadModule('promo')">
+                        <a href="#" class="nav-link" onclick="loadModule('promo'); checkMobileClose()">
                             <i class="fas fa-tags text-purple-500"></i>
-                            <span>Pengurus Kupon</span>
+                            <span class="text-gray-300">Pengurus Kupon</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="Pemasaran Sosial">
-                        <a href="#" class="nav-link" onclick="loadModule('social')">
+                        <a href="#" class="nav-link" onclick="loadModule('social'); checkMobileClose()">
                             <i class="fas fa-share-nodes text-pink-500"></i>
-                            <span>Pemasaran Sosial</span>
+                            <span class="text-gray-300">Pemasaran Sosial</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="Smart Blast">
-                        <a href="#" class="nav-link" onclick="loadModule('blast')">
+                        <a href="#" class="nav-link" onclick="loadModule('blast'); checkMobileClose()">
                             <i class="fab fa-whatsapp text-emerald-500"></i>
-                            <span>Smart Blast</span>
+                            <span class="text-gray-300">Smart Blast</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="WhatsApp Chatbox">
-                        <a href="#" class="nav-link" onclick="loadModule('autoreply')">
+                        <a href="#" class="nav-link" onclick="loadModule('autoreply'); checkMobileClose()">
                             <i class="fas fa-comments text-sky-500"></i>
-                            <span>WhatsApp Chatbox</span>
+                            <span class="text-gray-300">WhatsApp Chatbox</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="Sejarah Transaksi">
-                        <a href="#" class="nav-link" onclick="loadModule('history')">
+                        <a href="#" class="nav-link" onclick="loadModule('history'); checkMobileClose()">
                             <i class="fas fa-history text-gray-500"></i>
-                            <span>Sejarah Transaksi</span>
+                            <span class="text-gray-300">Sejarah Transaksi</span>
                         </a>
                     </li>
                     <li class="nav-item" data-tooltip="Laporan Sistem">
-                        <a href="#" class="nav-link" onclick="loadModule('report')">
-                            <i class="fas fa-chart-bar text-green-500"></i>
-                            <span>Laporan Sistem</span>
+                        <a href="#" class="nav-link" onclick="loadModule('report'); checkMobileClose()">
+                            <i class="fas fa-chart-bar text-[#CCFF00]"></i>
+                            <span class="text-gray-300">Laporan Sistem</span>
                         </a>
                     </li>
                 </ul>
             </div>
 
-            <div class="border-t border-gray-200/20 pt-2 px-2">
+            <div class="border-t border-white/10 pt-2 px-2">
                 <ul class="nav-list">
-                    <li class="nav-item">
-                        <button id="installBtn" class="nav-link w-full text-left hidden" style="background: rgba(37, 99, 235, 0.1); color: var(--primary-bizpro);">
-                            <i class="fas fa-download"></i>
-                            <span>Install App</span>
-                        </button>
-                    </li>
                     <li class="nav-item" data-tooltip="Eksport Backup">
-                        <button onclick="exportData()" class="nav-link w-full text-left">
-                            <i class="fas fa-file-export text-gray-400"></i>
-                            <span>Eksport Backup</span>
+                        <button onclick="exportData(); checkMobileClose()" class="nav-link w-full text-left">
+                            <i class="fas fa-file-export text-gray-500"></i>
+                            <span class="text-gray-400">Eksport Backup</span>
                         </button>
                     </li>
                     <li class="nav-item" data-tooltip="Import Data">
-                        <button onclick="document.getElementById('import-file').click();" class="nav-link w-full text-left">
-                            <i class="fas fa-file-import text-gray-400"></i>
-                            <span>Import Data</span>
+                        <button onclick="document.getElementById('import-file').click(); checkMobileClose()" class="nav-link w-full text-left">
+                            <i class="fas fa-file-import text-gray-500"></i>
+                            <span class="text-gray-400">Import Data</span>
                         </button>
                         <input type="file" id="import-file" class="hidden" onchange="importData(event)">
-                    </li>
-                    <li class="nav-item" data-tooltip="Set Ambang Stok">
-                        <button onclick="openThresholdModal()" class="nav-link w-full text-left">
-                            <i class="fas fa-exclamation-triangle text-amber-500"></i>
-                            <span>Set Ambang Stok</span>
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button id="first-time-setup-btn" class="nav-link w-full text-left hidden" style="background: rgba(147, 51, 234, 0.1); color: #9333ea;">
-                            <i class="fas fa-key"></i>
-                            <span>First Time Setup</span>
-                        </button>
                     </li>
                 </ul>
             </div>
@@ -188,87 +206,13 @@
     <div id="reviewModal" class="doc-modal hidden" onclick="if(event.target===this) closeReviewModal()">
         <div class="doc-modal-content">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-black">Review Dokumen</h3>
-                <button onclick="closeReviewModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                <h3 class="text-xl font-black text-white">Review Dokumen</h3>
+                <button onclick="closeReviewModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
             </div>
-            <div id="reviewDocContent" class="bg-white p-6 rounded-2xl border"></div>
+            <div id="reviewDocContent" class="bg-white p-6 rounded-2xl border text-black"></div>
             <div class="mt-4 flex justify-end gap-3">
-                <button onclick="downloadReviewAsPDF()" class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-bold"><i class="fas fa-download mr-1"></i> Download PDF</button>
-                <button onclick="closeReviewModal()" class="bg-gray-200 px-4 py-2 rounded-xl text-sm font-bold">Tutup</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="tax-modal" class="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm flex items-center justify-center hidden">
-        <div class="bg-white w-full max-w-md rounded-[40px] p-8">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-black">Rekod Baru</h3>
-                <button onclick="document.getElementById('tax-modal').classList.add('hidden')" class="text-gray-400"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="space-y-4">
-                <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-3xl cursor-pointer">
-                    <i class="fas fa-camera text-2xl text-gray-300 mb-2"></i>
-                    <span id="tax-img-status" class="text-[10px] text-gray-400">Muat Naik Resit</span>
-                    <input type="file" id="tax-img-input" class="hidden" onchange="document.getElementById('tax-img-status').innerText = 'Imej Sedia'">
-                </label>
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="date" id="tax-date" class="p-3 flux-input">
-                    <input type="number" id="tax-amount" class="p-3 flux-input" placeholder="Jumlah (RM)">
-                </div>
-                <select id="tax-category" class="w-full p-3 flux-input">
-                    <option value="Utiliti">Utiliti</option>
-                    <option value="Sewa">Sewa</option>
-                    <option value="Gaji">Gaji</option>
-                    <option value="Stok">Stok</option>
-                    <option value="Pemasaran">Pemasaran</option>
-                    <option value="Logistik">Logistik</option>
-                    <option value="Alatan">Alatan</option>
-                    <option value="Lain-lain">Lain-lain</option>
-                </select>
-                <input type="text" id="tax-vendor" class="w-full p-3 flux-input" placeholder="Vendor">
-                <button onclick="saveTaxRecord()" class="w-full bg-orange-600 text-white py-4 rounded-2xl font-bold">SIMPAN</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="custom-modal" class="fixed inset-0 z-[999] glass-modal-overlay flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="glass-panel w-[90%] max-w-sm p-8 text-center rounded-[32px] transform scale-95 transition-transform duration-300">
-            <div id="modal-icon" class="text-5xl mb-4 drop-shadow-md"></div>
-            <h3 id="modal-title" class="text-2xl font-black mb-2 tracking-tight"></h3>
-            <p id="modal-msg" class="text-sm font-medium text-gray-700 dark:text-gray-200 mb-6 whitespace-pre-line"></p>
-            <input type="text" id="modal-input" class="w-full p-4 flux-input mb-6 hidden text-center font-bold text-lg rounded-2xl" />
-            <div class="flex gap-3 justify-center">
-                <button id="modal-cancel" class="hidden flex-1 py-4 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 dark:border-gray-600 text-gray-800 dark:text-white font-bold hover:bg-white/80 transition shadow-sm backdrop-blur-sm">Batal</button>
-                <button id="modal-ok" class="flex-1 py-4 rounded-2xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="job-modal" class="fixed inset-0 z-[1000] glass-modal-overlay flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
-        <div class="glass-panel w-[90%] max-w-md p-8 rounded-[32px] transform scale-95 transition-transform duration-300">
-            <div class="text-5xl mb-4 drop-shadow-md text-center"><i class="fas fa-calendar-plus text-blue-500"></i></div>
-            <h3 id="job-modal-title" class="text-2xl font-black mb-4 text-center tracking-tight">Tambah Nota</h3>
-            <div class="space-y-4 text-left">
-                <div>
-                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Perkara / Subject</label>
-                    <input type="text" id="job-subject" class="w-full p-3 flux-input rounded-xl" placeholder="Contoh: Mesyuarat">
-                </div>
-                <div>
-                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Tarikh / Date</label>
-                    <input type="date" id="job-date" class="w-full p-3 flux-input rounded-xl">
-                </div>
-                <div>
-                    <label class="text-sm font-bold text-gray-600 dark:text-gray-300 block mb-1">Masa / Time (optional)</label>
-                    <input type="time" id="job-time" class="w-full p-3 flux-input rounded-xl">
-                </div>
-                <div class="flex items-center gap-2">
-                    <input type="checkbox" id="job-reminder" class="w-5 h-5 accent-blue-600">
-                    <label for="job-reminder" class="text-sm font-medium text-gray-700 dark:text-gray-300">Ingatkan saya / Remind me</label>
-                </div>
-            </div>
-            <div class="flex gap-3 justify-center mt-6">
-                <button id="job-modal-cancel" class="flex-1 py-3 rounded-2xl bg-white/50 dark:bg-black/50 border border-white/40 dark:border-gray-600 text-gray-800 dark:text-white font-bold hover:bg-white/80 transition shadow-sm backdrop-blur-sm">Batal</button>
-                <button id="job-modal-ok" class="flex-1 py-3 rounded-2xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition">Simpan</button>
+                <button onclick="downloadReviewAsPDF()" class="bg-[#00F0FF]/20 border border-[#00F0FF] text-[#00F0FF] hover:bg-[#00F0FF]/30 px-4 py-2 rounded-xl text-sm font-bold transition"><i class="fas fa-download mr-1"></i> Download PDF</button>
+                <button onclick="closeReviewModal()" class="bg-[#151C2C] border border-white/10 text-gray-300 hover:text-white px-4 py-2 rounded-xl text-sm font-bold transition">Tutup</button>
             </div>
         </div>
     </div>
@@ -278,6 +222,33 @@
     <script src="src/modules/pos/pos.js"></script>
     
     <script>
+        // Fungsi Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open');
+            if(sidebar.classList.contains('open')) {
+                overlay.classList.remove('hidden');
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // Fungsi tutup menu automatik bila link ditekan di skrin kecil
+        function checkMobileClose() {
+            if(window.innerWidth <= 768) {
+                document.querySelector('.sidebar').classList.remove('open');
+                document.getElementById('sidebar-overlay').classList.add('hidden');
+            }
+        }
+
+        // Auto force dark mode sebab tema kita Web3
+        if (!document.body.classList.contains('dark-mode')) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('f6_dark', 'true');
+            if (typeof isDarkTheme !== 'undefined') isDarkTheme = true;
+        }
+
         document.addEventListener('dblclick', function(event) {
             event.preventDefault();
         }, { passive: false });
