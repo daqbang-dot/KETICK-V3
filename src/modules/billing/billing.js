@@ -3,6 +3,7 @@
 // ================================================
 
 let billItems = [];
+let currentBillingFilter = 'ALL'; // Status tab: ALL, INV, QUO, REC
 
 // Fungsi ini dipanggil bila modul billing dibuka dari app.js
 function initBilling() {
@@ -10,7 +11,10 @@ function initBilling() {
     document.getElementById('bill-type').addEventListener('change', updateBillRef);
     updateBillRef();
     renderBillItems();
+    setupBillingHistory();
 }
+
+// ================== PENGURUSAN BORANG REKOD BARU ==================
 
 function updateBillRef() {
     const type = document.getElementById('bill-type').value;
@@ -47,7 +51,7 @@ function renderBillItems() {
     if (!tbody) return;
 
     if (billItems.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-xs text-gray-500 uppercase tracking-widest">Tiada item ditambah</td></tr>`;
+        tbody.innerHTML = `<div class="py-6 text-center text-xs text-gray-500 uppercase tracking-widest border border-dashed border-white/10 rounded-xl">Tiada item ditambah</div>`;
         calcBill();
         return;
     }
@@ -55,15 +59,15 @@ function renderBillItems() {
     tbody.innerHTML = billItems.map((item, index) => {
         const total = item.qty * item.price;
         return `
-        <tr class="hover:bg-[#0B101E]/50 transition-colors group">
-            <td class="py-3 text-gray-300 font-medium">${item.name}</td>
-            <td class="py-3 text-center text-gray-400">${item.qty}</td>
-            <td class="py-3 text-right text-gray-400">RM ${item.price.toFixed(2)}</td>
-            <td class="py-3 text-right font-semibold text-[#00F0FF]">RM ${total.toFixed(2)}</td>
-            <td class="py-3 text-right">
+        <div class="grid grid-cols-12 gap-2 items-center hover:bg-[#0B101E]/50 transition-colors group p-2 border-b border-white/5">
+            <div class="col-span-5 text-gray-300 font-medium truncate">${item.name}</div>
+            <div class="col-span-2 text-center text-gray-400">${item.qty}</div>
+            <div class="col-span-2 text-right text-gray-400">RM ${item.price.toFixed(2)}</div>
+            <div class="col-span-2 text-right font-semibold text-[#00F0FF]">RM ${total.toFixed(2)}</div>
+            <div class="col-span-1 text-right">
                 <button onclick="removeBillItem(${index})" class="text-red-500/50 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-trash"></i></button>
-            </td>
-        </tr>`;
+            </div>
+        </div>`;
     }).join('');
     
     calcBill();
@@ -113,7 +117,7 @@ async function generateDocument(action) {
             if(custAddr) existingCust.addr = custAddr;
         }
 
-        // Simpan ke sejarah
+        // Simpan ke sejarah (format seragam dengan app.js)
         db.hist.push({
             id: Date.now(),
             date: new Date().toLocaleDateString('en-GB'),
@@ -122,8 +126,8 @@ async function generateDocument(action) {
             clientName: custName,
             phone: custPhone,
             total: totals.grandTotal,
-            margin: totals.grandTotal, // Anggaran margin penuh untuk bil manual (boleh adjust nanti)
-            items: [...billItems],
+            margin: totals.grandTotal, // Anggaran margin sementara untuk bil manual
+            items: billItems.map(i => ({ name: i.name, qty: i.qty, jual: i.price, kos: 0 })), // format selaras dengan POS
             discount: totals.discount
         });
 
@@ -137,16 +141,110 @@ async function generateDocument(action) {
         document.getElementById('bill-cust-addr').value = '';
         document.getElementById('bill-discount').value = '';
         document.getElementById('bill-tax').value = '';
-        initBilling(); 
         
-        if(typeof renderHistory === 'function') renderHistory();
+        toggleBillingForm(); // Tutup borang
+        initBilling(); // Refresh data 
+        
         if(typeof renderDashboard === 'function') renderDashboard();
     } else if (action === 'preview') {
-        // Tunjukkan resit/invois
         previewHTMLDocument(type, ref, custName, custPhone, custAddr, totals);
     }
 }
 
+// ================== PAPARAN SEJARAH (KAD WEB3) ==================
+
+function setupBillingHistory() {
+    const searchInput = document.getElementById('history-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => renderBillingHistory());
+    }
+
+    // Set up tab click listeners
+    const tabs = document.querySelectorAll('.flex.gap-1.overflow-x-auto button');
+    tabs.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Reset semua tab
+            tabs.forEach(t => {
+                t.className = "px-5 py-2.5 text-xs font-semibold whitespace-nowrap bg-[#151C2C] text-gray-400 hover:text-white rounded-lg border border-white/5 hover:border-white/10 transition-colors";
+            });
+            // Aktifkan tab yang ditekan
+            e.target.className = "px-5 py-2.5 text-xs font-bold whitespace-nowrap bg-[#00F0FF]/10 text-[#00F0FF] rounded-lg border border-[#00F0FF]/30 shadow-[0_0_10px_rgba(0,240,255,0.2)]";
+            
+            // Set filter category
+            const text = e.target.innerText;
+            if (text.includes('Invois')) currentBillingFilter = 'INV';
+            else if (text.includes('Sebut Harga')) currentBillingFilter = 'QUO';
+            else if (text.includes('Resit')) currentBillingFilter = 'REC';
+            else currentBillingFilter = 'ALL';
+            
+            renderBillingHistory();
+        });
+    });
+
+    renderBillingHistory(); // Initial render
+}
+
+function renderBillingHistory() {
+    const container = document.getElementById('history-body');
+    if (!container) return;
+
+    let filtered = [...db.hist];
+    
+    // 1. Tapis ikut Tab Filter
+    if (currentBillingFilter !== 'ALL') {
+        filtered = filtered.filter(h => h.type === currentBillingFilter);
+    }
+
+    // 2. Tapis ikut Search Bar
+    const searchTerm = document.getElementById('history-search')?.value.toLowerCase() || '';
+    if (searchTerm) {
+        filtered = filtered.filter(h => 
+            h.clientName?.toLowerCase().includes(searchTerm) ||
+            h.ref?.toLowerCase().includes(searchTerm) ||
+            h.phone?.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-20 text-gray-500 font-semibold border border-dashed border-white/10 rounded-2xl">Tiada dokumen dijumpai untuk kategori ini.</div>`;
+        return;
+    }
+
+    // Render kad Web3
+    container.innerHTML = filtered.map(h => {
+        // Warna tema ikut jenis dokumen
+        let badgeColor = h.type === 'REC' ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30' : (h.type === 'INV' ? 'bg-[#00F0FF]/10 text-[#00F0FF] border-[#00F0FF]/30' : 'bg-[#B981FF]/10 text-[#B981FF] border-[#B981FF]/30');
+        let hoverBorder = h.type === 'REC' ? 'hover:border-[#10B981]/50' : (h.type === 'INV' ? 'hover:border-[#00F0FF]/50' : 'hover:border-[#B981FF]/50');
+        let amountColor = h.type === 'REC' ? 'text-[#CCFF00] drop-shadow-[0_0_8px_rgba(204,255,0,0.3)]' : 'text-white';
+
+        return `
+        <div class="bg-[#151C2C] border border-white/5 rounded-2xl p-6 shadow-lg ${hoverBorder} transition-all flex flex-col gap-4 group">
+            <div class="flex justify-between items-start gap-2">
+                <div class="flex items-center gap-3">
+                    <span class="${badgeColor} px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest">${h.type}</span>
+                    <span class="text-gray-300 font-mono text-xs">${h.ref}</span>
+                </div>
+                <span class="text-[10px] text-gray-500 font-medium">${h.date}</span>
+            </div>
+            
+            <div class="flex-1">
+                <h4 class="font-bold text-white text-lg mb-1 group-hover:text-white transition-colors line-clamp-1">${h.clientName || 'Pelanggan Walk-in'}</h4>
+                <p class="text-xs text-gray-400 flex items-start gap-2"><i class="fas fa-phone-alt mt-0.5 text-[#B981FF]"></i> <span>${h.phone || '-'}</span></p>
+            </div>
+            
+            <div class="flex justify-between items-center border-t border-white/5 pt-4">
+                <span class="text-2xl font-bold ${amountColor}">RM ${h.total.toFixed(2)}</span>
+                <div class="flex gap-3">
+                    ${h.type === 'INV' ? `<button onclick="convertInvToRec(${h.id})" title="Tukar ke Resit" class="text-gray-500 hover:text-[#10B981] transition"><i class="fas fa-check-double"></i></button>` : ''}
+                    <button onclick="viewDocument(${JSON.stringify(h).replace(/"/g, '&quot;')})" title="Lihat" class="text-gray-500 hover:text-[#00F0FF] transition"><i class="fas fa-eye"></i></button>
+                    <button onclick="deleteDoc(${h.id})" title="Padam" class="text-gray-500 hover:text-red-400 transition"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+        </div>`;
+    }).reverse().join('');
+}
+
+// Fungsi untuk preview PDF yang dipanggil dari borang
 function previewHTMLDocument(type, ref, name, phone, addr, totals) {
     const bizName = db.prof.name || "SYARIKAT ANDA";
     const bizAddr = db.prof.addr || "";
@@ -215,4 +313,13 @@ function previewHTMLDocument(type, ref, name, phone, addr, totals) {
 
     document.getElementById('reviewDocContent').innerHTML = html;
     document.getElementById('reviewModal').classList.remove('hidden');
+}
+
+async function deleteDoc(id) { 
+    const confirmed = await showConfirm("Padam dokumen ini?"); 
+    if(confirmed) { 
+        db.hist = db.hist.filter(h => h.id !== id); 
+        save(); 
+        renderBillingHistory(); 
+    } 
 }
