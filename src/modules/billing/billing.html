@@ -1,80 +1,112 @@
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <div class="no-print space-y-4">
-        <div class="flux-card p-6">
-            <h3 class="font-black text-sm mb-4" data-i18n="bill-gen-title">Penjana Dokumen</h3>
-            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block" data-i18n="bill-client">Pelanggan</label>
-            <select id="bill-client-select" onchange="updateBillTo()" class="w-full p-3 flux-input mb-4 text-sm font-bold"></select>
-            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block" data-i18n="bill-coupon">Kod Kupon (Diskaun)</label>
-            <div class="flex gap-2 mb-4">
-                <input type="text" id="coupon-input" class="flex-1 p-3 flux-input text-xs font-bold uppercase" placeholder="RAYA20">
-                <button onclick="applyCoupon()" class="bg-gray-800 text-white px-4 rounded-xl text-[10px] font-bold" data-i18n="btn-use">GUNA</button>
-            </div>
-            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block" data-i18n="bill-doc-type">Jenis Dokumen</label>
-            <select id="billing-type" onchange="updateBillingTheme()" class="w-full p-3 bg-blue-50 text-blue-600 rounded-2xl mb-6 font-bold text-sm outline-none">
-                <option value="QUO">QUOTATION</option>
-                <option value="INV">INVOICE</option>
-                <option value="REC">RECEIPT</option>
-            </select>
-            <div id="billing-items-input" class="space-y-2 mb-4"></div>
-            <button onclick="addBillingItemRow()" class="w-full border-2 border-dashed border-blue-200 p-3 rounded-2xl text-[10px] font-bold text-blue-500 hover:bg-blue-50 transition" data-i18n="btn-add-prod">+ Tambah Produk</button>
-        </div>
-        <button onclick="generateFinalBilling()" class="w-full bg-black text-white py-5 rounded-3xl font-bold shadow-xl" data-i18n="btn-save-record">SAHKAN & SIMPAN REKOD</button>
-        <div class="grid grid-cols-2 gap-2">
-            <button onclick="exportAndShare()" class="bg-gray-100 p-4 rounded-2xl font-bold text-xs"><i class="fas fa-file-pdf mr-2"></i><span data-i18n="btn-save-pdf">Simpan PDF</span></button>
-            <button onclick="shareWhatsapp()" class="bg-emerald-50 text-emerald-600 p-4 rounded-2xl font-bold text-xs"><i class="fab fa-whatsapp mr-2"></i>WhatsApp</button>
-        </div>
+<div class="min-h-screen bg-[#0B101E] text-white font-['Inter'] -m-4 p-4 md:-m-8 md:p-8 rounded-xl flex flex-col gap-6">
+
+    <div class="flex justify-between items-center border-b border-white/5 pb-4">
+        <h2 class="text-2xl md:text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+            <i class="fas fa-file-invoice-dollar text-[#B981FF] drop-shadow-[0_0_8px_rgba(185,129,255,0.6)]"></i> 
+            Pengebilan Pintar
+        </h2>
     </div>
-    <div id="print-area" class="lg:col-span-2 bg-white p-8 shadow-2xl relative min-h-[900px] rounded-[40px] border border-gray-100">
-        <div id="watermark" class="absolute inset-0 flex items-center justify-center opacity-[0.03] rotate-[-35deg] text-[150px] font-black pointer-events-none uppercase">QUO</div>
-        <div class="flex justify-between items-start mb-12 relative z-10 flex-wrap gap-3">
-            <div class="flex items-center gap-5">
-                <img id="prev-logo" src="" class="w-16 h-16 object-contain hidden">
-                <div>
-                    <h2 class="font-black text-2xl uppercase tracking-tighter" id="prev-biz-name">SYARIKAT ANDA</h2>
-                    <p class="text-xs mt-2 max-w-[280px] text-gray-500 font-medium whitespace-pre-line leading-relaxed" id="prev-biz-addr">Alamat Perniagaan...</p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+        
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            
+            <div class="bg-[#151C2C] border border-white/5 p-6 rounded-2xl shadow-lg">
+                <h3 class="font-semibold text-xs text-gray-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Maklumat Dokumen</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="text-[10px] text-gray-500 uppercase font-bold mb-1 block">Jenis Dokumen</label>
+                        <select id="bill-type" class="w-full p-3 bg-[#0B101E] border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#00F0FF] transition-colors appearance-none">
+                            <option value="INV">Invois (Invoice)</option>
+                            <option value="QUO">Sebut Harga (Quotation)</option>
+                            <option value="REC">Resit (Receipt)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-gray-500 uppercase font-bold mb-1 block">Rujukan Dokumen</label>
+                        <input type="text" id="bill-ref" placeholder="Cth: INV-1001" class="w-full p-3 bg-[#0B101E] border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#00F0FF] transition-colors" readonly>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <input type="text" id="bill-cust-name" placeholder="Nama Pelanggan" class="w-full p-3 bg-[#0B101E] border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#00F0FF] transition-colors">
+                    <input type="text" id="bill-cust-phone" placeholder="No. Telefon Pelanggan" class="w-full p-3 bg-[#0B101E] border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#00F0FF] transition-colors">
+                    <textarea id="bill-cust-addr" placeholder="Alamat Pelanggan" class="w-full p-3 bg-[#0B101E] border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#00F0FF] transition-colors h-20 custom-scroll"></textarea>
                 </div>
             </div>
-            <div class="text-right">
-                <h1 id="preview-title" class="text-5xl font-black italic tracking-tighter doc-accent-text leading-none">QUO</h1>
-                <p id="ref-no" class="font-black text-xl mt-4">---</p>
-                <p class="text-[10px] font-bold text-gray-400 uppercase mt-1"><span data-i18n="doc-date">Tarikh</span>: <span id="prev-date" class="text-black"></span></p>
+
+            <div class="bg-[#151C2C] border border-white/5 p-6 rounded-2xl shadow-lg">
+                <div class="flex justify-between items-center mb-4 border-b border-white/5 pb-2">
+                    <h3 class="font-semibold text-xs text-gray-400 uppercase tracking-widest">Item Pengebilan</h3>
+                </div>
+                
+                <div class="grid grid-cols-12 gap-2 mb-4 bg-[#0B101E] p-3 rounded-xl border border-white/5">
+                    <div class="col-span-12 md:col-span-5">
+                        <input type="text" id="bill-item-name" placeholder="Nama Item / Servis" class="w-full p-2 bg-transparent border-b border-white/10 text-sm text-white focus:outline-none focus:border-[#00F0FF]">
+                    </div>
+                    <div class="col-span-4 md:col-span-2">
+                        <input type="number" id="bill-item-qty" placeholder="Kuantiti" value="1" class="w-full p-2 bg-transparent border-b border-white/10 text-sm text-center text-white focus:outline-none focus:border-[#00F0FF]">
+                    </div>
+                    <div class="col-span-5 md:col-span-3">
+                        <input type="number" id="bill-item-price" placeholder="Harga Seunit" class="w-full p-2 bg-transparent border-b border-white/10 text-sm text-right text-white focus:outline-none focus:border-[#00F0FF]">
+                    </div>
+                    <div class="col-span-3 md:col-span-2 flex items-end">
+                        <button onclick="addBillItem()" class="w-full bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/30 p-2 rounded-lg hover:bg-[#00F0FF]/20 transition-colors font-bold text-xs">Tambah</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto custom-scroll">
+                    <table class="w-full text-left border-collapse whitespace-nowrap">
+                        <thead>
+                            <tr class="text-[10px] text-gray-500 uppercase tracking-widest border-b border-white/10">
+                                <th class="py-2 font-semibold w-full">Deskripsi</th>
+                                <th class="py-2 font-semibold text-center w-16">Kuantiti</th>
+                                <th class="py-2 font-semibold text-right w-24">Harga (RM)</th>
+                                <th class="py-2 font-semibold text-right w-24">Jumlah (RM)</th>
+                                <th class="py-2 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="bill-item-list" class="divide-y divide-white/5 text-sm">
+                            </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        <div class="grid grid-cols-2 mb-10 gap-8">
-            <div class="bg-gray-50 p-5 rounded-2xl border-l-4 doc-accent-border">
-                <p class="text-[9px] font-bold doc-accent-text uppercase mb-2" data-i18n="doc-bill-to">Kepada / Bill To:</p>
-                <p id="bill-to-client" class="font-bold text-gray-800 text-sm whitespace-pre-line leading-snug">---</p>
-            </div>
-            <div class="p-5 text-right">
-                <p class="text-[9px] font-bold text-gray-400 uppercase mb-2 tracking-widest" data-i18n="doc-payment-info">Maklumat Pembayaran:</p>
-                <p id="prev-biz-bank" class="text-xs font-bold text-gray-700">---</p>
-            </div>
-        </div>
-        <table class="w-full mb-12 text-sm">
-            <thead id="billing-thead" class="doc-accent-bg text-white">
-                <tr class="text-left text-[10px] font-bold uppercase tracking-widest">
-                    <th class="p-4 rounded-tl-2xl" data-i18n="doc-item-desc">Perihalan Item</th>
-                    <th class="p-4 text-center" data-i18n="doc-unit">Unit</th>
-                    <th class="p-4 text-right" data-i18n="doc-price">Harga (RM)</th>
-                    <th class="p-4 text-right rounded-tr-2xl" data-i18n="doc-total">Jumlah (RM)</th>
-                </tr>
-            </thead>
-            <tbody id="preview-items-body" class="divide-y divide-gray-100"></tbody>
-            <tfoot id="preview-discount-row" class="hidden">
-                <tr>
-                    <td colspan="3" class="p-4 text-right font-bold text-red-500 uppercase text-[10px]" data-i18n="doc-discount">Diskaun Kupon</td>
-                    <td class="p-4 text-right font-black text-red-500" id="prev-discount-val">- RM 0.00</td>
-                </tr>
-            </tfoot>
-        </table>
-        <div class="flex justify-between items-end flex-wrap gap-4">
-            <div class="relative">
-                <img id="prev-cop" src="" class="w-24 h-24 object-contain hidden opacity-60">
-                <p class="text-[10px] text-gray-300 font-bold mt-2 italic" data-i18n="doc-digital">Dokumen ini dijana secara digital.</p>
-            </div>
-            <div class="w-64 bg-gray-900 p-6 rounded-[35px] text-right text-white shadow-xl">
-                <p class="text-[10px] font-bold text-gray-400 uppercase mb-1" data-i18n="doc-grand">Jumlah Keseluruhan</p>
-                <h2 class="text-2xl font-black" id="grandtotal">RM 0.00</h2>
+
+        <div class="bg-[#151C2C] border border-white/5 rounded-2xl flex flex-col relative overflow-hidden shadow-2xl h-max lg:sticky lg:top-4">
+            <div class="p-6">
+                <h3 class="font-semibold text-xs text-gray-400 uppercase tracking-widest mb-4 border-b border-white/5 pb-2">Ringkasan Kos</h3>
+                
+                <div class="space-y-4 mb-6">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400">Subtotal:</span>
+                        <span id="bill-subtotal" class="text-white font-semibold">RM 0.00</span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center gap-4">
+                        <span class="text-sm text-gray-400 w-1/3">Diskaun (RM):</span>
+                        <input type="number" id="bill-discount" placeholder="0.00" class="flex-1 p-2 bg-[#0B101E] border border-white/10 rounded-lg text-sm text-white text-right focus:border-[#00F0FF] outline-none" oninput="calcBill()">
+                    </div>
+                    <div class="flex justify-between items-center gap-4">
+                        <span class="text-sm text-gray-400 w-1/3">Cukai (%):</span>
+                        <input type="number" id="bill-tax" placeholder="0" class="flex-1 p-2 bg-[#0B101E] border border-white/10 rounded-lg text-sm text-white text-right focus:border-[#00F0FF] outline-none" oninput="calcBill()">
+                    </div>
+                    
+                    <div class="pt-4 border-t border-white/10 flex justify-between items-end">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Grand Total</span>
+                        <span id="bill-grand" class="text-3xl font-bold text-[#CCFF00] drop-shadow-[0_0_8px_rgba(204,255,0,0.4)]">RM 0.00</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <button onclick="generateDocument('preview')" class="w-full bg-[#151C2C] border border-white/20 text-white hover:bg-white/5 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-eye"></i> Semak & Pratonton
+                    </button>
+                    <button onclick="generateDocument('save')" class="w-full bg-[#B981FF]/20 border border-[#B981FF]/50 text-[#B981FF] hover:bg-[#B981FF]/30 py-3 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(185,129,255,0.2)] transition-colors uppercase tracking-widest flex items-center justify-center gap-2">
+                        <i class="fas fa-save"></i> Simpan Dokumen
+                    </button>
+                </div>
             </div>
         </div>
     </div>
